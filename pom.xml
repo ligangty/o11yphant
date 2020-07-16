@@ -1,0 +1,207 @@
+<!--
+
+    Copyright (C) 2019 Red Hat, Inc. (nos-devel@redhat.com)
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.commonjava</groupId>
+        <artifactId>commonjava</artifactId>
+        <version>16</version>
+    </parent>
+
+    <groupId>org.commonjava.util</groupId>
+    <artifactId>o11yphant</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <packaging>pom</packaging>
+    <modules>
+        <module>honeycomb</module>
+        <module>metrics</module>
+    </modules>
+
+    <name>o11yphant :: Parent</name>
+
+    <inceptionYear>2019</inceptionYear>
+
+    <scm>
+        <connection>scm:git:https://github.com/commonjava/o11yphant</connection>
+        <developerConnection>scm:git:https://github.com/commonjava/o11yphant</developerConnection>
+        <url>https://github.com/Commonjava/o11yphant</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <properties>
+        <projectOwner>Red Hat, Inc.</projectOwner>
+        <projectEmail>nos-devel@redhat.com</projectEmail>
+        <javaVersion>1.8</javaVersion>
+        <test-forkCount>1</test-forkCount>
+        <metricsVersion>4.0.2</metricsVersion>
+        <honeycombVersion>1.1.0</honeycombVersion>
+        <prometheusVersion>0.7.0</prometheusVersion>
+        <zabbixVersion>0.0.2</zabbixVersion>
+        <httpTestserverVersion>1.4</httpTestserverVersion>
+        <elasticsearchVersion>2.2.0</elasticsearchVersion>
+        <logbackVersion>1.2.3</logbackVersion>
+        <weftVersion>1.16</weftVersion>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.commonjava.boms</groupId>
+                <artifactId>web-commons-bom</artifactId>
+                <version>24</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.commonjava.util</groupId>
+                <artifactId>o11yphant-honeycomb</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.commonjava.util</groupId>
+                <artifactId>o11yphant-metrics</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.commonjava.util</groupId>
+                <artifactId>o11yphant-metrics-core</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.dropwizard.metrics</groupId>
+                <artifactId>metrics-core</artifactId>
+                <version>${metricsVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.dropwizard.metrics</groupId>
+                <artifactId>metrics-jvm</artifactId>
+                <version>${metricsVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.dropwizard.metrics</groupId>
+                <artifactId>metrics-healthchecks</artifactId>
+                <version>${metricsVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.dropwizard.metrics</groupId>
+                <artifactId>metrics-graphite</artifactId>
+                <version>${metricsVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.dropwizard.metrics</groupId>
+                <artifactId>metrics-servlets</artifactId>
+                <version>${metricsVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.dropwizard.metrics</groupId>
+                <artifactId>metrics-json</artifactId>
+                <version>${metricsVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.honeycomb.beeline</groupId>
+                <artifactId>beeline-core</artifactId>
+                <version>${honeycombVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.commonjava.util</groupId>
+                <artifactId>http-testserver</artifactId>
+                <version>${httpTestserverVersion}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logbackVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>${logbackVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.commonjava.cdi.util</groupId>
+                <artifactId>weft</artifactId>
+                <version>${weftVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.enterprise</groupId>
+                <artifactId>cdi-api</artifactId>
+                <version>1.2</version>
+                <scope>provided</scope>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.commonjava.cdi.util</groupId>
+            <artifactId>weft</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.enterprise</groupId>
+            <artifactId>cdi-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.7</version>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+</project>
