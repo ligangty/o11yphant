@@ -22,6 +22,12 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 
 public class MetricsConstants
 {
+    public static final String METRICS_PHASE = "metrics-phase";
+
+    public static final String PRELIMINARY_METRICS = "preliminary";
+
+    public static final String FINAL_METRICS = "final";
+
     public static final String DEFAULT = "default";
 
     public static final String EXCEPTION = "exception";
