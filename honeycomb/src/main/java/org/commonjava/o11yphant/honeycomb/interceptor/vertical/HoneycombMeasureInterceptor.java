@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.commonjava.o11yphant.honeycomb.interceptor;
+package org.commonjava.o11yphant.honeycomb.interceptor.vertical;
 
 import io.honeycomb.beeline.tracing.Span;
 import org.commonjava.o11yphant.annotation.Measure;
