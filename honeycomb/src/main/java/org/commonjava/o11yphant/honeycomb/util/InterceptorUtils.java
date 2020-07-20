@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.commonjava.o11yphant.honeycomb.interceptor;
+package org.commonjava.o11yphant.honeycomb.util;
 
 import org.commonjava.o11yphant.annotation.MetricWrapperNamed;
 import org.slf4j.Logger;
@@ -24,7 +24,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.function.Supplier;
 
-public class HoneycombInterceptorUtils
+public class InterceptorUtils
 {
 
     public static final String SAMPLE_OVERRIDE = "honeycomb.sample-override";
@@ -55,7 +55,7 @@ public class HoneycombInterceptorUtils
             }
         }
 
-        Logger logger = LoggerFactory.getLogger( HoneycombInterceptorUtils.class );
+        Logger logger = LoggerFactory.getLogger( InterceptorUtils.class );
         logger.debug( "Found metric name: {}", name );
 
         return name;

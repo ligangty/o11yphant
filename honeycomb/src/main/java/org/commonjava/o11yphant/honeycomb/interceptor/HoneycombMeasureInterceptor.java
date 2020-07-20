@@ -28,9 +28,6 @@ import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 import java.lang.reflect.Method;
 
-import static org.commonjava.o11yphant.metrics.MetricsConstants.getDefaultName;
-import static org.commonjava.o11yphant.metrics.RequestContextHelper.getContext;
-
 @Interceptor
 @Measure
 public class HoneycombMeasureInterceptor
@@ -71,8 +68,7 @@ public class HoneycombMeasureInterceptor
 
         // Seems like the sample rate is managed at the service-request level, not at this level...so let's just
         // use sample-rate == 0 as a way to turn off child spans like this, and leave the sampling rates out of it
-//        ThreadContext.getContext( true ).put( SAMPLE_OVERRIDE, Boolean.TRUE );
-
+        // ThreadContext.getContext( true ).put( SAMPLE_OVERRIDE, Boolean.TRUE );
 
         Span span = null;
         try

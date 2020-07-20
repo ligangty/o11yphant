@@ -19,6 +19,7 @@ import io.honeycomb.beeline.tracing.Span;
 import org.commonjava.o11yphant.annotation.MetricWrapperStart;
 import org.commonjava.o11yphant.honeycomb.HoneycombManager;
 import org.commonjava.o11yphant.honeycomb.config.HoneycombConfiguration;
+import org.commonjava.o11yphant.honeycomb.util.InterceptorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +28,7 @@ import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 
+import static org.commonjava.o11yphant.honeycomb.util.InterceptorUtils.getMetricNameFromParam;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.SKIP_METRIC;
 import static org.commonjava.o11yphant.metrics.RequestContextHelper.getContext;
 
@@ -45,7 +47,7 @@ public class HoneycombWrapperStartInterceptor
     @AroundInvoke
     public Object operation( InvocationContext context ) throws Exception
     {
-        String name = HoneycombInterceptorUtils.getMetricNameFromParam( context );
+        String name = getMetricNameFromParam( context );
         logger.trace( "START: Honeycomb metrics-start wrapper: {}", name );
         if ( !config.isEnabled() )
         {
