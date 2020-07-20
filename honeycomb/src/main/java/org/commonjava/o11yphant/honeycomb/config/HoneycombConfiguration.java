@@ -15,19 +15,12 @@
  */
 package org.commonjava.o11yphant.honeycomb.config;
 
-//import org.commonjava.indy.conf.IndyConfigInfo;
-/*import org.commonjava.propulsor.config.ConfigurationException;
-import org.commonjava.propulsor.config.annotation.SectionName;
-import org.commonjava.propulsor.config.section.MapSectionListener;
-*/import org.slf4j.Logger;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -42,133 +35,35 @@ import static org.commonjava.o11yphant.metrics.RequestContextHelper.TRACE_ID;
 import static org.commonjava.o11yphant.metrics.RequestContextHelper.REQUEST_LATENCY_MILLIS;
 import static org.commonjava.o11yphant.metrics.RequestContextHelper.REST_ENDPOINT_PATH;
 
-//@SectionName( "honeycomb" )
-@ApplicationScoped
-public class HoneycombConfiguration
-        /*extends MapSectionListener
-        implements IndyConfigInfo*/
+public interface HoneycombConfiguration
 {
-    private static final Set<String> DEFAULT_FIELDS = Collections.unmodifiableSet( new HashSet<>(
-            Arrays.asList( CONTENT_TRACKING_ID, HTTP_METHOD, HTTP_STATUS, TRACE_ID, CLIENT_ADDR, PATH, PACKAGE_TYPE,
-                           REST_ENDPOINT_PATH, REQUEST_LATENCY_MILLIS ) ) );
+    Set<String> DEFAULT_FIELDS = Collections.unmodifiableSet(
+                    new HashSet<>( Arrays.asList( CONTENT_TRACKING_ID, HTTP_METHOD, HTTP_STATUS, TRACE_ID, CLIENT_ADDR,
+                                                  PATH, PACKAGE_TYPE, REST_ENDPOINT_PATH, REQUEST_LATENCY_MILLIS ) ) );
 
-    private static final String ENABLED = "enabled";
+    Map<String, Integer> getSpanRates();
 
-    private static final String WRITE_KEY = "write.key";
+    boolean isEnabled();
 
-    private static final String DATASET = "dataset";
+    String getWriteKey();
 
-    private static final String FIELDS = "fields";
+    String getDataset();
 
-    private static final String BASE_SAMPLE_RATE = "base.sample.rate";
+    Integer getBaseSampleRate();
 
-    private static final String SAMPLE_PREFIX = "sample.";
+    Set<String> getFieldSet();
 
-    private static final Integer DEFAULT_BASE_SAMPLE_RATE = 100;
-
-    private boolean enabled;
-
-    private String writeKey;
-
-    private String dataset;
-
-    private Integer baseSampleRate;
-
-    private Map<String, Integer> spanRates = new HashMap<>();
-
-    private Set<String> spansIncluded = Collections.emptySet();
-
-    private Set<String> spansExcluded = Collections.emptySet();
-
-    private Set<String> fields;
-
-    public HoneycombConfiguration()
-    {
-    }
-
-    public boolean isEnabled()
-    {
-        return enabled;
-    }
-
-    //@Override
-    public void sectionStarted( final String name )
-            //throws ConfigurationException
-    {
-        // NOP; just block map init in the underlying implementation.
-    }
-
-    //@Override
-    public void parameter( final String name, final String value )
-            //throws ConfigurationException
-    {
-        switch(name)
-        {
-            case ENABLED:
-                this.enabled = Boolean.TRUE.equals( Boolean.parseBoolean( value.trim() ) );
-                break;
-            case WRITE_KEY:
-                this.writeKey = value.trim();
-                break;
-            case DATASET:
-                this.dataset = value.trim();
-                break;
-            case BASE_SAMPLE_RATE:
-                this.baseSampleRate = Integer.parseInt( value.trim() );
-                break;
-            case FIELDS:
-                this.fields = Collections.unmodifiableSet(
-                        new HashSet<>( Arrays.asList( value.trim().split( "\\s*,\\s*" ) ) ) );
-                break;
-            default:
-                if ( name.startsWith( SAMPLE_PREFIX ) && name.length() > SAMPLE_PREFIX.length() )
-                {
-                    spanRates.put( name.substring( SAMPLE_PREFIX.length() ).trim(), Integer.parseInt( value ) );
-                }
-        }
-    }
-
-    public String getWriteKey()
-    {
-        return writeKey;
-    }
-
-    public String getDataset()
-    {
-        return dataset;
-    }
-
-    //@Override
-    public String getDefaultConfigFileName()
-    {
-        return "honeycomb.conf";
-    }
-
-    //@Override
-    public InputStream getDefaultConfig()
-    {
-        return Thread.currentThread().getContextClassLoader().getResourceAsStream( "default-honeycomb.conf" );
-    }
-
-    public Integer getBaseSampleRate()
-    {
-        return baseSampleRate == null ? DEFAULT_BASE_SAMPLE_RATE : baseSampleRate;
-    }
-
-    public int getSampleRate( Method method )
+    default int getSampleRate( Method method )
     {
         Logger logger = LoggerFactory.getLogger( getClass() );
+        Map<String, Integer> spanRates = getSpanRates();
         if ( !spanRates.isEmpty() )
         {
-            String[] keys = {
-                    method.getName(),
-                    method.getDeclaringClass().getSimpleName() + "." + method.getName(),
-                    method.getDeclaringClass().getName() + "." + method.getName(),
-                    method.getDeclaringClass().getSimpleName(),
-                    method.getDeclaringClass().getName()
-            };
+            String[] keys = { method.getName(), method.getDeclaringClass().getSimpleName() + "." + method.getName(),
+                            method.getDeclaringClass().getName() + "." + method.getName(),
+                            method.getDeclaringClass().getSimpleName(), method.getDeclaringClass().getName() };
 
-            for( String key: keys )
+            for ( String key : keys )
             {
                 Integer rate = spanRates.get( key );
                 if ( rate != null )
@@ -183,15 +78,10 @@ public class HoneycombConfiguration
         return getBaseSampleRate();
     }
 
-    public Set<String> getFieldSet()
-    {
-        return fields == null ? DEFAULT_FIELDS : fields;
-    }
-
-    public Integer getSampleRate( final String classifier )
+    default Integer getSampleRate( final String classifier )
     {
         Logger logger = LoggerFactory.getLogger( getClass() );
-
+        Map<String, Integer> spanRates = getSpanRates();
         Integer rate = spanRates.get( classifier );
         if ( rate != null )
         {
