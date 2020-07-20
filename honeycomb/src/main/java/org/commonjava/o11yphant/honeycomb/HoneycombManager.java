@@ -113,7 +113,7 @@ public class HoneycombManager
         Beeline beeline = getBeeline();
         if ( beeline != null )
         {
-            Span span = null;
+            Span span;
             if ( parentContext != null )
             {
                 PropagationContext propContext =
@@ -127,7 +127,6 @@ public class HoneycombManager
                               .setSpanName( spanName )
                               .setServiceName( "indy" )
                               .build();
-
             }
             else
             {
@@ -135,7 +134,7 @@ public class HoneycombManager
                 String parentId = RequestContextHelper.getContext( REQUEST_PARENT_SPAN );
 
                 span = beeline.getSpanBuilderFactory().createBuilder()
-                              //                                   .setParentContext( parentContext )
+                              //.setParentContext( parentContext )
                               .setSpanName( spanName ).setServiceName( "indy" ).build();
             }
 
@@ -157,7 +156,7 @@ public class HoneycombManager
         Beeline beeline = getBeeline();
         if ( beeline != null )
         {
-            Span span = null;
+            Span span;
             if ( tracingContext.isEmpty() )
             {
                 logger.debug( "Parent span from context: {} is a NO-OP, starting root trace instead in: {}", tracingContext, Thread.currentThread().getId() );

@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
-import static org.commonjava.o11yphant.honeycomb.interceptor.HoneycombInterceptorUtils.SAMPLE_OVERRIDE;
+import static org.commonjava.o11yphant.honeycomb.util.InterceptorUtils.SAMPLE_OVERRIDE;
 
 @ApplicationScoped
 public class DefaultTraceSampler

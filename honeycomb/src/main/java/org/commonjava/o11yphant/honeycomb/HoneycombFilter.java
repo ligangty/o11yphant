@@ -32,7 +32,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.commonjava.o11yphant.metrics.RequestContextHelper.getContext;
 
 @ApplicationScoped
 public class HoneycombFilter
