@@ -41,6 +41,7 @@ import java.util.Map;
 import static org.commonjava.o11yphant.metrics.RequestContextHelper.CUMULATIVE_COUNTS;
 import static org.commonjava.o11yphant.metrics.RequestContextHelper.CUMULATIVE_TIMINGS;
 import static org.commonjava.o11yphant.metrics.RequestContextHelper.REQUEST_PARENT_SPAN;
+import static org.commonjava.o11yphant.metrics.RequestContextHelper.REQUEST_PHASE_START;
 import static org.commonjava.o11yphant.metrics.RequestContextHelper.TRACE_ID;
 import static org.commonjava.o11yphant.metrics.RequestContextHelper.getContext;
 
@@ -217,4 +218,68 @@ public class HoneycombManager
         }
     }
 
+    public Span getActiveSpan()
+    {
+        if ( beeline != null )
+        {
+            return beeline.getActiveSpan();
+        }
+        return null;
+    }
+
+    public void addCumulativeField( Span span, String name, long elapse )
+    {
+        span.addField( name, elapse );
+
+        Map<String, Object> fields = span.getFields();
+
+        // add cumulative timing field
+        String cumulativeTimingName = CUMULATIVE_TIMINGS + "." + name;
+        Long cumulativeMs = (Long) fields.get( cumulativeTimingName );
+        if ( cumulativeMs != null )
+        {
+            cumulativeMs += elapse;
+        }
+        else
+        {
+            cumulativeMs = elapse;
+        }
+        span.addField( cumulativeTimingName, cumulativeMs );
+
+        // add cumulative counts field
+        String cumulativeCountsName = CUMULATIVE_COUNTS + "." + name;
+        Integer cumulativeCounts = (Integer) fields.get( cumulativeCountsName );
+        if ( cumulativeCounts != null )
+        {
+            cumulativeCounts += 1;
+        }
+        else
+        {
+            cumulativeCounts = 1;
+        }
+        span.addField( cumulativeCountsName, cumulativeCounts );
+        logger.trace( "addCumulativeField, span: {}, name: {}, elapse: {}, cumulativeMs: {}, cumulativeCounts: {}",
+                      span, name, elapse, cumulativeMs, cumulativeCounts );
+    }
+
+    public void addStartField( Span span, String name, long begin )
+    {
+        String startFieldName = REQUEST_PHASE_START + "." + name;
+        logger.trace( "addStartField, span: {}, name: {}, begin: {}", span, name, begin );
+        span.addField( startFieldName, begin );
+    }
+
+    public void addEndField( Span span, String name, long end )
+    {
+        String startFieldName = REQUEST_PHASE_START + "." + name;
+        Long begin = (Long) span.getFields().get( startFieldName );
+        if ( begin == null )
+        {
+            logger.warn( "Failed to get START field, span: {}, name: {}", span, name );
+            return;
+        }
+        logger.trace( "addEndField, span: {}, name: {}, end: {}", span, name, end );
+        long elapse = end - begin;
+        addCumulativeField( span, name, elapse );
+    }
 }
