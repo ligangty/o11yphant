@@ -281,5 +281,6 @@ public class HoneycombManager
         logger.trace( "addEndField, span: {}, name: {}, end: {}", span, name, end );
         long elapse = end - begin;
         addCumulativeField( span, name, elapse );
+        span.addField( startFieldName, null ); // clear start field
     }
 }
