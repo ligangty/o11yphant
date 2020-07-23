@@ -38,6 +38,7 @@ import javax.inject.Inject;
 
 import java.util.Map;
 
+import static org.commonjava.o11yphant.metrics.RequestContextHelper.AVERAGE_TIME_MS;
 import static org.commonjava.o11yphant.metrics.RequestContextHelper.CUMULATIVE_COUNTS;
 import static org.commonjava.o11yphant.metrics.RequestContextHelper.CUMULATIVE_TIMINGS;
 import static org.commonjava.o11yphant.metrics.RequestContextHelper.REQUEST_PARENT_SPAN;
@@ -258,6 +259,11 @@ public class HoneycombManager
             cumulativeCounts = 1;
         }
         span.addField( cumulativeCountsName, cumulativeCounts );
+
+        // update average
+        String averageName = AVERAGE_TIME_MS + "." + name;
+        span.addField( averageName, ( cumulativeMs / cumulativeCounts ) );
+
         logger.trace( "addCumulativeField, span: {}, name: {}, elapse: {}, cumulativeMs: {}, cumulativeCounts: {}",
                       span, name, elapse, cumulativeMs, cumulativeCounts );
     }
