@@ -15,6 +15,8 @@
  */
 package org.commonjava.o11yphant.honeycomb;
 
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.Timer;
 import io.honeycomb.beeline.tracing.Beeline;
 import io.honeycomb.beeline.tracing.Span;
 import io.honeycomb.beeline.tracing.SpanBuilderFactory;
@@ -27,6 +29,7 @@ import io.honeycomb.libhoney.EventPostProcessor;
 import io.honeycomb.libhoney.HoneyClient;
 import io.honeycomb.libhoney.LibHoney;
 import org.commonjava.cdi.util.weft.ThreadContext;
+import org.commonjava.o11yphant.metrics.MetricsManager;
 import org.commonjava.o11yphant.metrics.RequestContextHelper;
 import org.commonjava.o11yphant.honeycomb.config.HoneycombConfiguration;
 import org.slf4j.Logger;
@@ -66,6 +69,9 @@ public class HoneycombManager
 
     @Inject
     private DefaultTracingContext tracingContext;
+
+    @Inject
+    private MetricsManager metricsManager;
 
     @Inject
     private EventPostProcessor eventPostProcessor;
@@ -118,9 +124,10 @@ public class HoneycombManager
             Span span;
             if ( parentContext != null )
             {
+                // The spanId identifies the latest Span in the trace and will become the parentSpanId of the next Span in the trace.
                 PropagationContext propContext =
-                        new PropagationContext( parentContext.getTraceId(), parentContext.getParentSpanId(), null,
-                                                null );
+                                new PropagationContext( parentContext.getTraceId(), parentContext.getSpanId(), null,
+                                                        null );
 
                 logger.debug( "Starting root span: {} based on parent context: {}, thread: {}", spanName, propContext, Thread.currentThread().getId() );
                 span = beeline.getSpanBuilderFactory()
@@ -226,6 +233,68 @@ public class HoneycombManager
             return beeline.getActiveSpan();
         }
         return null;
+    }
+
+    public Timer getSpanTimer( String name )
+    {
+        SpanContext spanContext = (SpanContext) honeycombContextualizer.extractCurrentContext();
+        if ( spanContext != null )
+        {
+            String realName = getSpanMetricName( spanContext, name );
+            Timer timer = spanContext.getTimer( realName );
+            if ( timer == null )
+            {
+                timer = metricsManager.getMetricRegistry().timer( realName );
+                spanContext.putTimer( realName, timer );
+            }
+            return timer;
+        }
+        return null;
+    }
+
+    public Timer.Context startSpanTimer( String name )
+    {
+        SpanContext spanContext = (SpanContext) honeycombContextualizer.extractCurrentContext();
+        if ( spanContext != null )
+        {
+            Timer timer = getSpanTimer( name );
+            if ( timer != null )
+            {
+                return timer.time();
+            }
+        }
+        return null;
+    }
+
+    public Meter getSpanMeter( String name )
+    {
+        SpanContext spanContext = (SpanContext) honeycombContextualizer.extractCurrentContext();
+        if ( spanContext != null )
+        {
+            String realName = getSpanMetricName( spanContext, name );
+            Meter meter = spanContext.getMeter( realName );
+            if ( meter == null )
+            {
+                meter = metricsManager.getMetricRegistry().meter( realName );
+                spanContext.putMeter( realName, meter );
+            }
+            return meter;
+        }
+        return null;
+    }
+
+    private String getSpanMetricName( SpanContext spanContext, String name )
+    {
+        return name + "." + spanContext.getSpanId();
+    }
+
+    public void addSpanField( String name, Object value )
+    {
+        Span  span = getActiveSpan();
+        if ( span != null )
+        {
+            span.addField( name, value );
+        }
     }
 
     public void addCumulativeField( Span span, String name, long elapse )

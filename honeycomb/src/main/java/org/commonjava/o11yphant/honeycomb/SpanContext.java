@@ -15,7 +15,12 @@
  */
 package org.commonjava.o11yphant.honeycomb;
 
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.Timer;
 import io.honeycomb.beeline.tracing.Span;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class SpanContext
 {
@@ -23,16 +28,24 @@ public class SpanContext
 
     private final String parentSpanId;
 
-    public SpanContext( final String traceId, final String parentSpanId )
+    private final String spanId;
+
+    private Map<String, Timer> timerMap = new HashMap<>();
+
+    private Map<String, Meter> meterMap = new HashMap<>();
+
+    public SpanContext( final String traceId, final String spanId, final String parentSpanId )
     {
         this.traceId = traceId;
+        this.spanId = spanId;
         this.parentSpanId = parentSpanId;
     }
 
     public SpanContext( final Span span )
     {
         this.traceId = span.getTraceId();
-        this.parentSpanId = span.getSpanId();
+        this.spanId = span.getSpanId();
+        this.parentSpanId = span.getParentSpanId();
     }
 
     public String getParentSpanId()
@@ -45,9 +58,36 @@ public class SpanContext
         return traceId;
     }
 
+    public String getSpanId()
+    {
+        return spanId;
+    }
+
     @Override
     public String toString()
     {
-        return "SpanContext{" + "traceId='" + traceId + '\'' + ", parentSpanId='" + parentSpanId + '\'' + '}';
+        return "SpanContext{" + "traceId='" + traceId + '\'' + ", spanId='" + spanId + '\'' + ", parentSpanId='"
+                        + parentSpanId + '\'' + '}';
     }
+
+    public void putTimer( String timerName, Timer timer )
+    {
+        timerMap.put( timerName, timer );
+    }
+
+    public Timer getTimer( String timerName )
+    {
+        return timerMap.get( timerName );
+    }
+
+    public Meter getMeter( String meterName )
+    {
+        return meterMap.get( meterName );
+    }
+
+    public void putMeter( String meterName, Meter meter )
+    {
+        meterMap.put( meterName, meter );
+    }
+
 }

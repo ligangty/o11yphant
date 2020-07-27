@@ -39,6 +39,8 @@ public class HoneycombContextualizer
 
     private static ThreadLocal<Span> SPAN = new ThreadLocal<>();
 
+    private static ThreadLocal<SpanContext> SPAN_CONTEXT = new ThreadLocal<>();
+
     @Inject
     private HoneycombManager honeycombManager;
 
@@ -59,8 +61,13 @@ public class HoneycombContextualizer
     {
         if ( configuration.isEnabled() )
         {
-            Beeline beeline = honeycombManager.getBeeline();
-            SpanContext ctx = new SpanContext( beeline.getActiveSpan() );
+            SpanContext ctx = SPAN_CONTEXT.get();
+            if ( ctx == null )
+            {
+                Beeline beeline = honeycombManager.getBeeline();
+                ctx = new SpanContext( beeline.getActiveSpan() );
+                SPAN_CONTEXT.set( ctx );
+            }
             logger.trace( "Extracting parent-thread context: {}", ctx );
             return ctx;
         }
@@ -73,9 +80,9 @@ public class HoneycombContextualizer
         if ( configuration.isEnabled() )
         {
             tracingContext.reinitThreadSpans();
-
+            SpanContext parentSpanContext = (SpanContext) parentContext;
             logger.trace( "Creating thread-level root span using parent-thread context: {}", parentContext );
-            SPAN.set( honeycombManager.startRootTracer( "thread." + Thread.currentThread().getThreadGroup().getName(), (SpanContext) parentContext ) );
+            SPAN.set( honeycombManager.startRootTracer( "thread." + Thread.currentThread().getThreadGroup().getName(), parentSpanContext ) );
         }
     }
 
@@ -98,8 +105,10 @@ public class HoneycombContextualizer
             }
 
             SPAN.remove();
+            SPAN_CONTEXT.remove();
 
             tracingContext.clearThreadSpans();
         }
     }
+
 }

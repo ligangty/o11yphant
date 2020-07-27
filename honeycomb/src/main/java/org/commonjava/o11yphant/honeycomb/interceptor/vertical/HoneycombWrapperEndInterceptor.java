@@ -20,7 +20,6 @@ import io.honeycomb.beeline.tracing.Span;
 import org.commonjava.o11yphant.annotation.MetricWrapper;
 import org.commonjava.o11yphant.honeycomb.HoneycombManager;
 import org.commonjava.o11yphant.honeycomb.config.HoneycombConfiguration;
-import org.commonjava.o11yphant.honeycomb.util.InterceptorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
