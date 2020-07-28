@@ -26,6 +26,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 
@@ -62,11 +63,9 @@ public class DefaultTraceSampler
         }
 
         List<String> functionClassifiers = classifier.getCachedFunctionClassifiers();
-        Integer rate = configuration.getBaseSampleRate();
+        Integer rate = configuration.getSampleRate( input );
 
-        rate = configuration.getSampleRate( input );
-
-        if ( rate == configuration.getBaseSampleRate() && functionClassifiers != null )
+        if ( Objects.equals( rate, configuration.getBaseSampleRate() ) && functionClassifiers != null )
         {
             Optional<Integer> mostAggressive = functionClassifiers.stream()
                                                                   .map( classifier -> configuration.getSampleRate(
