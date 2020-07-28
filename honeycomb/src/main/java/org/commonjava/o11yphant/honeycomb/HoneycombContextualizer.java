@@ -43,9 +43,9 @@ public class HoneycombContextualizer
 
     private final Logger logger = LoggerFactory.getLogger( getClass() );
 
-    private static ThreadLocal<Span> SPAN = new ThreadLocal<>();
+    private static final ThreadLocal<Span> SPAN = new ThreadLocal<>();
 
-    private static ThreadLocal<SpanContext> SPAN_CONTEXT = new ThreadLocal<>();
+    private static final ThreadLocal<SpanContext> SPAN_CONTEXT = new ThreadLocal<>();
 
     @Inject
     private HoneycombManager honeycombManager;

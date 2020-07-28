@@ -39,6 +39,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import java.util.Map;
+import java.util.Optional;
 
 import static org.commonjava.o11yphant.metrics.RequestContextHelper.AVERAGE_TIME_MS;
 import static org.commonjava.o11yphant.metrics.RequestContextHelper.CUMULATIVE_COUNTS;
@@ -231,7 +232,7 @@ public class HoneycombManager
         return null;
     }
 
-    public Timer getSpanTimer( String name )
+    public Optional<Timer> getSpanTimer( String name )
     {
         SpanContext spanContext = (SpanContext) honeycombContextualizer.extractCurrentContext();
         if ( spanContext != null )
@@ -242,26 +243,26 @@ public class HoneycombManager
                 timer = new Timer();
                 spanContext.putTimer( name, timer );
             }
-            return timer;
+            return Optional.of( timer );
         }
-        return null;
+        return Optional.empty();
     }
 
-    public Timer.Context startSpanTimer( String name )
+    public Optional<Timer.Context> startSpanTimer( String name )
     {
         SpanContext spanContext = (SpanContext) honeycombContextualizer.extractCurrentContext();
         if ( spanContext != null )
         {
-            Timer timer = getSpanTimer( name );
+            Timer timer = getSpanTimer( name ).get();
             if ( timer != null )
             {
-                return timer.time();
+                return Optional.of( timer.time() );
             }
         }
-        return null;
+        return Optional.empty();
     }
 
-    public Meter getSpanMeter( String name )
+    public Optional<Meter> getSpanMeter( String name )
     {
         SpanContext spanContext = (SpanContext) honeycombContextualizer.extractCurrentContext();
         if ( spanContext != null )
@@ -272,9 +273,9 @@ public class HoneycombManager
                 meter = new Meter();
                 spanContext.putMeter( name, meter );
             }
-            return meter;
+            return Optional.of( meter );
         }
-        return null;
+        return Optional.empty();
     }
 
     public void addSpanField( String name, Object value )
