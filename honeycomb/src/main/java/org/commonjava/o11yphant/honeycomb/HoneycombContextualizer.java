@@ -15,6 +15,7 @@
  */
 package org.commonjava.o11yphant.honeycomb;
 
+import com.codahale.metrics.Snapshot;
 import io.honeycomb.beeline.tracing.Beeline;
 import io.honeycomb.beeline.tracing.Span;
 import org.commonjava.cdi.util.weft.ThreadContextualizer;
@@ -25,6 +26,11 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+
+import static com.codahale.metrics.MetricAttribute.COUNT;
+import static com.codahale.metrics.MetricAttribute.MAX;
+import static com.codahale.metrics.MetricAttribute.MEAN;
+import static com.codahale.metrics.MetricAttribute.MIN;
 
 @ApplicationScoped
 @Named
@@ -99,6 +105,8 @@ public class HoneycombContextualizer
                 span.addField( THREAD_NAME, Thread.currentThread().getName() );
                 span.addField( THREAD_GROUP_NAME, Thread.currentThread().getThreadGroup().getName() );
 
+                addSpanContextFields( span );
+
                 span.close();
 
                 honeycombManager.endTrace();
@@ -108,6 +116,24 @@ public class HoneycombContextualizer
             SPAN_CONTEXT.remove();
 
             tracingContext.clearThreadSpans();
+        }
+    }
+
+    private void addSpanContextFields( Span span )
+    {
+        SpanContext spanContext = SPAN_CONTEXT.get();
+        if ( spanContext != null )
+        {
+            spanContext.getTimers().forEach( ( k, v ) -> {
+                Snapshot st = v.getSnapshot();
+                span.addField( COUNT + "." + k, v.getCount() );
+                span.addField( MEAN + "." + k, st.getMean() );
+                span.addField( MAX + "." + k, st.getMax() );
+                span.addField( MIN + "." + k, st.getMin() );
+            } );
+            spanContext.getMeters().forEach( ( k, v ) -> {
+                span.addField( k, v.getCount() );
+            } );
         }
     }
 

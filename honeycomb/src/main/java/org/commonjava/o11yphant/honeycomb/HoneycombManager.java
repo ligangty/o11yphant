@@ -29,7 +29,6 @@ import io.honeycomb.libhoney.EventPostProcessor;
 import io.honeycomb.libhoney.HoneyClient;
 import io.honeycomb.libhoney.LibHoney;
 import org.commonjava.cdi.util.weft.ThreadContext;
-import org.commonjava.o11yphant.metrics.MetricsManager;
 import org.commonjava.o11yphant.metrics.RequestContextHelper;
 import org.commonjava.o11yphant.honeycomb.config.HoneycombConfiguration;
 import org.slf4j.Logger;
@@ -69,9 +68,6 @@ public class HoneycombManager
 
     @Inject
     private DefaultTracingContext tracingContext;
-
-    @Inject
-    private MetricsManager metricsManager;
 
     @Inject
     private EventPostProcessor eventPostProcessor;
@@ -240,12 +236,11 @@ public class HoneycombManager
         SpanContext spanContext = (SpanContext) honeycombContextualizer.extractCurrentContext();
         if ( spanContext != null )
         {
-            String realName = getSpanMetricName( spanContext, name );
-            Timer timer = spanContext.getTimer( realName );
+            Timer timer = spanContext.getTimer( name );
             if ( timer == null )
             {
-                timer = metricsManager.getMetricRegistry().timer( realName );
-                spanContext.putTimer( realName, timer );
+                timer = new Timer();
+                spanContext.putTimer( name, timer );
             }
             return timer;
         }
@@ -271,21 +266,15 @@ public class HoneycombManager
         SpanContext spanContext = (SpanContext) honeycombContextualizer.extractCurrentContext();
         if ( spanContext != null )
         {
-            String realName = getSpanMetricName( spanContext, name );
-            Meter meter = spanContext.getMeter( realName );
+            Meter meter = spanContext.getMeter( name );
             if ( meter == null )
             {
-                meter = metricsManager.getMetricRegistry().meter( realName );
-                spanContext.putMeter( realName, meter );
+                meter = new Meter();
+                spanContext.putMeter( name, meter );
             }
             return meter;
         }
         return null;
-    }
-
-    private String getSpanMetricName( SpanContext spanContext, String name )
-    {
-        return name + "." + spanContext.getSpanId();
     }
 
     public void addSpanField( String name, Object value )

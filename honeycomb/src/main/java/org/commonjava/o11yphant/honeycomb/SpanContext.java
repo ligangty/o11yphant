@@ -22,6 +22,8 @@ import io.honeycomb.beeline.tracing.Span;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.util.Collections.unmodifiableMap;
+
 public class SpanContext
 {
     private final String traceId;
@@ -90,4 +92,13 @@ public class SpanContext
         meterMap.put( meterName, meter );
     }
 
+    public Map<String, Timer> getTimers()
+    {
+        return unmodifiableMap( timerMap );
+    }
+
+    public Map<String, Meter> getMeters()
+    {
+        return unmodifiableMap( meterMap );
+    }
 }
