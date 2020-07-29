@@ -46,7 +46,7 @@ public class HoneycombFilter
     private final Logger logger = LoggerFactory.getLogger( getClass() );
 
     @Override
-    public void init( final FilterConfig filterConfig ) throws ServletException
+    public void init( final FilterConfig filterConfig )
     {
     }
 

@@ -19,9 +19,9 @@ import io.honeycomb.beeline.tracing.Span;
 
 public class SpanContext
 {
-    private String traceId;
+    private final String traceId;
 
-    private String parentSpanId;
+    private final String parentSpanId;
 
     public SpanContext( final String traceId, final String parentSpanId )
     {
