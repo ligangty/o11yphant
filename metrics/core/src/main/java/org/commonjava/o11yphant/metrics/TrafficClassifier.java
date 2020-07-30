@@ -17,22 +17,53 @@ package org.commonjava.o11yphant.metrics;
 
 import org.commonjava.cdi.util.weft.ThreadContext;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import static java.util.Arrays.asList;
 
 public abstract class TrafficClassifier
 {
     public static final String CACHED_FUNCTIONS = "cached-functions";
 
-    public abstract List<String> classifyFunctions( String restPath, String method );
+    public static final Set<String> MODIFY_METHODS = new HashSet<>( asList( "POST", "PUT", "DELETE" ) );
 
-    public List<String> getCachedFunctionClassifiers()
+    protected abstract List<String> calculateCachedFunctionClassifiers( String restPath, String method );
+
+    public List<String> classifyFunctions( String restPath, String method )
+    {
+        Optional<List<String>> cached = getCachedFunctionClassifiers();
+        if ( cached.isPresent() )
+        {
+            return cached.get();
+        }
+
+        List<String> result = calculateCachedFunctionClassifiers( restPath, method );
+
+        putCachedFunctionClassifiers( result );
+        return result;
+    }
+
+    public Optional<List<String>> getCachedFunctionClassifiers()
     {
         ThreadContext ctx = ThreadContext.getContext( false );
         if ( ctx != null )
         {
-            return (List<String>) ctx.get( CACHED_FUNCTIONS );
+            return Optional.of( (List<String>) ctx.get( CACHED_FUNCTIONS ) );
         }
 
-        return null;
+        return Optional.empty();
     }
+
+    public void putCachedFunctionClassifiers( List<String> result )
+    {
+        ThreadContext ctx = ThreadContext.getContext( false );
+        if ( ctx != null )
+        {
+            ctx.put( CACHED_FUNCTIONS, result );
+        }
+    }
+
 }

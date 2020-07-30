@@ -87,7 +87,7 @@ public class SystemGaugesSet
 
         try
         {
-            final File storePath = getIndyStorageDir();
+            final File storePath = getStorageDir();
             if ( storePath.exists() && storePath.isDirectory() )
             {
                 gauges.put( "store.indy.total", (Gauge<Long>) storePath::getTotalSpace );
@@ -108,7 +108,7 @@ public class SystemGaugesSet
 
     }
 
-    private File getIndyStorageDir()
+    private File getStorageDir()
     {
         if ( storagePathProvider != null && storagePathProvider.getStoragePath() != null )
         {

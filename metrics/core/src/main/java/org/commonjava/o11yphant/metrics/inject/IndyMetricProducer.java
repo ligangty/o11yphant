@@ -13,29 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.commonjava.o11yphant.conf;
+package org.commonjava.o11yphant.metrics.inject;
 
-import java.util.List;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.health.HealthCheckRegistry;
 
-import static java.util.Collections.emptyList;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
 
-public interface MetricsConfig
+public class IndyMetricProducer
 {
-    String REPORTER_GRAPHITE = "graphite";
 
-    String REPORTER_CONSOLE = "console";
+    @ApplicationScoped
+    @Produces
+    public MetricRegistry getMetricRegistry()
+    {
+        return new MetricRegistry();
+    }
 
-    String REPORTER_ELK = "elasticsearch";
+    @ApplicationScoped
+    @Produces
+    public HealthCheckRegistry getHealthCheckRegistry() {
+        return new HealthCheckRegistry();
+    }
 
-    String getNodePrefix();
-
-    boolean isEnabled();
-
-    String getReporter();
-
-    ConsoleConfig getConsoleConfig();
-
-    GraphiteConfig getGraphiteConfig();
-
-    ELKConfig getELKConfig();
 }

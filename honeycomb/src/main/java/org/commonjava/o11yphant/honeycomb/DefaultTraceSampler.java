@@ -34,7 +34,7 @@ import static org.commonjava.o11yphant.honeycomb.util.InterceptorUtils.SAMPLE_OV
 
 @ApplicationScoped
 public class DefaultTraceSampler
-        implements TraceSampler<String>
+                implements TraceSampler<String>
 {
     private final Random random = new Random();
 
@@ -62,14 +62,15 @@ public class DefaultTraceSampler
             return 1;
         }
 
-        List<String> functionClassifiers = classifier.getCachedFunctionClassifiers();
+        Optional<List<String>> functionClassifiers = classifier.getCachedFunctionClassifiers();
         Integer rate = configuration.getSampleRate( input );
 
-        if ( Objects.equals( rate, configuration.getBaseSampleRate() ) && functionClassifiers != null )
+        if ( Objects.equals( rate, configuration.getBaseSampleRate() ) && functionClassifiers.isPresent() )
         {
-            Optional<Integer> mostAggressive = functionClassifiers.stream()
+            Optional<Integer> mostAggressive = functionClassifiers.get()
+                                                                  .stream()
                                                                   .map( classifier -> configuration.getSampleRate(
-                                                                          classifier ) )
+                                                                                  classifier ) )
                                                                   .filter( theRate -> theRate > 0 )
                                                                   .min( ( one, two ) -> two - one );
 
