@@ -11,6 +11,6 @@ public class ConsoleConfig
 
     public long getConsolePeriodInSeconds()
     {
-        return 0;
+        return consolePeriodInSeconds;
     }
 }

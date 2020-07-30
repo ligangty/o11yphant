@@ -15,10 +15,6 @@
  */
 package org.commonjava.o11yphant.conf;
 
-import java.util.List;
-
-import static java.util.Collections.emptyList;
-
 public interface MetricsConfig
 {
     String REPORTER_GRAPHITE = "graphite";

@@ -12,6 +12,8 @@ public class GraphiteConfig
 
     private long graphiteJVMPeriodInSeconds;
 
+    private long graphiteHealthcheckPeriodInSeconds;
+
     public String getGraphiteHostName()
     {
         return graphiteHostName;
@@ -60,5 +62,15 @@ public class GraphiteConfig
     public void setGraphiteJVMPeriodInSeconds( long graphiteJVMPeriodInSeconds )
     {
         this.graphiteJVMPeriodInSeconds = graphiteJVMPeriodInSeconds;
+    }
+
+    public long getGraphiteHealthcheckPeriodInSeconds()
+    {
+        return graphiteHealthcheckPeriodInSeconds;
+    }
+
+    public void setGraphiteHealthcheckPeriodInSeconds( long graphiteHealthcheckPeriodInSeconds )
+    {
+        this.graphiteHealthcheckPeriodInSeconds = graphiteHealthcheckPeriodInSeconds;
     }
 }
