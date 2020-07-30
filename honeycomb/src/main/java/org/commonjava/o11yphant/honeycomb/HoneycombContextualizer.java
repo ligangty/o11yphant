@@ -15,6 +15,7 @@
  */
 package org.commonjava.o11yphant.honeycomb;
 
+import com.codahale.metrics.Snapshot;
 import io.honeycomb.beeline.tracing.Beeline;
 import io.honeycomb.beeline.tracing.Span;
 import org.commonjava.cdi.util.weft.ThreadContextualizer;
@@ -25,6 +26,11 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+
+import static com.codahale.metrics.MetricAttribute.COUNT;
+import static com.codahale.metrics.MetricAttribute.MAX;
+import static com.codahale.metrics.MetricAttribute.MEAN;
+import static com.codahale.metrics.MetricAttribute.MIN;
 
 @ApplicationScoped
 @Named
@@ -37,7 +43,9 @@ public class HoneycombContextualizer
 
     private final Logger logger = LoggerFactory.getLogger( getClass() );
 
-    private static ThreadLocal<Span> SPAN = new ThreadLocal<>();
+    private static final ThreadLocal<Span> SPAN = new ThreadLocal<>();
+
+    private static final ThreadLocal<SpanContext> SPAN_CONTEXT = new ThreadLocal<>();
 
     @Inject
     private HoneycombManager honeycombManager;
@@ -59,8 +67,13 @@ public class HoneycombContextualizer
     {
         if ( configuration.isEnabled() )
         {
-            Beeline beeline = honeycombManager.getBeeline();
-            SpanContext ctx = new SpanContext( beeline.getActiveSpan() );
+            SpanContext ctx = SPAN_CONTEXT.get();
+            if ( ctx == null )
+            {
+                Beeline beeline = honeycombManager.getBeeline();
+                ctx = new SpanContext( beeline.getActiveSpan() );
+                SPAN_CONTEXT.set( ctx );
+            }
             logger.trace( "Extracting parent-thread context: {}", ctx );
             return ctx;
         }
@@ -73,9 +86,9 @@ public class HoneycombContextualizer
         if ( configuration.isEnabled() )
         {
             tracingContext.reinitThreadSpans();
-
+            SpanContext parentSpanContext = (SpanContext) parentContext;
             logger.trace( "Creating thread-level root span using parent-thread context: {}", parentContext );
-            SPAN.set( honeycombManager.startRootTracer( "thread." + Thread.currentThread().getThreadGroup().getName(), (SpanContext) parentContext ) );
+            SPAN.set( honeycombManager.startRootTracer( "thread." + Thread.currentThread().getThreadGroup().getName(), parentSpanContext ) );
         }
     }
 
@@ -92,14 +105,36 @@ public class HoneycombContextualizer
                 span.addField( THREAD_NAME, Thread.currentThread().getName() );
                 span.addField( THREAD_GROUP_NAME, Thread.currentThread().getThreadGroup().getName() );
 
+                addSpanContextFields( span );
+
                 span.close();
 
                 honeycombManager.endTrace();
             }
 
             SPAN.remove();
+            SPAN_CONTEXT.remove();
 
             tracingContext.clearThreadSpans();
         }
     }
+
+    private void addSpanContextFields( Span span )
+    {
+        SpanContext spanContext = SPAN_CONTEXT.get();
+        if ( spanContext != null )
+        {
+            spanContext.getTimers().forEach( ( k, v ) -> {
+                Snapshot st = v.getSnapshot();
+                span.addField( COUNT + "." + k, v.getCount() );
+                span.addField( MEAN + "." + k, st.getMean() );
+                span.addField( MAX + "." + k, st.getMax() );
+                span.addField( MIN + "." + k, st.getMin() );
+            } );
+            spanContext.getMeters().forEach( ( k, v ) -> {
+                span.addField( k, v.getCount() );
+            } );
+        }
+    }
+
 }
