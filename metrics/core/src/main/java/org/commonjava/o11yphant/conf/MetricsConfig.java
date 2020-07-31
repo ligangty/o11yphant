@@ -34,4 +34,6 @@ public interface MetricsConfig
     GraphiteConfig getGraphiteConfig();
 
     ELKConfig getELKConfig();
+
+    int getMeterRatio();
 }
