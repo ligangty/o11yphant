@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2020 Red Hat, Inc. (https://github.com/Commonjava/indy)
+ * Copyright (C) 2011-2020 Red Hat, Inc. (https://github.com/Commonjava/o11yphant)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,8 @@ public interface HoneycombConfiguration
     Map<String, Integer> getSpanRates();
 
     boolean isEnabled();
+
+    String getServiceName();
 
     String getWriteKey();
 
@@ -124,4 +126,5 @@ public interface HoneycombConfiguration
         logger.trace( "Returning base sampling rate for: {} = {}", classifier, getBaseSampleRate() );
         return getBaseSampleRate();
     }
+
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2020 Red Hat, Inc. (https://github.com/Commonjava/indy)
+ * Copyright (C) 2011-2020 Red Hat, Inc. (https://github.com/Commonjava/o11yphant)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.commonjava.o11yphant.metrics.system;
 import com.codahale.metrics.MetricRegistry;
 import org.commonjava.o11yphant.conf.MetricsConfig;
 import org.commonjava.o11yphant.metrics.MetricSetProvider;
-import org.commonjava.o11yphant.metrics.system.SystemGaugesSet;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
