@@ -38,6 +38,8 @@ public class MetricsConstants
 
     public static final String SKIP_METRIC = "skip-this-metric";
 
+    public static final double NANOS_PER_MILLISECOND = 1E6;
+
     /**
      * Get default metric name. Use abbreviated package name, e.g., foo.bar.ClassA.methodB -> f.b.ClassA.methodB
      */

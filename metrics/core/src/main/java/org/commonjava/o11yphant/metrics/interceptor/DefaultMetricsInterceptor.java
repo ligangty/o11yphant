@@ -37,6 +37,7 @@ import static com.codahale.metrics.MetricRegistry.name;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.DEFAULT;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.EXCEPTION;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.METER;
+import static org.commonjava.o11yphant.metrics.MetricsConstants.NANOS_PER_MILLISECOND;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.TIMER;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.getDefaultName;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.getName;
@@ -46,8 +47,6 @@ import static org.commonjava.o11yphant.metrics.MetricsConstants.getName;
 public class DefaultMetricsInterceptor
 {
     private final Logger logger = LoggerFactory.getLogger( getClass() );
-
-    public static final double NANOS_PER_MILLISECOND = 1E6;
 
     @Inject
     private MetricsManager metricsManager;
