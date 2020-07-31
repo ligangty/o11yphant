@@ -51,7 +51,11 @@ public abstract class TrafficClassifier
         ThreadContext ctx = ThreadContext.getContext( false );
         if ( ctx != null )
         {
-            return Optional.of( (List<String>) ctx.get( CACHED_FUNCTIONS ) );
+            Object cached = ctx.get( CACHED_FUNCTIONS );
+            if ( cached != null )
+            {
+                return Optional.of( (List<String>) cached );
+            }
         }
 
         return Optional.empty();
