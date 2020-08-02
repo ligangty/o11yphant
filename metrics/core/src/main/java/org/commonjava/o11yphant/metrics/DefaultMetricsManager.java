@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2020 Red Hat, Inc. (https://github.com/Commonjava/indy)
+ * Copyright (C) 2011-2020 Red Hat, Inc. (https://github.com/Commonjava/o11yphant)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,10 +70,10 @@ public class DefaultMetricsManager
     private HealthCheckRegistry healthCheckRegistry;
 
     @Inject
-    private Instance<AbstractHealthCheck> indyHealthChecks;
+    private Instance<AbstractHealthCheck> healthChecks;
 
     @Inject
-    private Instance<CompoundHealthCheck> indyCompoundHealthChecks;
+    private Instance<CompoundHealthCheck> compoundHealthChecks;
 
     @Inject
     private Instance<MetricSetProvider> metricSetProviderInstances;
@@ -88,7 +88,7 @@ public class DefaultMetricsManager
     {
         if ( !config.isEnabled() )
         {
-            logger.info( "Indy metrics subsystem not enabled" );
+            logger.info( "Metrics subsystem not enabled" );
             return;
         }
 
@@ -97,12 +97,12 @@ public class DefaultMetricsManager
         registerJvmMetric( config.getNodePrefix(), metricRegistry );
 
         // Health checks
-        indyHealthChecks.forEach( hc -> {
+        healthChecks.forEach( hc -> {
             logger.info( "Registering health check: {}", hc.getName() );
             healthCheckRegistry.register( hc.getName(), hc );
         } );
 
-        indyCompoundHealthChecks.forEach( cc-> {
+        compoundHealthChecks.forEach( cc-> {
             Map<String, HealthCheck> healthChecks = cc.getHealthChecks();
             logger.info( "Registering {} health checks from set: {}", healthChecks.size(), cc.getClass().getSimpleName() );
             healthChecks.forEach( (name,check)->{

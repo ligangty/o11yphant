@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2020 Red Hat, Inc. (https://github.com/Commonjava/indy)
+ * Copyright (C) 2011-2020 Red Hat, Inc. (https://github.com/Commonjava/o11yphant)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,20 +88,20 @@ public class SystemGaugesSet
         try
         {
             final File storePath = getStorageDir();
-            if ( storePath.exists() && storePath.isDirectory() )
+            if ( storePath != null && storePath.isDirectory() )
             {
-                gauges.put( "store.indy.total", (Gauge<Long>) storePath::getTotalSpace );
-                gauges.put( "store.indy.usable", (Gauge<Long>) storePath::getUsableSpace );
+                gauges.put( "store.total", (Gauge<Long>) storePath::getTotalSpace );
+                gauges.put( "store.usable", (Gauge<Long>) storePath::getUsableSpace );
             }
             else
             {
-                logger.warn( "Cannot trace indy storage usage because storage path {} not defined.",
+                logger.warn( "Cannot trace storage usage because storage path {} not defined.",
                              storePath.getCanonicalPath() );
             }
         }
         catch ( Throwable e )
         {
-            logger.warn( "Cannot trace indy storage usage. Reason: {}", e.getMessage() );
+            logger.warn( "Cannot trace storage usage. Reason: {}", e.getMessage() );
         }
 
         return Collections.unmodifiableMap( gauges );
@@ -114,10 +114,7 @@ public class SystemGaugesSet
         {
             return storagePathProvider.getStoragePath();
         }
-
-        // if indy config for storage path not defined, we use docker defined one.
-        final String DEFAULT_STORAGE_DIR = "/var/lib/indy/storage";
-        return new File( DEFAULT_STORAGE_DIR );
+        return null;
     }
 
 }

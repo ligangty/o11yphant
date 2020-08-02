@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2020 Red Hat, Inc. (https://github.com/Commonjava/indy)
+ * Copyright (C) 2011-2020 Red Hat, Inc. (https://github.com/Commonjava/o11yphant)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -96,7 +95,7 @@ public class ReporterInitializer
     private void initELKReporterForSimpleMetric( MetricRegistry metrics, ELKConfig config ) throws IOException
     {
         Logger logger = LoggerFactory.getLogger( getClass() );
-        logger.info( "Setting up Elasticsearch reporter for Indy metrics" );
+        logger.info( "Setting up Elasticsearch reporter" );
         ElasticsearchReporter reporter = ElasticsearchReporter.forRegistry( metrics )
                                                               .hosts( config.getElkHosts().split( ";" ) )
                                                               .index( config.getElkIndex() )

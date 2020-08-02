@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2020 Red Hat, Inc. (https://github.com/Commonjava/indy)
+ * Copyright (C) 2011-2020 Red Hat, Inc. (https://github.com/Commonjava/o11yphant)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -131,7 +131,7 @@ public class HoneycombManager
                               .createBuilder()
                               .setParentContext( propContext )
                               .setSpanName( spanName )
-                              .setServiceName( "indy" )
+                              .setServiceName( configuration.getServiceName() )
                               .build();
             }
             else
@@ -141,7 +141,7 @@ public class HoneycombManager
 
                 span = beeline.getSpanBuilderFactory().createBuilder()
                               //.setParentContext( parentContext )
-                              .setSpanName( spanName ).setServiceName( "indy" ).build();
+                              .setSpanName( spanName ).setServiceName( configuration.getServiceName() ).build();
             }
 
             span = beeline.getTracer().startTrace( span );
