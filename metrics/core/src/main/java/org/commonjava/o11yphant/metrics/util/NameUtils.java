@@ -25,4 +25,43 @@ public class NameUtils
     {
         return ClassUtils.getAbbreviatedName( cls, DEFAULT_LEN );
     }
+
+    public static String name( Class<?> klass, String... names )
+    {
+        return name( klass.getName(), names );
+    }
+
+    public static String name( String name, String... names )
+    {
+        StringBuilder builder = new StringBuilder();
+        append( builder, name );
+        if ( names != null )
+        {
+            String[] var3 = names;
+            int var4 = names.length;
+
+            for ( int var5 = 0; var5 < var4; ++var5 )
+            {
+                String s = var3[var5];
+                append( builder, s );
+            }
+        }
+
+        return builder.toString();
+    }
+
+    private static void append( StringBuilder builder, String part )
+    {
+        if ( part != null && !part.isEmpty() )
+        {
+            if ( builder.length() > 0 )
+            {
+                builder.append( '.' );
+            }
+
+            builder.append( part );
+        }
+
+    }
+
 }

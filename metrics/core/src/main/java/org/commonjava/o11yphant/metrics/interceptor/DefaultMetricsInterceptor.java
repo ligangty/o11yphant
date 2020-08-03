@@ -15,8 +15,8 @@
  */
 package org.commonjava.o11yphant.metrics.interceptor;
 
-import com.codahale.metrics.Timer;
 import org.commonjava.o11yphant.annotation.Measure;
+import org.commonjava.o11yphant.api.Timer;
 import org.commonjava.o11yphant.conf.MetricsConfig;
 import org.commonjava.o11yphant.metrics.MetricsManager;
 import org.slf4j.Logger;
@@ -77,7 +77,7 @@ public class DefaultMetricsInterceptor
         String defaultName = getDefaultName( context.getMethod().getDeclaringClass(), context.getMethod().getName() );
         logger.trace( "Gathering metrics for: {} using context: {}", defaultName, context.getContextData() );
 
-        Map<String, Timer.Context> timers = initTimers( measure, defaultName );
+        Map<String, Timer.Context> timers = initTimers( defaultName );
         List<String> exceptionMeters = initMeters( measure, EXCEPTION, defaultName );
         List<String> meters = initMeters( measure, METER, defaultName );
 
@@ -127,7 +127,7 @@ public class DefaultMetricsInterceptor
         return meters;
     }
 
-    private Map<String, Timer.Context> initTimers( final Measure measure, String defaultName )
+    private Map<String, Timer.Context> initTimers( String defaultName )
     {
         Map<String, Timer.Context> timers = new HashMap<>();
 

@@ -15,12 +15,11 @@
  */
 package org.commonjava.o11yphant.metrics;
 
-import com.codahale.metrics.Gauge;
-import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
-import com.codahale.metrics.health.HealthCheckRegistry;
 import org.commonjava.cdi.util.weft.ThreadContext;
+import org.commonjava.o11yphant.api.Gauge;
+import org.commonjava.o11yphant.api.Meter;
+import org.commonjava.o11yphant.api.Timer;
 import org.commonjava.o11yphant.conf.MetricsConfig;
 
 import java.util.Collection;
@@ -29,8 +28,6 @@ import java.util.function.Supplier;
 
 public interface MetricsManager
 {
-    HealthCheckRegistry getHealthCheckRegistry();
-
     boolean isMetered( Supplier<Boolean> meteringOverride );
 
     Timer.Context startTimer( String name );
@@ -49,7 +46,7 @@ public interface MetricsManager
 
     void stopTimers( final Map<String, Timer.Context> timers );
 
-    void mark( final Collection<String> metricNames );
+    void mark( final Collection<String> meters );
 
     void addGauges( Class<?> className, String method, Map<String, Gauge<Integer>> gauges );
 

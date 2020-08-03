@@ -15,10 +15,7 @@
  */
 package org.commonjava.o11yphant.metrics;
 
-import com.codahale.metrics.Gauge;
-import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
 import com.codahale.metrics.health.HealthCheck;
 import com.codahale.metrics.health.HealthCheckRegistry;
 import org.commonjava.cdi.util.weft.ThreadContext;
@@ -26,9 +23,14 @@ import org.commonjava.o11yphant.annotation.MetricWrapper;
 import org.commonjava.o11yphant.annotation.MetricWrapperEnd;
 import org.commonjava.o11yphant.annotation.MetricWrapperNamed;
 import org.commonjava.o11yphant.annotation.MetricWrapperStart;
+import org.commonjava.o11yphant.api.Gauge;
+import org.commonjava.o11yphant.api.Meter;
+import org.commonjava.o11yphant.api.Timer;
 import org.commonjava.o11yphant.conf.MetricsConfig;
 import org.commonjava.o11yphant.metrics.healthcheck.AbstractHealthCheck;
 import org.commonjava.o11yphant.metrics.healthcheck.CompoundHealthCheck;
+import org.commonjava.o11yphant.metrics.impl.MeterImpl;
+import org.commonjava.o11yphant.metrics.impl.TimerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,12 +116,6 @@ public class DefaultMetricsManager
         metricSetProviderInstances.forEach( ( provider ) -> provider.registerMetricSet( metricRegistry ) );
     }
 
-    @Override
-    public HealthCheckRegistry getHealthCheckRegistry()
-    {
-        return healthCheckRegistry;
-    }
-
     public boolean isMetered( Supplier<Boolean> meteringOverride )
     {
         int meterRatio = config.getMeterRatio();
@@ -143,7 +139,7 @@ public class DefaultMetricsManager
 
     private Timer.Context startTimerInternal( String name )
     {
-        Timer.Context tctx = this.metricRegistry.timer( name ).time();
+        Timer.Context tctx = new TimerImpl( this.metricRegistry.timer( name )).time();
         ThreadContext ctx = ThreadContext.getContext( true );
         ctx.put( TIMER + name, tctx );
         return tctx;
@@ -174,7 +170,7 @@ public class DefaultMetricsManager
 
     public Meter getMeter( String name )
     {
-        return metricRegistry.meter( name );
+        return new MeterImpl( metricRegistry.meter( name ) );
     }
 
     public void accumulate( String name, final double elapsed )
@@ -268,10 +264,10 @@ public class DefaultMetricsManager
         }
     }
 
-    public void mark( final Collection<String> metricNames )
+    public void mark( final Collection<String> meters )
     {
-        metricNames.forEach( metricName -> {
-            getMeter( metricName ).mark();
+        meters.forEach( name -> {
+            getMeter( name ).mark();
         } );
     }
 
@@ -280,7 +276,7 @@ public class DefaultMetricsManager
         String defaultName = getDefaultName( className, method );
         gauges.forEach( ( k, v ) -> {
             String name = MetricsConstants.getName( config.getNodePrefix(), DEFAULT, defaultName, k );
-            metricRegistry.gauge( name, () -> v );
+            metricRegistry.gauge( name, () -> () -> v.getValue() );
         } );
     }
 
