@@ -57,6 +57,7 @@
         <httpTestserverVersion>1.4</httpTestserverVersion>
         <elasticsearchVersion>2.2.0</elasticsearchVersion>
         <logbackVersion>1.2.3</logbackVersion>
+        <undertowVersion>2.1.0.Final</undertowVersion>
         <weftVersion>1.16</weftVersion>
     </properties>
 
@@ -121,6 +122,12 @@
                 <groupId>org.elasticsearch</groupId>
                 <artifactId>metrics-elasticsearch-reporter</artifactId>
                 <version>${elasticsearchVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.undertow</groupId>
+                <artifactId>undertow-servlet</artifactId>
+                <version>${undertowVersion}</version>
             </dependency>
 
             <dependency>

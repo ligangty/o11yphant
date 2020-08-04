@@ -1,4 +1,4 @@
-package org.commonjava.o11yphant.metrics.impl;
+package org.commonjava.o11yphant.metrics;
 
 import com.codahale.metrics.health.HealthCheckRegistry;
 import org.commonjava.o11yphant.api.Gauge;
@@ -6,9 +6,11 @@ import org.commonjava.o11yphant.api.HealthCheck;
 import org.commonjava.o11yphant.api.Metric;
 import org.commonjava.o11yphant.api.MetricRegistry;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-public class MetricRegistryImpl
+@ApplicationScoped
+public class DefaultMetricRegistry
                 implements MetricRegistry
 {
     private final com.codahale.metrics.MetricRegistry registry;
@@ -16,7 +18,7 @@ public class MetricRegistryImpl
     private final HealthCheckRegistry healthCheckRegistry;
 
     @Inject
-    public MetricRegistryImpl( com.codahale.metrics.MetricRegistry registry, HealthCheckRegistry healthCheckRegistry )
+    public DefaultMetricRegistry( com.codahale.metrics.MetricRegistry registry, HealthCheckRegistry healthCheckRegistry )
     {
         this.registry = registry;
         this.healthCheckRegistry = healthCheckRegistry;
