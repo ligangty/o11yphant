@@ -5,9 +5,12 @@ import org.commonjava.o11yphant.api.Gauge;
 import org.commonjava.o11yphant.api.HealthCheck;
 import org.commonjava.o11yphant.api.Metric;
 import org.commonjava.o11yphant.api.MetricRegistry;
+import org.commonjava.o11yphant.api.MetricSet;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
+import static org.commonjava.o11yphant.metrics.util.NameUtils.name;
 
 @ApplicationScoped
 public class DefaultMetricRegistry
@@ -18,7 +21,8 @@ public class DefaultMetricRegistry
     private final HealthCheckRegistry healthCheckRegistry;
 
     @Inject
-    public DefaultMetricRegistry( com.codahale.metrics.MetricRegistry registry, HealthCheckRegistry healthCheckRegistry )
+    public DefaultMetricRegistry( com.codahale.metrics.MetricRegistry registry,
+                                  HealthCheckRegistry healthCheckRegistry )
     {
         this.registry = registry;
         this.healthCheckRegistry = healthCheckRegistry;
@@ -32,7 +36,13 @@ public class DefaultMetricRegistry
             Gauge gauge = (Gauge) metric;
             registry.register( name, (com.codahale.metrics.Gauge) gauge::getValue );
         }
-        return null;
+        return metric;
+    }
+
+    @Override
+    public void register( String name, MetricSet metricSet )
+    {
+        metricSet.getMetrics().forEach( ( k, v ) -> register( name( name, k ), v ) );
     }
 
     @Override

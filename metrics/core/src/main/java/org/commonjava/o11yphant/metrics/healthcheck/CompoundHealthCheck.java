@@ -15,7 +15,7 @@
  */
 package org.commonjava.o11yphant.metrics.healthcheck;
 
-import com.codahale.metrics.health.HealthCheck;
+import org.commonjava.o11yphant.api.HealthCheck;
 
 import java.util.Map;
 

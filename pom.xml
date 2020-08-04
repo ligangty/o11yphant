@@ -131,6 +131,17 @@
             </dependency>
 
             <dependency>
+                <groupId>io.prometheus</groupId>
+                <artifactId>simpleclient_servlet</artifactId>
+                <version>${prometheusVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.prometheus</groupId>
+                <artifactId>simpleclient_dropwizard</artifactId>
+                <version>${prometheusVersion}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>io.honeycomb.beeline</groupId>
                 <artifactId>beeline-core</artifactId>
                 <version>${honeycombVersion}</version>

@@ -1,5 +1,7 @@
 package org.commonjava.o11yphant.api;
 
+import java.util.Map;
+
 public interface HealthCheck
 {
     Result check() throws Exception;
@@ -13,5 +15,7 @@ public interface HealthCheck
         Throwable getError();
 
         String getTimestamp();
+
+        Map<String, Object> getDetails();
     }
 }

@@ -15,7 +15,7 @@
  */
 package org.commonjava.o11yphant.metrics;
 
-import com.codahale.metrics.MetricRegistry;
+import org.commonjava.o11yphant.api.MetricRegistry;
 
 public interface MetricSetProvider
 {

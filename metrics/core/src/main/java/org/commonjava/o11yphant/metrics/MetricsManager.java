@@ -15,10 +15,10 @@
  */
 package org.commonjava.o11yphant.metrics;
 
-import com.codahale.metrics.MetricRegistry;
 import org.commonjava.cdi.util.weft.ThreadContext;
 import org.commonjava.o11yphant.api.Gauge;
 import org.commonjava.o11yphant.api.Meter;
+import org.commonjava.o11yphant.api.MetricRegistry;
 import org.commonjava.o11yphant.api.Timer;
 import org.commonjava.o11yphant.conf.MetricsConfig;
 

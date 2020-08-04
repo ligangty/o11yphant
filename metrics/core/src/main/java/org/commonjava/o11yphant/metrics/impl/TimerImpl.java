@@ -1,11 +1,19 @@
 package org.commonjava.o11yphant.metrics.impl;
 
+import org.commonjava.o11yphant.api.Snapshot;
 import org.commonjava.o11yphant.api.Timer;
+
+import java.util.concurrent.TimeUnit;
 
 public class TimerImpl
                 implements Timer
 {
     private com.codahale.metrics.Timer codahaleTimer;
+
+    public TimerImpl()
+    {
+        codahaleTimer = new com.codahale.metrics.Timer();
+    }
 
     public TimerImpl( com.codahale.metrics.Timer timer )
     {
@@ -46,6 +54,62 @@ public class TimerImpl
     public Context time()
     {
         return new O11Context( codahaleTimer.time() );
+    }
+
+    @Override
+    public void update( long duration, TimeUnit nanoseconds )
+    {
+        codahaleTimer.update( duration, nanoseconds );
+    }
+
+    @Override
+    public Snapshot getSnapshot()
+    {
+        final com.codahale.metrics.Snapshot codehaleSnapshot = codahaleTimer.getSnapshot();
+        return new Snapshot()
+        {
+            @Override
+            public double getValue( double var1 )
+            {
+                return codehaleSnapshot.getValue( var1 );
+            }
+
+            @Override
+            public long[] getValues()
+            {
+                return codehaleSnapshot.getValues();
+            }
+
+            @Override
+            public int size()
+            {
+                return codehaleSnapshot.size();
+            }
+
+            @Override
+            public long getMax()
+            {
+                return codehaleSnapshot.getMax();
+            }
+
+            @Override
+            public double getMean()
+            {
+                return codehaleSnapshot.getMean();
+            }
+
+            @Override
+            public long getMin()
+            {
+                return codehaleSnapshot.getMin();
+            }
+
+            @Override
+            public double getStdDev()
+            {
+                return codehaleSnapshot.getStdDev();
+            }
+        };
     }
 
     public class O11Context

@@ -55,9 +55,16 @@ public class SummaryHealthCheck
 
         looseCompounds.forEach( lc->{
             lc.getHealthChecks().forEach( ( k, check ) -> {
-                if ( !check.execute().isHealthy() )
+                try
                 {
-                    count.incrementAndGet();
+                    if ( !check.check().isHealthy() )
+                    {
+                        count.incrementAndGet();
+                    }
+                }
+                catch ( Exception e )
+                {
+                    e.printStackTrace();
                 }
             } );
         } );

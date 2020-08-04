@@ -3,6 +3,8 @@ package org.commonjava.o11yphant.metrics.impl;
 import org.commonjava.o11yphant.api.HealthCheck;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class HealthCheckResult
                 implements HealthCheck.Result
@@ -12,6 +14,8 @@ public class HealthCheckResult
     private String message;
 
     private Throwable err;
+
+    private Map<String, Object> details = new HashMap<>();
 
     public HealthCheckResult( boolean healthy )
     {
@@ -27,6 +31,12 @@ public class HealthCheckResult
     public HealthCheckResult withThrowable( Throwable err )
     {
         this.err = err;
+        return this;
+    }
+
+    public HealthCheckResult withDetail( String name, Object detail )
+    {
+        this.details.put( name, detail );
         return this;
     }
 
@@ -67,5 +77,11 @@ public class HealthCheckResult
     public String getTimestamp()
     {
         return new Date().toString();
+    }
+
+    @Override
+    public Map<String, Object> getDetails()
+    {
+        return details;
     }
 }

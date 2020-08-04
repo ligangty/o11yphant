@@ -1,8 +1,5 @@
 package org.commonjava.o11yphant.metrics.jaxrs;
 
-import io.undertow.servlet.api.DeploymentInfo;
-
-public interface HealthCheckDeploymentProvider
+public interface HealthCheckDeploymentProvider extends DeploymentProvider
 {
-    DeploymentInfo getDeploymentInfo( String contextRoot );
 }

@@ -16,7 +16,6 @@
 package org.commonjava.o11yphant.metrics;
 
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.health.HealthCheck;
 import com.codahale.metrics.health.HealthCheckRegistry;
 import org.commonjava.cdi.util.weft.ThreadContext;
 import org.commonjava.o11yphant.annotation.MetricWrapper;
@@ -24,6 +23,7 @@ import org.commonjava.o11yphant.annotation.MetricWrapperEnd;
 import org.commonjava.o11yphant.annotation.MetricWrapperNamed;
 import org.commonjava.o11yphant.annotation.MetricWrapperStart;
 import org.commonjava.o11yphant.api.Gauge;
+import org.commonjava.o11yphant.api.HealthCheck;
 import org.commonjava.o11yphant.api.Meter;
 import org.commonjava.o11yphant.api.Timer;
 import org.commonjava.o11yphant.conf.MetricsConfig;
@@ -66,7 +66,10 @@ public class DefaultMetricsManager
     private final Logger logger = LoggerFactory.getLogger( getClass() );
 
     @Inject
-    private MetricRegistry metricRegistry;
+    private MetricRegistry codahaleMetricRegistry;
+
+    @Inject
+    private org.commonjava.o11yphant.api.MetricRegistry metricRegistry;
 
     @Inject
     private HealthCheckRegistry healthCheckRegistry;
@@ -96,7 +99,7 @@ public class DefaultMetricsManager
 
         logger.info( "Init metrics subsystem..." );
 
-        registerJvmMetric( config.getNodePrefix(), metricRegistry );
+        registerJvmMetric( config.getNodePrefix(), codahaleMetricRegistry );
 
         // Health checks
         healthChecks.forEach( hc -> {
@@ -104,12 +107,36 @@ public class DefaultMetricsManager
             healthCheckRegistry.register( hc.getName(), hc );
         } );
 
-        compoundHealthChecks.forEach( cc-> {
+        compoundHealthChecks.forEach( cc -> {
             Map<String, HealthCheck> healthChecks = cc.getHealthChecks();
-            logger.info( "Registering {} health checks from set: {}", healthChecks.size(), cc.getClass().getSimpleName() );
-            healthChecks.forEach( (name,check)->{
+            logger.info( "Registering {} health checks from set: {}", healthChecks.size(),
+                         cc.getClass().getSimpleName() );
+            healthChecks.forEach( ( name, check ) -> {
                 logger.info( "Registering health check: {}", name );
-                healthCheckRegistry.register( name, check );
+                healthCheckRegistry.register( name, new com.codahale.metrics.health.HealthCheck()
+                {
+                    @Override
+                    protected Result check() throws Exception
+                    {
+                        HealthCheck.Result result = check.check();
+                        ResultBuilder builder = Result.builder();
+                        if ( result.isHealthy() )
+                        {
+                            builder.healthy();
+                        }
+                        else
+                        {
+                            builder.unhealthy();
+                            builder.withMessage( result.getMessage() );
+                            Map<String, Object> details = result.getDetails();
+                            if ( details != null )
+                            {
+                                details.forEach( ( k, v ) -> builder.withDetail( k, v ) );
+                            }
+                        }
+                        return builder.build();
+                    }
+                } );
             } );
         } );
 
@@ -139,7 +166,7 @@ public class DefaultMetricsManager
 
     private Timer.Context startTimerInternal( String name )
     {
-        Timer.Context tctx = new TimerImpl( this.metricRegistry.timer( name )).time();
+        Timer.Context tctx = new TimerImpl( this.codahaleMetricRegistry.timer( name )).time();
         ThreadContext ctx = ThreadContext.getContext( true );
         ctx.put( TIMER + name, tctx );
         return tctx;
@@ -170,7 +197,7 @@ public class DefaultMetricsManager
 
     public Meter getMeter( String name )
     {
-        return new MeterImpl( metricRegistry.meter( name ) );
+        return new MeterImpl( codahaleMetricRegistry.meter( name ) );
     }
 
     public void accumulate( String name, final double elapsed )
@@ -276,11 +303,11 @@ public class DefaultMetricsManager
         String defaultName = getDefaultName( className, method );
         gauges.forEach( ( k, v ) -> {
             String name = MetricsConstants.getName( config.getNodePrefix(), DEFAULT, defaultName, k );
-            metricRegistry.gauge( name, () -> () -> v.getValue() );
+            codahaleMetricRegistry.gauge( name, () -> () -> v.getValue() );
         } );
     }
 
-    public MetricRegistry getMetricRegistry()
+    public org.commonjava.o11yphant.api.MetricRegistry getMetricRegistry()
     {
         return metricRegistry;
     }

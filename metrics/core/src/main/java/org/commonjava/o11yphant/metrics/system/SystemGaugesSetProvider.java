@@ -15,14 +15,14 @@
  */
 package org.commonjava.o11yphant.metrics.system;
 
-import com.codahale.metrics.MetricRegistry;
+import org.commonjava.o11yphant.api.MetricRegistry;
 import org.commonjava.o11yphant.conf.MetricsConfig;
 import org.commonjava.o11yphant.metrics.MetricSetProvider;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import static com.codahale.metrics.MetricRegistry.name;
+import static org.commonjava.o11yphant.metrics.util.NameUtils.name;
 
 @ApplicationScoped
 public class SystemGaugesSetProvider

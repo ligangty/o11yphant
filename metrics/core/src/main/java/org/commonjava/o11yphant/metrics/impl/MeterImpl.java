@@ -7,6 +7,11 @@ public class MeterImpl
 {
     private com.codahale.metrics.Meter codahaleMeter;
 
+    public MeterImpl()
+    {
+        codahaleMeter = new com.codahale.metrics.Meter();
+    }
+
     public MeterImpl( com.codahale.metrics.Meter meter )
     {
         codahaleMeter = meter;
