@@ -19,10 +19,10 @@ import com.codahale.metrics.ConsoleReporter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.graphite.Graphite;
 import com.codahale.metrics.graphite.GraphiteReporter;
-import org.commonjava.o11yphant.conf.ConsoleConfig;
-import org.commonjava.o11yphant.conf.ELKConfig;
-import org.commonjava.o11yphant.conf.GraphiteConfig;
-import org.commonjava.o11yphant.conf.MetricsConfig;
+import org.commonjava.o11yphant.metrics.conf.ConsoleConfig;
+import org.commonjava.o11yphant.metrics.conf.ELKConfig;
+import org.commonjava.o11yphant.metrics.conf.GraphiteConfig;
+import org.commonjava.o11yphant.metrics.conf.MetricsConfig;
 import org.elasticsearch.metrics.ElasticsearchReporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,9 +35,9 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.commonjava.o11yphant.conf.MetricsConfig.REPORTER_CONSOLE;
-import static org.commonjava.o11yphant.conf.MetricsConfig.REPORTER_ELK;
-import static org.commonjava.o11yphant.conf.MetricsConfig.REPORTER_GRAPHITE;
+import static org.commonjava.o11yphant.metrics.conf.MetricsConfig.REPORTER_CONSOLE;
+import static org.commonjava.o11yphant.metrics.conf.MetricsConfig.REPORTER_ELK;
+import static org.commonjava.o11yphant.metrics.conf.MetricsConfig.REPORTER_GRAPHITE;
 
 @ApplicationScoped
 public class ReporterInitializer

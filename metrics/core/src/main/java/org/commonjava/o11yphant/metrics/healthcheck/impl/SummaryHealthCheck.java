@@ -15,7 +15,7 @@
  */
 package org.commonjava.o11yphant.metrics.healthcheck.impl;
 
-import org.commonjava.o11yphant.api.healthcheck.CompoundHealthCheck;
+import org.commonjava.o11yphant.metrics.api.healthcheck.CompoundHealthCheck;
 import org.commonjava.o11yphant.metrics.healthcheck.impl.component.ComponentHealthCheck;
 
 import javax.enterprise.inject.Instance;

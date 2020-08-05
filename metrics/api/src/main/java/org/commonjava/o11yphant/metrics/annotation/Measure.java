@@ -13,11 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.commonjava.o11yphant.metrics;
+package org.commonjava.o11yphant.metrics.annotation;
 
-import org.commonjava.o11yphant.api.MetricRegistry;
+import javax.interceptor.InterceptorBinding;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
-public interface MetricSetProvider
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+@InterceptorBinding
+@Target( { METHOD, TYPE } )
+@Retention( RUNTIME )
+public @interface Measure
 {
-    void registerMetricSet( MetricRegistry registry );
 }

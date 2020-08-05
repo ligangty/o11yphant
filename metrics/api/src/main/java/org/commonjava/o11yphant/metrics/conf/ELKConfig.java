@@ -1,4 +1,4 @@
-package org.commonjava.o11yphant.conf;
+package org.commonjava.o11yphant.metrics.conf;
 
 public class ELKConfig
 {

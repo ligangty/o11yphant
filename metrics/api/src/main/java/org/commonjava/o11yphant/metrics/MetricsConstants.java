@@ -13,11 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.commonjava.o11yphant.api.healthcheck;
+package org.commonjava.o11yphant.metrics;
 
-import java.util.Map;
-
-public interface CompoundHealthCheck
+public class MetricsConstants
 {
-    Map<String, HealthCheck> getHealthChecks();
+    public static final String METRICS_PHASE = "metrics-phase";
+
+    public static final String PRELIMINARY_METRICS = "preliminary";
+
+    public static final String FINAL_METRICS = "final";
+
+    public static final String DEFAULT = "default";
+
+    public static final String EXCEPTION = "exception";
+
+    public static final String METER = "meter";
+
+    public static final String TIMER = "timer";
+
+    public static final String SKIP_METRIC = "skip-this-metric";
+
+    public static final double NANOS_PER_MILLISECOND = 1E6;
+
 }

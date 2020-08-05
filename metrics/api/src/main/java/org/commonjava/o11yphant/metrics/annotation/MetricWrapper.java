@@ -13,18 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.commonjava.o11yphant.annotation;
+package org.commonjava.o11yphant.metrics.annotation;
 
 import javax.interceptor.InterceptorBinding;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @InterceptorBinding
-@Target( { PARAMETER } )
+@Target( { METHOD, TYPE } )
 @Retention( RUNTIME )
-public @interface MetricWrapperNamed
+public @interface MetricWrapper
 {
 }

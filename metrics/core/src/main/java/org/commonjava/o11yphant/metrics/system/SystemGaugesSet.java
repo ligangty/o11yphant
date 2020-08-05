@@ -15,9 +15,9 @@
  */
 package org.commonjava.o11yphant.metrics.system;
 
-import org.commonjava.o11yphant.api.Gauge;
-import org.commonjava.o11yphant.api.Metric;
-import org.commonjava.o11yphant.api.MetricSet;
+import org.commonjava.o11yphant.metrics.api.Gauge;
+import org.commonjava.o11yphant.metrics.api.Metric;
+import org.commonjava.o11yphant.metrics.api.MetricSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

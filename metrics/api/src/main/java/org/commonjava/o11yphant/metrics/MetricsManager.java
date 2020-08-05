@@ -16,11 +16,10 @@
 package org.commonjava.o11yphant.metrics;
 
 import org.commonjava.cdi.util.weft.ThreadContext;
-import org.commonjava.o11yphant.api.Gauge;
-import org.commonjava.o11yphant.api.Meter;
-import org.commonjava.o11yphant.api.MetricRegistry;
-import org.commonjava.o11yphant.api.Timer;
-import org.commonjava.o11yphant.conf.MetricsConfig;
+import org.commonjava.o11yphant.metrics.api.Gauge;
+import org.commonjava.o11yphant.metrics.api.Meter;
+import org.commonjava.o11yphant.metrics.api.MetricRegistry;
+import org.commonjava.o11yphant.metrics.api.Timer;
 
 import java.util.Collection;
 import java.util.Map;
@@ -51,6 +50,4 @@ public interface MetricsManager
     void addGauges( Class<?> className, String method, Map<String, Gauge<Integer>> gauges );
 
     MetricRegistry getMetricRegistry();
-
-    MetricsConfig getConfig();
 }

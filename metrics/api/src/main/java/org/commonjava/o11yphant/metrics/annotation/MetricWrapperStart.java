@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.commonjava.o11yphant.annotation;
+package org.commonjava.o11yphant.metrics.annotation;
 
 import javax.interceptor.InterceptorBinding;
 import java.lang.annotation.Retention;
@@ -26,6 +26,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @InterceptorBinding
 @Target( { METHOD, TYPE } )
 @Retention( RUNTIME )
-public @interface MetricWrapperEnd
+public @interface MetricWrapperStart
 {
 }

@@ -1,6 +1,6 @@
 package org.commonjava.o11yphant.metrics.impl;
 
-import org.commonjava.o11yphant.api.Meter;
+import org.commonjava.o11yphant.metrics.api.Meter;
 
 public class O11Meter
                 implements Meter

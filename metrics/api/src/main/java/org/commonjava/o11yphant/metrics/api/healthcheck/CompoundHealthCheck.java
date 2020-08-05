@@ -13,19 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.commonjava.o11yphant.annotation;
+package org.commonjava.o11yphant.metrics.api.healthcheck;
 
-import javax.interceptor.InterceptorBinding;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+import java.util.Map;
 
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
-@InterceptorBinding
-@Target( { METHOD, TYPE } )
-@Retention( RUNTIME )
-public @interface MetricWrapper
+public interface CompoundHealthCheck
 {
+    Map<String, HealthCheck> getHealthChecks();
 }

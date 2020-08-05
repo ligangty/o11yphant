@@ -7,7 +7,7 @@ import io.prometheus.client.dropwizard.DropwizardExports;
 import io.undertow.servlet.Servlets;
 import io.undertow.servlet.api.DeploymentInfo;
 import io.undertow.servlet.api.ServletInfo;
-import org.commonjava.o11yphant.conf.MetricsConfig;
+import org.commonjava.o11yphant.metrics.conf.MetricsConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

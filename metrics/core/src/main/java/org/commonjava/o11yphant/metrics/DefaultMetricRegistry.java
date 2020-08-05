@@ -1,13 +1,13 @@
 package org.commonjava.o11yphant.metrics;
 
 import com.codahale.metrics.health.HealthCheckRegistry;
-import org.commonjava.o11yphant.api.Gauge;
-import org.commonjava.o11yphant.api.healthcheck.HealthCheck;
-import org.commonjava.o11yphant.api.Meter;
-import org.commonjava.o11yphant.api.Metric;
-import org.commonjava.o11yphant.api.MetricRegistry;
-import org.commonjava.o11yphant.api.MetricSet;
-import org.commonjava.o11yphant.api.Timer;
+import org.commonjava.o11yphant.metrics.api.Gauge;
+import org.commonjava.o11yphant.metrics.api.healthcheck.HealthCheck;
+import org.commonjava.o11yphant.metrics.api.Meter;
+import org.commonjava.o11yphant.metrics.api.Metric;
+import org.commonjava.o11yphant.metrics.api.MetricRegistry;
+import org.commonjava.o11yphant.metrics.api.MetricSet;
+import org.commonjava.o11yphant.metrics.api.Timer;
 import org.commonjava.o11yphant.metrics.impl.O11Meter;
 import org.commonjava.o11yphant.metrics.impl.O11Timer;
 

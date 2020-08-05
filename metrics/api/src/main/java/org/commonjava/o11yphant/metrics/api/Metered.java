@@ -1,4 +1,4 @@
-package org.commonjava.o11yphant.api;
+package org.commonjava.o11yphant.metrics.api;
 
 public interface Metered
 {

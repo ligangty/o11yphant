@@ -13,30 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.commonjava.o11yphant.metrics.healthcheck.impl;
+package org.commonjava.o11yphant.metrics.annotation;
 
-import org.commonjava.o11yphant.metrics.api.healthcheck.HealthCheck;
+import javax.interceptor.InterceptorBinding;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
-import static org.commonjava.o11yphant.metrics.util.NameUtils.getAbbreviatedName;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-public abstract class AbstractHealthCheck
-                implements HealthCheck
+@InterceptorBinding
+@Target( { METHOD, TYPE } )
+@Retention( RUNTIME )
+public @interface MetricWrapperEnd
 {
-    public String getName()
-    {
-        return getAbbreviatedName( this.getClass() );
-    }
-
-    public HealthCheck.Result execute()
-    {
-        try
-        {
-            return this.check();
-        }
-        catch ( Exception var2 )
-        {
-            return new HealthCheckResult( false ).withThrowable( var2 );
-        }
-    }
-
 }

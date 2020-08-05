@@ -1,6 +1,6 @@
 package org.commonjava.o11yphant.metrics.util;
 
-import org.commonjava.o11yphant.api.healthcheck.HealthCheck;
+import org.commonjava.o11yphant.metrics.api.healthcheck.HealthCheck;
 
 import java.util.Map;
 

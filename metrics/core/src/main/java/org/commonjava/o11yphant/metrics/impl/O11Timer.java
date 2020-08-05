@@ -1,7 +1,7 @@
 package org.commonjava.o11yphant.metrics.impl;
 
-import org.commonjava.o11yphant.api.Snapshot;
-import org.commonjava.o11yphant.api.Timer;
+import org.commonjava.o11yphant.metrics.api.Snapshot;
+import org.commonjava.o11yphant.metrics.api.Timer;
 
 import java.util.concurrent.TimeUnit;
 

@@ -17,19 +17,20 @@ package org.commonjava.o11yphant.metrics;
 
 import com.codahale.metrics.health.HealthCheckRegistry;
 import org.commonjava.cdi.util.weft.ThreadContext;
-import org.commonjava.o11yphant.annotation.MetricWrapper;
-import org.commonjava.o11yphant.annotation.MetricWrapperEnd;
-import org.commonjava.o11yphant.annotation.MetricWrapperNamed;
-import org.commonjava.o11yphant.annotation.MetricWrapperStart;
-import org.commonjava.o11yphant.api.Gauge;
-import org.commonjava.o11yphant.api.healthcheck.HealthCheck;
-import org.commonjava.o11yphant.api.Meter;
-import org.commonjava.o11yphant.api.MetricRegistry;
-import org.commonjava.o11yphant.api.Timer;
-import org.commonjava.o11yphant.conf.MetricsConfig;
-import org.commonjava.o11yphant.api.healthcheck.CompoundHealthCheck;
+import org.commonjava.o11yphant.metrics.annotation.MetricWrapper;
+import org.commonjava.o11yphant.metrics.annotation.MetricWrapperEnd;
+import org.commonjava.o11yphant.metrics.annotation.MetricWrapperNamed;
+import org.commonjava.o11yphant.metrics.annotation.MetricWrapperStart;
+import org.commonjava.o11yphant.metrics.api.Gauge;
+import org.commonjava.o11yphant.metrics.api.healthcheck.HealthCheck;
+import org.commonjava.o11yphant.metrics.api.Meter;
+import org.commonjava.o11yphant.metrics.api.MetricRegistry;
+import org.commonjava.o11yphant.metrics.api.Timer;
+import org.commonjava.o11yphant.metrics.conf.MetricsConfig;
+import org.commonjava.o11yphant.metrics.api.healthcheck.CompoundHealthCheck;
 import org.commonjava.o11yphant.metrics.healthcheck.impl.AbstractHealthCheck;
 import org.commonjava.o11yphant.metrics.jvm.JVMInstrumentation;
+import org.commonjava.o11yphant.metrics.util.NameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +51,7 @@ import static org.commonjava.o11yphant.metrics.MetricsConstants.EXCEPTION;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.NANOS_PER_MILLISECOND;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.SKIP_METRIC;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.TIMER;
-import static org.commonjava.o11yphant.metrics.MetricsConstants.getDefaultName;
+import static org.commonjava.o11yphant.metrics.util.NameUtils.getDefaultName;
 import static org.commonjava.o11yphant.metrics.RequestContextHelper.CUMULATIVE_COUNTS;
 import static org.commonjava.o11yphant.metrics.RequestContextHelper.CUMULATIVE_TIMINGS;
 import static org.commonjava.o11yphant.metrics.RequestContextHelper.IS_METERED;
@@ -115,7 +116,12 @@ public class DefaultMetricsManager
             } );
         } );
 
-        metricSetProviderInstances.forEach( ( provider ) -> provider.registerMetricSet( metricRegistry ) );
+        metricSetProviderInstances.forEach( ( provider ) -> {
+            if ( provider.isEnabled() )
+            {
+                metricRegistry.register( provider.getName(), provider.getMetricSet() );
+            }
+        } );
     }
 
     public boolean isMetered( Supplier<Boolean> meteringOverride )
@@ -277,7 +283,7 @@ public class DefaultMetricsManager
     {
         String defaultName = getDefaultName( className, method );
         gauges.forEach( ( k, v ) -> {
-            String name = MetricsConstants.getName( config.getNodePrefix(), DEFAULT, defaultName, k );
+            String name = NameUtils.getName( config.getNodePrefix(), DEFAULT, defaultName, k );
             metricRegistry.gauge( name, v );
         } );
     }

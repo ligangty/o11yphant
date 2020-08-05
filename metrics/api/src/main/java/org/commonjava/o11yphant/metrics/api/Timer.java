@@ -1,4 +1,4 @@
-package org.commonjava.o11yphant.api;
+package org.commonjava.o11yphant.metrics.api;
 
 import java.util.concurrent.TimeUnit;
 

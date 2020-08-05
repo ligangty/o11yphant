@@ -15,9 +15,9 @@
  */
 package org.commonjava.o11yphant.metrics.interceptor;
 
-import org.commonjava.o11yphant.annotation.Measure;
-import org.commonjava.o11yphant.api.Timer;
-import org.commonjava.o11yphant.conf.MetricsConfig;
+import org.commonjava.o11yphant.metrics.annotation.Measure;
+import org.commonjava.o11yphant.metrics.api.Timer;
+import org.commonjava.o11yphant.metrics.conf.MetricsConfig;
 import org.commonjava.o11yphant.metrics.MetricsManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,8 +39,8 @@ import static org.commonjava.o11yphant.metrics.MetricsConstants.EXCEPTION;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.METER;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.NANOS_PER_MILLISECOND;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.TIMER;
-import static org.commonjava.o11yphant.metrics.MetricsConstants.getDefaultName;
-import static org.commonjava.o11yphant.metrics.MetricsConstants.getName;
+import static org.commonjava.o11yphant.metrics.util.NameUtils.getDefaultName;
+import static org.commonjava.o11yphant.metrics.util.NameUtils.getName;
 
 @Interceptor
 @Measure

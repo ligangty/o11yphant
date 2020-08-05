@@ -1,4 +1,4 @@
-package org.commonjava.o11yphant.api.healthcheck;
+package org.commonjava.o11yphant.metrics.api.healthcheck;
 
 import java.util.Map;
 
