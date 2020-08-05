@@ -23,14 +23,15 @@ import com.codahale.metrics.jvm.FileDescriptorRatioGauge;
 import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import java.lang.management.ManagementFactory;
 import java.util.concurrent.TimeUnit;
 
 import static com.codahale.metrics.MetricRegistry.name;
 
-/**
- * Created by xiabai on 3/10/17.
- */
+@ApplicationScoped
 public class JVMInstrumentation
 {
     private static final String JVM_MEMORY = "jvm.memory";
@@ -45,11 +46,19 @@ public class JVMInstrumentation
 
     private static final String JVM_CLASSLOADING = "jvm.classloading";
 
-    public static void registerJvmMetric( String nodePrefix, MetricRegistry registry )
+    private MetricRegistry registry;
+
+    @Inject
+    public JVMInstrumentation( MetricRegistry registry )
+    {
+        this.registry = registry;
+    }
+
+    public void registerJvmMetric( String nodePrefix )
     {
         registry.register( name( nodePrefix, JVM_MEMORY ), new MemoryUsageGaugeSet() );
         registry.register( name( nodePrefix, JVM_GARBAGE ), new GarbageCollectorMetricSet() );
-        registry.register( name( nodePrefix, JVM_THREADS ), new CachedThreadStatesGaugeSet( 60, TimeUnit.SECONDS ));
+        registry.register( name( nodePrefix, JVM_THREADS ), new CachedThreadStatesGaugeSet( 60, TimeUnit.SECONDS ) );
         registry.register( name( nodePrefix, JVM_FILES ), new FileDescriptorRatioGauge() );
         registry.register( name( nodePrefix, JVM_CLASSLOADING ), new ClassLoadingGaugeSet() );
         registry.register( name( nodePrefix, JVM_BUFFERS ),

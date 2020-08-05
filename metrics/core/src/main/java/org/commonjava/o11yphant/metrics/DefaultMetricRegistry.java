@@ -2,10 +2,14 @@ package org.commonjava.o11yphant.metrics;
 
 import com.codahale.metrics.health.HealthCheckRegistry;
 import org.commonjava.o11yphant.api.Gauge;
-import org.commonjava.o11yphant.api.HealthCheck;
+import org.commonjava.o11yphant.api.healthcheck.HealthCheck;
+import org.commonjava.o11yphant.api.Meter;
 import org.commonjava.o11yphant.api.Metric;
 import org.commonjava.o11yphant.api.MetricRegistry;
 import org.commonjava.o11yphant.api.MetricSet;
+import org.commonjava.o11yphant.api.Timer;
+import org.commonjava.o11yphant.metrics.impl.O11Meter;
+import org.commonjava.o11yphant.metrics.impl.O11Timer;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -67,5 +71,24 @@ public class DefaultMetricRegistry
                 return builder.build();
             }
         } );
+    }
+
+    @Override
+    public Meter meter( String name )
+    {
+        return new O11Meter( registry.meter( name ) );
+    }
+
+    @Override
+    public Timer timer( String name )
+    {
+        return new O11Timer( registry.timer( name ) );
+    }
+
+    @Override
+    public <T> Gauge<T> gauge( String name, Gauge<T> o )
+    {
+        registry.gauge( name, () -> () -> o.getValue() );
+        return o;
     }
 }

@@ -13,15 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.commonjava.o11yphant.metrics.healthcheck;
-
-import org.commonjava.o11yphant.api.HealthCheck;
+package org.commonjava.o11yphant.api.healthcheck;
 
 import java.util.Map;
 
 public interface CompoundHealthCheck
 {
-
     Map<String, HealthCheck> getHealthChecks();
-
 }

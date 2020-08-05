@@ -13,22 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.commonjava.o11yphant.metrics.healthcheck;
+package org.commonjava.o11yphant.metrics.healthcheck.impl;
 
-import com.codahale.metrics.health.HealthCheck;
+import org.commonjava.o11yphant.api.healthcheck.HealthCheck;
 
 import static org.commonjava.o11yphant.metrics.util.NameUtils.getAbbreviatedName;
 
-/**
- * Created by xiabai on 3/10/17.
- */
 public abstract class AbstractHealthCheck
-                extends HealthCheck
+                implements HealthCheck
 {
-
     public String getName()
     {
         return getAbbreviatedName( this.getClass() );
+    }
+
+    public HealthCheck.Result execute()
+    {
+        try
+        {
+            return this.check();
+        }
+        catch ( Exception var2 )
+        {
+            return new HealthCheckResult( false ).withThrowable( var2 );
+        }
     }
 
 }

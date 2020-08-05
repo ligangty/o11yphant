@@ -13,23 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.commonjava.o11yphant.metrics.healthcheck.impl;
+package org.commonjava.o11yphant.metrics.healthcheck.impl.component;
 
-import org.commonjava.o11yphant.metrics.healthcheck.ComponentHC;
+import com.codahale.metrics.health.HealthCheck;
+import com.codahale.metrics.health.jvm.ThreadDeadlockHealthCheck;
+import org.commonjava.o11yphant.metrics.healthcheck.impl.HealthCheckResult;
 
 import javax.inject.Named;
 
 @Named
 public class DeadlockHealthCheck
-        extends ComponentHC
+                extends ComponentHealthCheck
 {
-    com.codahale.metrics.health.jvm.ThreadDeadlockHealthCheck
-                    deadlock = new com.codahale.metrics.health.jvm.ThreadDeadlockHealthCheck();
+    private ThreadDeadlockHealthCheck deadlock = new ThreadDeadlockHealthCheck();
 
     @Override
-    protected Result check() throws Exception
+    public Result check() throws Exception
     {
-        return deadlock.execute();
+        HealthCheck.Result ret = deadlock.execute();
+        return new HealthCheckResult( ret.isHealthy() ).withMessage( ret.getMessage() )
+                                                       .withThrowable( ret.getError() )
+                                                       .withDetails( ret.getDetails() );
     }
-
 }

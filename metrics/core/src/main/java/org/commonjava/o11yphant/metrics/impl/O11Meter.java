@@ -2,17 +2,17 @@ package org.commonjava.o11yphant.metrics.impl;
 
 import org.commonjava.o11yphant.api.Meter;
 
-public class MeterImpl
+public class O11Meter
                 implements Meter
 {
     private com.codahale.metrics.Meter codahaleMeter;
 
-    public MeterImpl()
+    public O11Meter()
     {
         codahaleMeter = new com.codahale.metrics.Meter();
     }
 
-    public MeterImpl( com.codahale.metrics.Meter meter )
+    public O11Meter( com.codahale.metrics.Meter meter )
     {
         codahaleMeter = meter;
     }

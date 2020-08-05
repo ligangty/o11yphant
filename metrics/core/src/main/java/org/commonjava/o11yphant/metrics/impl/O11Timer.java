@@ -5,17 +5,17 @@ import org.commonjava.o11yphant.api.Timer;
 
 import java.util.concurrent.TimeUnit;
 
-public class TimerImpl
+public class O11Timer
                 implements Timer
 {
     private com.codahale.metrics.Timer codahaleTimer;
 
-    public TimerImpl()
+    public O11Timer()
     {
         codahaleTimer = new com.codahale.metrics.Timer();
     }
 
-    public TimerImpl( com.codahale.metrics.Timer timer )
+    public O11Timer( com.codahale.metrics.Timer timer )
     {
         codahaleTimer = timer;
     }

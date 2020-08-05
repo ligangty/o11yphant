@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.commonjava.o11yphant.metrics.healthcheck.impl;
+package org.commonjava.o11yphant.metrics.healthcheck.impl.component;
 
-import org.commonjava.o11yphant.metrics.healthcheck.ComponentHC;
+import org.commonjava.o11yphant.metrics.healthcheck.impl.HealthCheckResult;
 
 import javax.inject.Named;
 
 @Named
 public class HeapHealthCheck
-        extends ComponentHC
+                extends ComponentHealthCheck
 {
-    private static final double GB = Math.pow(1024, 3);
+    private static final double GB = Math.pow( 1024, 3 );
 
     private static final String FREE_GB = "free-gb";
 
@@ -38,33 +38,30 @@ public class HeapHealthCheck
     private static final float HEALTHY_LOAD_MAX = 90f;
 
     @Override
-    protected Result check()
-            throws Exception
+    public Result check() throws Exception
     {
         Runtime runtime = Runtime.getRuntime();
-        ResultBuilder builder = Result.builder();
 
         double free = runtime.freeMemory();
         double total = runtime.totalMemory();
-        double used = total-free;
+        double used = total - free;
 
         double max = runtime.maxMemory();
-        double load = 100 * (used / max);
+        double load = 100 * ( used / max );
 
+        boolean isHealthy = true;
         if ( load > HEALTHY_LOAD_MAX )
         {
-            builder.unhealthy();
+            isHealthy = false;
         }
-        else
-        {
-            builder.healthy();
-        }
+        HealthCheckResult ret = new HealthCheckResult( isHealthy );
 
-        builder.withDetail( FREE_GB, free / GB )
-               .withDetail( USED_GB, used / GB )
-               .withDetail( MAX_GB, max / GB )
-               .withDetail( TOTAL_GB, total / GB ).withDetail( CURRENT_LOAD, load );
+        ret.withDetail( FREE_GB, free / GB )
+           .withDetail( USED_GB, used / GB )
+           .withDetail( MAX_GB, max / GB )
+           .withDetail( TOTAL_GB, total / GB )
+           .withDetail( CURRENT_LOAD, load );
 
-        return builder.build();
+        return ret;
     }
 }

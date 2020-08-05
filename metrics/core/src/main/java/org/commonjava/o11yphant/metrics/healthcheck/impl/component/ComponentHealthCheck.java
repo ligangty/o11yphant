@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.commonjava.o11yphant.metrics.healthcheck;
+package org.commonjava.o11yphant.metrics.healthcheck.impl.component;
 
-public abstract class ComponentHC
-                extends AbstractHealthCheck
+import org.commonjava.o11yphant.metrics.healthcheck.impl.AbstractHealthCheck;
+
+public abstract class ComponentHealthCheck extends AbstractHealthCheck
 {
 }

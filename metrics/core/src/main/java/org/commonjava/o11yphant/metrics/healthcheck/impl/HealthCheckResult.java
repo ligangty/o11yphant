@@ -1,6 +1,6 @@
-package org.commonjava.o11yphant.metrics.impl;
+package org.commonjava.o11yphant.metrics.healthcheck.impl;
 
-import org.commonjava.o11yphant.api.HealthCheck;
+import org.commonjava.o11yphant.api.healthcheck.HealthCheck;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -83,5 +83,11 @@ public class HealthCheckResult
     public Map<String, Object> getDetails()
     {
         return details;
+    }
+
+    public HealthCheck.Result withDetails( Map<String, Object> details )
+    {
+        this.details = details;
+        return this;
     }
 }
