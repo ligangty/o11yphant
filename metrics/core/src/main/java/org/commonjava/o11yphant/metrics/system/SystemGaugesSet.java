@@ -15,9 +15,9 @@
  */
 package org.commonjava.o11yphant.metrics.system;
 
-import com.codahale.metrics.Gauge;
-import com.codahale.metrics.Metric;
-import com.codahale.metrics.MetricSet;
+import org.commonjava.o11yphant.metrics.api.Gauge;
+import org.commonjava.o11yphant.metrics.api.Metric;
+import org.commonjava.o11yphant.metrics.api.MetricSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

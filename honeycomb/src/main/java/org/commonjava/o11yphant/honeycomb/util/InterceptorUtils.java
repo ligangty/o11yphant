@@ -15,7 +15,7 @@
  */
 package org.commonjava.o11yphant.honeycomb.util;
 
-import org.commonjava.o11yphant.annotation.MetricWrapperNamed;
+import org.commonjava.o11yphant.metrics.annotation.MetricWrapperNamed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

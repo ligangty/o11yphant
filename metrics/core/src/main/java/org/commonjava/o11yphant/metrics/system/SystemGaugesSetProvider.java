@@ -15,14 +15,14 @@
  */
 package org.commonjava.o11yphant.metrics.system;
 
-import com.codahale.metrics.MetricRegistry;
-import org.commonjava.o11yphant.conf.MetricsConfig;
+import org.commonjava.o11yphant.metrics.api.MetricSet;
+import org.commonjava.o11yphant.metrics.conf.MetricsConfig;
 import org.commonjava.o11yphant.metrics.MetricSetProvider;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import static com.codahale.metrics.MetricRegistry.name;
+import static org.commonjava.o11yphant.metrics.util.NameUtils.name;
 
 @ApplicationScoped
 public class SystemGaugesSetProvider
@@ -37,8 +37,20 @@ public class SystemGaugesSetProvider
     private static final String SYSTEM = "system";
 
     @Override
+    public MetricSet getMetricSet()
+    {
+        return systemGaugesSet;
+    }
+
+    @Override
+    public String getName()
+    {
+        return name( metricsConfig.getNodePrefix(), SYSTEM );
+    }
+
+    /*@Override
     public void registerMetricSet( MetricRegistry registry )
     {
         registry.register( name( metricsConfig.getNodePrefix(), SYSTEM ), systemGaugesSet );
-    }
+    }*/
 }

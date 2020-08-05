@@ -15,20 +15,22 @@
  */
 package org.commonjava.o11yphant.metrics;
 
-import com.codahale.metrics.Gauge;
-import com.codahale.metrics.Meter;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
-import com.codahale.metrics.health.HealthCheck;
 import com.codahale.metrics.health.HealthCheckRegistry;
 import org.commonjava.cdi.util.weft.ThreadContext;
-import org.commonjava.o11yphant.annotation.MetricWrapper;
-import org.commonjava.o11yphant.annotation.MetricWrapperEnd;
-import org.commonjava.o11yphant.annotation.MetricWrapperNamed;
-import org.commonjava.o11yphant.annotation.MetricWrapperStart;
-import org.commonjava.o11yphant.conf.MetricsConfig;
-import org.commonjava.o11yphant.metrics.healthcheck.AbstractHealthCheck;
-import org.commonjava.o11yphant.metrics.healthcheck.CompoundHealthCheck;
+import org.commonjava.o11yphant.metrics.annotation.MetricWrapper;
+import org.commonjava.o11yphant.metrics.annotation.MetricWrapperEnd;
+import org.commonjava.o11yphant.metrics.annotation.MetricWrapperNamed;
+import org.commonjava.o11yphant.metrics.annotation.MetricWrapperStart;
+import org.commonjava.o11yphant.metrics.api.Gauge;
+import org.commonjava.o11yphant.metrics.api.healthcheck.HealthCheck;
+import org.commonjava.o11yphant.metrics.api.Meter;
+import org.commonjava.o11yphant.metrics.api.MetricRegistry;
+import org.commonjava.o11yphant.metrics.api.Timer;
+import org.commonjava.o11yphant.metrics.conf.MetricsConfig;
+import org.commonjava.o11yphant.metrics.api.healthcheck.CompoundHealthCheck;
+import org.commonjava.o11yphant.metrics.healthcheck.impl.AbstractHealthCheck;
+import org.commonjava.o11yphant.metrics.jvm.JVMInstrumentation;
+import org.commonjava.o11yphant.metrics.util.NameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,17 +46,17 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
-import static com.codahale.metrics.MetricRegistry.name;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.DEFAULT;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.EXCEPTION;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.NANOS_PER_MILLISECOND;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.SKIP_METRIC;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.TIMER;
-import static org.commonjava.o11yphant.metrics.MetricsConstants.getDefaultName;
+import static org.commonjava.o11yphant.metrics.util.NameUtils.getDefaultName;
 import static org.commonjava.o11yphant.metrics.RequestContextHelper.CUMULATIVE_COUNTS;
 import static org.commonjava.o11yphant.metrics.RequestContextHelper.CUMULATIVE_TIMINGS;
 import static org.commonjava.o11yphant.metrics.RequestContextHelper.IS_METERED;
-import static org.commonjava.o11yphant.metrics.jvm.JVMInstrumentation.registerJvmMetric;
+import static org.commonjava.o11yphant.metrics.util.HealthCheckUtils.wrap;
+import static org.commonjava.o11yphant.metrics.util.NameUtils.name;
 
 @ApplicationScoped
 public class DefaultMetricsManager
@@ -67,7 +69,7 @@ public class DefaultMetricsManager
     private MetricRegistry metricRegistry;
 
     @Inject
-    private HealthCheckRegistry healthCheckRegistry;
+    private HealthCheckRegistry codahaleHealthCheckRegistry;
 
     @Inject
     private Instance<AbstractHealthCheck> healthChecks;
@@ -77,6 +79,9 @@ public class DefaultMetricsManager
 
     @Inject
     private Instance<MetricSetProvider> metricSetProviderInstances;
+
+    @Inject
+    private JVMInstrumentation jvmInstrumentation;
 
     @Inject
     private MetricsConfig config;
@@ -94,30 +99,29 @@ public class DefaultMetricsManager
 
         logger.info( "Init metrics subsystem..." );
 
-        registerJvmMetric( config.getNodePrefix(), metricRegistry );
+        jvmInstrumentation.registerJvmMetric( config.getNodePrefix() );
 
         // Health checks
         healthChecks.forEach( hc -> {
             logger.info( "Registering health check: {}", hc.getName() );
-            healthCheckRegistry.register( hc.getName(), hc );
+            codahaleHealthCheckRegistry.register( hc.getName(), wrap( hc ) );
         } );
 
-        compoundHealthChecks.forEach( cc-> {
+        compoundHealthChecks.forEach( cc -> {
             Map<String, HealthCheck> healthChecks = cc.getHealthChecks();
-            logger.info( "Registering {} health checks from set: {}", healthChecks.size(), cc.getClass().getSimpleName() );
-            healthChecks.forEach( (name,check)->{
+            logger.info( "Registering {} health checks from: {}", healthChecks.size(), cc.getClass().getSimpleName() );
+            healthChecks.forEach( ( name, check ) -> {
                 logger.info( "Registering health check: {}", name );
-                healthCheckRegistry.register( name, check );
+                codahaleHealthCheckRegistry.register( name, wrap( check ) );
             } );
         } );
 
-        metricSetProviderInstances.forEach( ( provider ) -> provider.registerMetricSet( metricRegistry ) );
-    }
-
-    @Override
-    public HealthCheckRegistry getHealthCheckRegistry()
-    {
-        return healthCheckRegistry;
+        metricSetProviderInstances.forEach( ( provider ) -> {
+            if ( provider.isEnabled() )
+            {
+                metricRegistry.register( provider.getName(), provider.getMetricSet() );
+            }
+        } );
     }
 
     public boolean isMetered( Supplier<Boolean> meteringOverride )
@@ -143,7 +147,7 @@ public class DefaultMetricsManager
 
     private Timer.Context startTimerInternal( String name )
     {
-        Timer.Context tctx = this.metricRegistry.timer( name ).time();
+        Timer.Context tctx = metricRegistry.timer( name ).time();
         ThreadContext ctx = ThreadContext.getContext( true );
         ctx.put( TIMER + name, tctx );
         return tctx;
@@ -193,15 +197,15 @@ public class DefaultMetricsManager
             timingMap.merge( name, elapsed, ( existingVal, newVal ) -> existingVal + newVal );
 
             ctx.putIfAbsent( CUMULATIVE_COUNTS, new ConcurrentHashMap<>() );
-            Map<String, Integer> countMap =
-                            (Map<String, Integer>) ctx.get( CUMULATIVE_COUNTS );
+            Map<String, Integer> countMap = (Map<String, Integer>) ctx.get( CUMULATIVE_COUNTS );
 
             countMap.merge( name, 1, ( existingVal, newVal ) -> existingVal + 1 );
         }
     }
 
     @MetricWrapper
-    public <T> T wrapWithStandardMetrics( final Supplier<T> method, @MetricWrapperNamed final Supplier<String> classifier )
+    public <T> T wrapWithStandardMetrics( final Supplier<T> method,
+                                          @MetricWrapperNamed final Supplier<String> classifier )
     {
         String name = classifier.get();
         if ( !checkMetered() || SKIP_METRIC.equals( name ) )
@@ -212,7 +216,7 @@ public class DefaultMetricsManager
         String nodePrefix = config.getNodePrefix();
 
         String metricName = name( nodePrefix, name );
-        String startName = name( metricName, "starts"  );
+        String startName = name( metricName, "starts" );
 
         String timerName = name( metricName, TIMER );
         String errorName = name( name, EXCEPTION );
@@ -240,7 +244,7 @@ public class DefaultMetricsManager
             stopTimers( Collections.singletonMap( timerName, timer ) );
             mark( Arrays.asList( metricName ) );
 
-            double elapsed = (System.nanoTime() - start) / NANOS_PER_MILLISECOND;
+            double elapsed = ( System.nanoTime() - start ) / NANOS_PER_MILLISECOND;
             accumulate( metricName, elapsed );
         }
     }
@@ -257,7 +261,7 @@ public class DefaultMetricsManager
             ctx = ThreadContext.getContext( false );
         }
 
-        return ( ctx == null || ((Boolean) ctx.getOrDefault( IS_METERED, Boolean.TRUE ) ) );
+        return ( ctx == null || ( (Boolean) ctx.getOrDefault( IS_METERED, Boolean.TRUE ) ) );
     }
 
     public void stopTimers( final Map<String, Timer.Context> timers )
@@ -268,10 +272,10 @@ public class DefaultMetricsManager
         }
     }
 
-    public void mark( final Collection<String> metricNames )
+    public void mark( final Collection<String> meters )
     {
-        metricNames.forEach( metricName -> {
-            getMeter( metricName ).mark();
+        meters.forEach( name -> {
+            getMeter( name ).mark();
         } );
     }
 
@@ -279,8 +283,8 @@ public class DefaultMetricsManager
     {
         String defaultName = getDefaultName( className, method );
         gauges.forEach( ( k, v ) -> {
-            String name = MetricsConstants.getName( config.getNodePrefix(), DEFAULT, defaultName, k );
-            metricRegistry.gauge( name, () -> v );
+            String name = NameUtils.getName( config.getNodePrefix(), DEFAULT, defaultName, k );
+            metricRegistry.gauge( name, v );
         } );
     }
 

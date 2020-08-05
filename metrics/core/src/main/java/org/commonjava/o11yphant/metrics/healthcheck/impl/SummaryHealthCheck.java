@@ -15,9 +15,8 @@
  */
 package org.commonjava.o11yphant.metrics.healthcheck.impl;
 
-import org.commonjava.o11yphant.metrics.healthcheck.ComponentHC;
-import org.commonjava.o11yphant.metrics.healthcheck.CompoundHealthCheck;
-import org.commonjava.o11yphant.metrics.healthcheck.AbstractHealthCheck;
+import org.commonjava.o11yphant.metrics.api.healthcheck.CompoundHealthCheck;
+import org.commonjava.o11yphant.metrics.healthcheck.impl.component.ComponentHealthCheck;
 
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
@@ -26,7 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Named
 public class SummaryHealthCheck
-        extends AbstractHealthCheck
+                extends AbstractHealthCheck
 {
     enum SummaryRating
     {
@@ -38,46 +37,54 @@ public class SummaryHealthCheck
     private static final String UNHEALTHY_COUNT = "unhealthy-count";
 
     @Inject
-    private Instance<ComponentHC> looseComponents;
+    private Instance<ComponentHealthCheck> looseComponents;
 
     @Inject
     private Instance<CompoundHealthCheck> looseCompounds;
 
     @Override
-    protected Result check()
-            throws Exception
+    public Result check() throws Exception
     {
         AtomicInteger count = new AtomicInteger( 0 );
-        looseComponents.forEach( check->{
+        looseComponents.forEach( check -> {
             if ( !check.execute().isHealthy() )
                 count.incrementAndGet();
         } );
 
-        looseCompounds.forEach( lc->{
+        looseCompounds.forEach( lc -> {
             lc.getHealthChecks().forEach( ( k, check ) -> {
-                if ( !check.execute().isHealthy() )
+                try
                 {
-                    count.incrementAndGet();
+                    if ( !check.check().isHealthy() )
+                    {
+                        count.incrementAndGet();
+                    }
+                }
+                catch ( Exception e )
+                {
+                    e.printStackTrace();
                 }
             } );
         } );
 
-        ResultBuilder rb = Result.builder();
+        boolean isHealthy = true;
+        if ( count.get() > 0 )
+        {
+            isHealthy = false;
+        }
+
+        HealthCheckResult ret = new HealthCheckResult( isHealthy );
         if ( count.get() > 3 )
         {
-            rb.unhealthy().withDetail( RATING, SummaryRating.red );
+            ret.withDetail( RATING, SummaryRating.red );
         }
         else if ( count.get() > 0 )
         {
-            rb.unhealthy().withDetail( RATING, SummaryRating.yellow );
-        }
-        else
-        {
-            rb.healthy();
+            ret.withDetail( RATING, SummaryRating.yellow );
         }
 
-        rb.withDetail( UNHEALTHY_COUNT, count.get() );
+        ret.withDetail( UNHEALTHY_COUNT, count.get() );
 
-        return rb.build();
+        return ret;
     }
 }

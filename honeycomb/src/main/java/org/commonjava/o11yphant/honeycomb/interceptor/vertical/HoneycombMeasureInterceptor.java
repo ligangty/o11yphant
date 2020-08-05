@@ -16,7 +16,7 @@
 package org.commonjava.o11yphant.honeycomb.interceptor.vertical;
 
 import io.honeycomb.beeline.tracing.Span;
-import org.commonjava.o11yphant.annotation.Measure;
+import org.commonjava.o11yphant.metrics.annotation.Measure;
 import org.commonjava.o11yphant.honeycomb.HoneycombManager;
 import org.commonjava.o11yphant.honeycomb.config.HoneycombConfiguration;
 import org.slf4j.Logger;

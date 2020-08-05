@@ -15,9 +15,9 @@
  */
 package org.commonjava.o11yphant.metrics.interceptor;
 
-import com.codahale.metrics.Timer;
-import org.commonjava.o11yphant.annotation.Measure;
-import org.commonjava.o11yphant.conf.MetricsConfig;
+import org.commonjava.o11yphant.metrics.annotation.Measure;
+import org.commonjava.o11yphant.metrics.api.Timer;
+import org.commonjava.o11yphant.metrics.conf.MetricsConfig;
 import org.commonjava.o11yphant.metrics.MetricsManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,8 +39,8 @@ import static org.commonjava.o11yphant.metrics.MetricsConstants.EXCEPTION;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.METER;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.NANOS_PER_MILLISECOND;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.TIMER;
-import static org.commonjava.o11yphant.metrics.MetricsConstants.getDefaultName;
-import static org.commonjava.o11yphant.metrics.MetricsConstants.getName;
+import static org.commonjava.o11yphant.metrics.util.NameUtils.getDefaultName;
+import static org.commonjava.o11yphant.metrics.util.NameUtils.getName;
 
 @Interceptor
 @Measure
@@ -77,7 +77,7 @@ public class DefaultMetricsInterceptor
         String defaultName = getDefaultName( context.getMethod().getDeclaringClass(), context.getMethod().getName() );
         logger.trace( "Gathering metrics for: {} using context: {}", defaultName, context.getContextData() );
 
-        Map<String, Timer.Context> timers = initTimers( measure, defaultName );
+        Map<String, Timer.Context> timers = initTimers( defaultName );
         List<String> exceptionMeters = initMeters( measure, EXCEPTION, defaultName );
         List<String> meters = initMeters( measure, METER, defaultName );
 
@@ -127,7 +127,7 @@ public class DefaultMetricsInterceptor
         return meters;
     }
 
-    private Map<String, Timer.Context> initTimers( final Measure measure, String defaultName )
+    private Map<String, Timer.Context> initTimers( String defaultName )
     {
         Map<String, Timer.Context> timers = new HashMap<>();
 

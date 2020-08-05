@@ -57,6 +57,7 @@
         <httpTestserverVersion>1.4</httpTestserverVersion>
         <elasticsearchVersion>2.2.0</elasticsearchVersion>
         <logbackVersion>1.2.3</logbackVersion>
+        <undertowVersion>2.1.0.Final</undertowVersion>
         <weftVersion>1.16</weftVersion>
     </properties>
 
@@ -79,6 +80,11 @@
             <dependency>
                 <groupId>org.commonjava.util</groupId>
                 <artifactId>o11yphant-metrics</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.commonjava.util</groupId>
+                <artifactId>o11yphant-metrics-api</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
             <dependency>
@@ -121,6 +127,23 @@
                 <groupId>org.elasticsearch</groupId>
                 <artifactId>metrics-elasticsearch-reporter</artifactId>
                 <version>${elasticsearchVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.undertow</groupId>
+                <artifactId>undertow-servlet</artifactId>
+                <version>${undertowVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.prometheus</groupId>
+                <artifactId>simpleclient_servlet</artifactId>
+                <version>${prometheusVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.prometheus</groupId>
+                <artifactId>simpleclient_dropwizard</artifactId>
+                <version>${prometheusVersion}</version>
             </dependency>
 
             <dependency>

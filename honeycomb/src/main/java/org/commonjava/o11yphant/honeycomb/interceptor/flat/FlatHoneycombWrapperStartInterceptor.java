@@ -16,7 +16,7 @@
 package org.commonjava.o11yphant.honeycomb.interceptor.flat;
 
 import io.honeycomb.beeline.tracing.Span;
-import org.commonjava.o11yphant.annotation.MetricWrapperStart;
+import org.commonjava.o11yphant.metrics.annotation.MetricWrapperStart;
 import org.commonjava.o11yphant.honeycomb.HoneycombManager;
 import org.commonjava.o11yphant.honeycomb.config.HoneycombConfiguration;
 import org.slf4j.Logger;
