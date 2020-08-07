@@ -59,4 +59,8 @@ public class O11Meter
         codahaleMeter.mark( n );
     }
 
+    public com.codahale.metrics.Meter getCodahaleMeter()
+    {
+        return codahaleMeter;
+    }
 }
