@@ -134,4 +134,9 @@ public class O11Timer
             stop();
         }
     }
+
+    public com.codahale.metrics.Timer getCodahaleTimer()
+    {
+        return codahaleTimer;
+    }
 }
