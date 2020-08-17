@@ -108,6 +108,14 @@ public class HoneycombManager
         }
     }
 
+    /**
+     * Register new {@link RootSpanFields} instances in case CDI is not available in client library.
+     */
+    public void registerRootSpanFields( RootSpanFields rootSpanFields )
+    {
+        rootSpanFieldsList.add( rootSpanFields );
+    }
+
     public HoneyClient getClient()
     {
         return client;
