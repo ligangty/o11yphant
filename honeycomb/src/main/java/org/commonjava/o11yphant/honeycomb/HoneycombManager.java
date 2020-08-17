@@ -36,8 +36,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -73,6 +76,11 @@ public class HoneycombManager
     @Inject
     private EventPostProcessor eventPostProcessor;
 
+    @Inject
+    private Instance<RootSpanFields> rootSpanFieldsInstance;
+
+    private List<RootSpanFields> rootSpanFieldsList = new ArrayList<>();
+
     public HoneycombManager()
     {
     }
@@ -95,6 +103,8 @@ public class HoneycombManager
 
             Tracer tracer = Tracing.createTracer( factory, tracingContext );
             beeline = Tracing.createBeeline( tracer, factory );
+
+            rootSpanFieldsInstance.forEach( instance -> rootSpanFieldsList.add( instance ) );
         }
     }
 
@@ -211,7 +221,20 @@ public class HoneycombManager
                     cumulativeCounts.forEach( ( k, v ) -> span.addField( CUMULATIVE_COUNTS + "." + k, v ) );
                 }
             }
+
+            addRootSpanFields( span ); // add custom root span fields via RootSpanFields
         }
+    }
+
+    private void addRootSpanFields( Span span )
+    {
+        rootSpanFieldsList.forEach( rootSpanFields -> {
+            Map<String, Object> fields = rootSpanFields.get();
+            if ( fields != null )
+            {
+                fields.forEach( ( k, v ) -> span.addField( k, v ) );
+            }
+        } );
     }
 
     public void endTrace()
