@@ -55,6 +55,8 @@ public interface HoneycombConfiguration
 
     Set<String> getFieldSet();
 
+    String getEnvironmentMappings();
+
     default int getSampleRate( Method method )
     {
         Logger logger = LoggerFactory.getLogger( getClass() );
