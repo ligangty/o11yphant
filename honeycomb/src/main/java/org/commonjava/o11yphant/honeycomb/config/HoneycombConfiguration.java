@@ -57,6 +57,8 @@ public interface HoneycombConfiguration
 
     String getEnvironmentMappings();
 
+    String getCPNames();
+
     default int getSampleRate( Method method )
     {
         Logger logger = LoggerFactory.getLogger( getClass() );
