@@ -59,6 +59,7 @@
         <logbackVersion>1.2.3</logbackVersion>
         <undertowVersion>2.1.0.Final</undertowVersion>
         <weftVersion>1.16</weftVersion>
+        <agroalVersion>1.8</agroalVersion>
     </properties>
 
     <dependencyManagement>
@@ -173,6 +174,12 @@
                 <groupId>org.commonjava.cdi.util</groupId>
                 <artifactId>weft</artifactId>
                 <version>${weftVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.agroal</groupId>
+                <artifactId>agroal-api</artifactId>
+                <version>${agroalVersion}</version>
             </dependency>
 
             <dependency>
