@@ -22,14 +22,16 @@ import com.codahale.metrics.jvm.ClassLoadingGaugeSet;
 import com.codahale.metrics.jvm.FileDescriptorRatioGauge;
 import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
+import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
+import org.commonjava.o11yphant.metrics.api.MetricSet;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.lang.management.ManagementFactory;
 import java.util.concurrent.TimeUnit;
 
 import static com.codahale.metrics.MetricRegistry.name;
+import static org.commonjava.o11yphant.metrics.util.MetricUtils.wrapGaugeSet;
 
 @ApplicationScoped
 public class JVMInstrumentation
@@ -48,6 +50,10 @@ public class JVMInstrumentation
 
     private MetricRegistry registry;
 
+    private MemoryUsageGaugeSet memoryUsageGaugeSet = new MemoryUsageGaugeSet();
+
+    private ThreadStatesGaugeSet threadStatesGaugeSet = new CachedThreadStatesGaugeSet( 60, TimeUnit.SECONDS );
+
     @Inject
     public JVMInstrumentation( MetricRegistry registry )
     {
@@ -56,12 +62,23 @@ public class JVMInstrumentation
 
     public void registerJvmMetric( String nodePrefix )
     {
-        registry.register( name( nodePrefix, JVM_MEMORY ), new MemoryUsageGaugeSet() );
+        registry.register( name( nodePrefix, JVM_MEMORY ), memoryUsageGaugeSet );
         registry.register( name( nodePrefix, JVM_GARBAGE ), new GarbageCollectorMetricSet() );
-        registry.register( name( nodePrefix, JVM_THREADS ), new CachedThreadStatesGaugeSet( 60, TimeUnit.SECONDS ) );
+        registry.register( name( nodePrefix, JVM_THREADS ), threadStatesGaugeSet );
         registry.register( name( nodePrefix, JVM_FILES ), new FileDescriptorRatioGauge() );
         registry.register( name( nodePrefix, JVM_CLASSLOADING ), new ClassLoadingGaugeSet() );
         registry.register( name( nodePrefix, JVM_BUFFERS ),
                            new BufferPoolMetricSet( ManagementFactory.getPlatformMBeanServer() ) );
     }
+
+    public MetricSet getMemoryUsageGaugeSet()
+    {
+        return wrapGaugeSet( memoryUsageGaugeSet.getMetrics() );
+    }
+
+    public MetricSet getThreadStatesGaugeSet()
+    {
+        return wrapGaugeSet( threadStatesGaugeSet.getMetrics() );
+    }
+
 }
