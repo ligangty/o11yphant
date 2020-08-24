@@ -15,7 +15,6 @@
  */
 package org.commonjava.o11yphant.metrics;
 
-import org.commonjava.cdi.util.weft.ThreadContext;
 import org.commonjava.o11yphant.metrics.api.Gauge;
 import org.commonjava.o11yphant.metrics.api.Meter;
 import org.commonjava.o11yphant.metrics.api.MetricRegistry;
@@ -40,8 +39,6 @@ public interface MetricsManager
     <T> T wrapWithStandardMetrics( final Supplier<T> method, final Supplier<String> classifier );
 
     boolean checkMetered();
-
-    boolean checkMetered( ThreadContext ctx );
 
     void stopTimers( final Map<String, Timer.Context> timers );
 

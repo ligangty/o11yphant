@@ -35,6 +35,11 @@
         </dependency>
 
         <dependency>
+            <groupId>org.commonjava.cdi.util</groupId>
+            <artifactId>weft</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-core</artifactId>
         </dependency>
