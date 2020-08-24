@@ -60,6 +60,7 @@
         <undertowVersion>2.1.0.Final</undertowVersion>
         <weftVersion>1.16</weftVersion>
         <agroalVersion>1.8</agroalVersion>
+        <datastaxVersion>3.7.2</datastaxVersion>
     </properties>
 
     <dependencyManagement>
@@ -180,6 +181,12 @@
                 <groupId>io.agroal</groupId>
                 <artifactId>agroal-api</artifactId>
                 <version>${agroalVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.datastax.cassandra</groupId>
+                <artifactId>cassandra-driver-core</artifactId>
+                <version>${datastaxVersion}</version>
             </dependency>
 
             <dependency>

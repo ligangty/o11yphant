@@ -44,6 +44,10 @@
       <groupId>io.agroal</groupId>
       <artifactId>agroal-api</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.datastax.cassandra</groupId>
+      <artifactId>cassandra-driver-core</artifactId>
+    </dependency>
   </dependencies>
 
 </project>
