@@ -1,5 +1,6 @@
 package org.commonjava.o11yphant.metrics;
 
+import com.codahale.metrics.ConsoleReporter;
 import com.codahale.metrics.health.HealthCheckRegistry;
 import org.commonjava.o11yphant.metrics.api.Gauge;
 import org.commonjava.o11yphant.metrics.api.healthcheck.HealthCheck;
@@ -17,6 +18,7 @@ import javax.inject.Inject;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import static org.commonjava.o11yphant.metrics.util.NameUtils.name;
 
@@ -131,4 +133,23 @@ public class DefaultMetricRegistry
     {
         return registry;
     }
+
+    // for test
+    private boolean consoleReporterStarted;
+
+    public void startConsoleReporter( int periodInSeconds )
+    {
+        if ( consoleReporterStarted )
+        {
+            return;
+        }
+
+        ConsoleReporter reporter = ConsoleReporter.forRegistry( registry )
+                                                  .convertRatesTo( TimeUnit.SECONDS )
+                                                  .convertDurationsTo( TimeUnit.MILLISECONDS )
+                                                  .build();
+        reporter.start( periodInSeconds, TimeUnit.SECONDS );
+        consoleReporterStarted = true;
+    }
+
 }
