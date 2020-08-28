@@ -59,6 +59,8 @@ public interface HoneycombConfiguration
 
     String getCPNames();
 
+    String getNodeId();
+
     default int getSampleRate( Method method )
     {
         Logger logger = LoggerFactory.getLogger( getClass() );
