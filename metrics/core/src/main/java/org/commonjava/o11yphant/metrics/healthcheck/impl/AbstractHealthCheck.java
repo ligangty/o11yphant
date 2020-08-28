@@ -17,14 +17,14 @@ package org.commonjava.o11yphant.metrics.healthcheck.impl;
 
 import org.commonjava.o11yphant.metrics.api.healthcheck.HealthCheck;
 
-import static org.commonjava.o11yphant.metrics.util.NameUtils.getAbbreviatedName;
+import static org.commonjava.o11yphant.metrics.util.NameUtils.name;
 
 public abstract class AbstractHealthCheck
                 implements HealthCheck
 {
     public String getName()
     {
-        return getAbbreviatedName( this.getClass() );
+        return name( this.getClass() );
     }
 
     public HealthCheck.Result execute()
