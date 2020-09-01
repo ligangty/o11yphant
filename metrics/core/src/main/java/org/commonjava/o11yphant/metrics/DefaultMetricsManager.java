@@ -88,6 +88,16 @@ public class DefaultMetricsManager
 
     private Random random = new Random();
 
+    public DefaultMetricsManager()
+    {
+    }
+
+    // for test
+    public DefaultMetricsManager( MetricRegistry metricRegistry )
+    {
+        this.metricRegistry = metricRegistry;
+    }
+
     @PostConstruct
     public void init()
     {
