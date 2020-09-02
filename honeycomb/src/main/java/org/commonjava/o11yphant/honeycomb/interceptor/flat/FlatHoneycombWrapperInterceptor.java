@@ -28,8 +28,10 @@ import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 
 import static java.lang.System.currentTimeMillis;
-import static org.commonjava.o11yphant.honeycomb.util.InterceptorUtils.getMetricNameFromParam;
+import static org.commonjava.o11yphant.honeycomb.util.InterceptorUtils.getMetricNameFromContextAfterRun;
+import static org.commonjava.o11yphant.honeycomb.util.InterceptorUtils.getMetricNameFromContext;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.SKIP_METRIC;
+import static org.commonjava.o11yphant.metrics.util.NameUtils.name;
 
 @Interceptor
 @MetricWrapper
@@ -46,7 +48,7 @@ public class FlatHoneycombWrapperInterceptor
     @AroundInvoke
     public Object operation( InvocationContext context ) throws Exception
     {
-        String name = getMetricNameFromParam( context );
+        String name = getMetricNameFromContext( context );
         logger.debug( "START: Honeycomb lambda wrapper: {}", name );
         if ( !config.isEnabled() )
         {
@@ -72,6 +74,7 @@ public class FlatHoneycombWrapperInterceptor
             if ( span != null )
             {
                 long elapse = currentTimeMillis() - begin;
+                name = name( name, getMetricNameFromContextAfterRun( context ) );
                 honeycombManager.addCumulativeField( span, name, elapse );
             }
             logger.debug( "END: Honeycomb lambda wrapper: {}", name );

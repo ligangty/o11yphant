@@ -28,7 +28,7 @@ import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 
-import static org.commonjava.o11yphant.honeycomb.util.InterceptorUtils.getMetricNameFromParam;
+import static org.commonjava.o11yphant.honeycomb.util.InterceptorUtils.getMetricNameFromContext;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.SKIP_METRIC;
 import static org.commonjava.o11yphant.metrics.RequestContextHelper.getContext;
 
@@ -47,7 +47,7 @@ public class HoneycombWrapperEndInterceptor
     @AroundInvoke
     public Object operation( InvocationContext context ) throws Exception
     {
-        String name = getMetricNameFromParam( context );
+        String name = getMetricNameFromContext( context );
         logger.trace( "START: Honeycomb metrics-end wrapper: {}", name );
         if ( !config.isEnabled() )
         {

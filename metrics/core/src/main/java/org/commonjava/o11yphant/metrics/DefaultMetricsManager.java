@@ -46,14 +46,14 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
+import static org.commonjava.o11yphant.metrics.MetricsConstants.CUMULATIVE_COUNT;
+import static org.commonjava.o11yphant.metrics.MetricsConstants.CUMULATIVE_TIMINGS;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.DEFAULT;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.EXCEPTION;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.NANOS_PER_MILLISECOND;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.SKIP_METRIC;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.TIMER;
 import static org.commonjava.o11yphant.metrics.util.NameUtils.getDefaultName;
-import static org.commonjava.o11yphant.metrics.RequestContextHelper.CUMULATIVE_COUNTS;
-import static org.commonjava.o11yphant.metrics.RequestContextHelper.CUMULATIVE_TIMINGS;
 import static org.commonjava.o11yphant.metrics.RequestContextHelper.IS_METERED;
 import static org.commonjava.o11yphant.metrics.util.HealthCheckUtils.wrap;
 import static org.commonjava.o11yphant.metrics.util.NameUtils.name;
@@ -206,8 +206,8 @@ public class DefaultMetricsManager
 
             timingMap.merge( name, elapsed, ( existingVal, newVal ) -> existingVal + newVal );
 
-            ctx.putIfAbsent( CUMULATIVE_COUNTS, new ConcurrentHashMap<>() );
-            Map<String, Integer> countMap = (Map<String, Integer>) ctx.get( CUMULATIVE_COUNTS );
+            ctx.putIfAbsent( CUMULATIVE_COUNT, new ConcurrentHashMap<>() );
+            Map<String, Integer> countMap = (Map<String, Integer>) ctx.get( CUMULATIVE_COUNT );
 
             countMap.merge( name, 1, ( existingVal, newVal ) -> existingVal + 1 );
         }
@@ -307,4 +307,5 @@ public class DefaultMetricsManager
     {
         return config;
     }
+
 }

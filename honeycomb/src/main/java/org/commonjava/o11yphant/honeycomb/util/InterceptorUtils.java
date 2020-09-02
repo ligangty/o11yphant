@@ -16,29 +16,41 @@
 package org.commonjava.o11yphant.honeycomb.util;
 
 import org.commonjava.o11yphant.metrics.annotation.MetricWrapperNamed;
+import org.commonjava.o11yphant.metrics.annotation.MetricWrapperNamedAfterRun;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.interceptor.InvocationContext;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.function.Supplier;
 
 public class InterceptorUtils
 {
+    private static Logger logger = LoggerFactory.getLogger( InterceptorUtils.class );
 
     public static final String SAMPLE_OVERRIDE = "honeycomb.sample-override";
 
-    public static String getMetricNameFromParam( InvocationContext context )
+    public static String getMetricNameFromContext( InvocationContext context )
+    {
+        return getMetricNameFromContextInternal( context, MetricWrapperNamed.class );
+    }
+
+    public static String getMetricNameFromContextAfterRun( InvocationContext context )
+    {
+        return getMetricNameFromContextInternal( context, MetricWrapperNamedAfterRun.class );
+    }
+
+    private static String getMetricNameFromContextInternal( InvocationContext context, Class annotationClass )
     {
         String name = null;
-
         Method method = context.getMethod();
         Parameter[] parameters = method.getParameters();
-        for ( int i=0; i<parameters.length; i++)
+        for ( int i = 0; i < parameters.length; i++ )
         {
             Parameter param = parameters[i];
-            MetricWrapperNamed annotation = param.getAnnotation( MetricWrapperNamed.class );
+            Annotation annotation = param.getAnnotation( annotationClass );
             if ( annotation != null )
             {
                 Object pv = context.getParameters()[i];
@@ -54,11 +66,7 @@ public class InterceptorUtils
                 break;
             }
         }
-
-        Logger logger = LoggerFactory.getLogger( InterceptorUtils.class );
-        logger.debug( "Found metric name: {}", name );
-
+        logger.debug( "Found metric name: {}, annotation: {}", name, annotationClass.getSimpleName() );
         return name;
     }
-
 }

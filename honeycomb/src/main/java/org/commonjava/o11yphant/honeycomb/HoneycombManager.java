@@ -31,6 +31,9 @@ import io.honeycomb.libhoney.LibHoney;
 import org.commonjava.cdi.util.weft.ThreadContext;
 import org.commonjava.o11yphant.metrics.RequestContextHelper;
 import org.commonjava.o11yphant.honeycomb.config.HoneycombConfiguration;
+import org.commonjava.o11yphant.metrics.annotation.MetricWrapper;
+import org.commonjava.o11yphant.metrics.annotation.MetricWrapperNamed;
+import org.commonjava.o11yphant.metrics.annotation.MetricWrapperNamedAfterRun;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,14 +46,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 
-import static org.commonjava.o11yphant.metrics.RequestContextHelper.AVERAGE_TIME_MS;
-import static org.commonjava.o11yphant.metrics.RequestContextHelper.CUMULATIVE_COUNTS;
-import static org.commonjava.o11yphant.metrics.RequestContextHelper.CUMULATIVE_TIMINGS;
+import static org.commonjava.o11yphant.metrics.MetricsConstants.AVERAGE_TIME_MS;
+import static org.commonjava.o11yphant.metrics.MetricsConstants.CUMULATIVE_COUNT;
+import static org.commonjava.o11yphant.metrics.MetricsConstants.CUMULATIVE_TIMINGS;
+import static org.commonjava.o11yphant.metrics.MetricsConstants.MAX_TIME_MS;
 import static org.commonjava.o11yphant.metrics.RequestContextHelper.REQUEST_PARENT_SPAN;
 import static org.commonjava.o11yphant.metrics.RequestContextHelper.REQUEST_PHASE_START;
 import static org.commonjava.o11yphant.metrics.RequestContextHelper.TRACE_ID;
 import static org.commonjava.o11yphant.metrics.RequestContextHelper.getContext;
+import static org.commonjava.o11yphant.metrics.util.NameUtils.name;
 
 @ApplicationScoped
 public class HoneycombManager
@@ -223,10 +229,10 @@ public class HoneycombManager
                     cumulativeTimings.forEach( ( k, v ) -> span.addField( CUMULATIVE_TIMINGS + "." + k, v ) );
                 }
 
-                Map<String, Integer> cumulativeCounts = (Map<String, Integer>) ctx.get( CUMULATIVE_COUNTS );
+                Map<String, Integer> cumulativeCounts = (Map<String, Integer>) ctx.get( CUMULATIVE_COUNT );
                 if ( cumulativeCounts != null )
                 {
-                    cumulativeCounts.forEach( ( k, v ) -> span.addField( CUMULATIVE_COUNTS + "." + k, v ) );
+                    cumulativeCounts.forEach( ( k, v ) -> span.addField( CUMULATIVE_COUNT + "." + k, v ) );
                 }
             }
 
@@ -318,56 +324,51 @@ public class HoneycombManager
         }
     }
 
+    /**
+     * Add cumulative fields to specified span, i.e., cumulative-timings/count/avg/max.
+     */
     public void addCumulativeField( Span span, String name, long elapse )
     {
-        span.addField( name, elapse );
+        final Map<String, Object> fields = span.getFields();
 
-        Map<String, Object> fields = span.getFields();
-
-        // add cumulative timing field
-        String cumulativeTimingName = CUMULATIVE_TIMINGS + "." + name;
-        Long cumulativeMs = (Long) fields.get( cumulativeTimingName );
-        if ( cumulativeMs != null )
-        {
-            cumulativeMs += elapse;
-        }
-        else
-        {
-            cumulativeMs = elapse;
-        }
+        // cumulative timing
+        String cumulativeTimingName = name( name, CUMULATIVE_TIMINGS );
+        Long cumulativeMs = (Long) fields.getOrDefault( cumulativeTimingName, 0L );
+        cumulativeMs += elapse;
         span.addField( cumulativeTimingName, cumulativeMs );
 
-        // add cumulative counts field
-        String cumulativeCountsName = CUMULATIVE_COUNTS + "." + name;
-        Integer cumulativeCounts = (Integer) fields.get( cumulativeCountsName );
-        if ( cumulativeCounts != null )
-        {
-            cumulativeCounts += 1;
-        }
-        else
-        {
-            cumulativeCounts = 1;
-        }
-        span.addField( cumulativeCountsName, cumulativeCounts );
+        // cumulative count
+        String cumulativeCountName = name( name, CUMULATIVE_COUNT );
+        Integer cumulativeCount = (Integer) fields.getOrDefault( cumulativeCountName, 0 );
+        cumulativeCount += 1;
+        span.addField( cumulativeCountName, cumulativeCount );
 
-        // update average
-        String averageName = AVERAGE_TIME_MS + "." + name;
-        span.addField( averageName, ( cumulativeMs / cumulativeCounts ) );
+        // max
+        String maxTimingName = name( name, MAX_TIME_MS );
+        Long max = (Long) fields.getOrDefault( maxTimingName, 0L );
+        if ( elapse > max )
+        {
+            span.addField( maxTimingName, elapse );
+        }
 
-        logger.trace( "addCumulativeField, span: {}, name: {}, elapse: {}, cumulativeMs: {}, cumulativeCounts: {}",
-                      span, name, elapse, cumulativeMs, cumulativeCounts );
+        // average
+        String averageName = name( name, AVERAGE_TIME_MS );
+        span.addField( averageName, ( cumulativeMs / cumulativeCount ) );
+
+        logger.trace( "addCumulativeField, span: {}, name: {}, elapse: {}, cumulative-ms: {}, count: {}", span, name,
+                      elapse, cumulativeMs, cumulativeCount );
     }
 
     public void addStartField( Span span, String name, long begin )
     {
-        String startFieldName = REQUEST_PHASE_START + "." + name;
+        String startFieldName = name( name, REQUEST_PHASE_START );
         logger.trace( "addStartField, span: {}, name: {}, begin: {}", span, name, begin );
         span.addField( startFieldName, begin );
     }
 
     public void addEndField( Span span, String name, long end )
     {
-        String startFieldName = REQUEST_PHASE_START + "." + name;
+        String startFieldName = name( name, REQUEST_PHASE_START );
         Long begin = (Long) span.getFields().get( startFieldName );
         if ( begin == null )
         {
@@ -379,4 +380,20 @@ public class HoneycombManager
         addCumulativeField( span, name, elapse );
         span.addField( startFieldName, null ); // clear start field
     }
+
+
+    /**
+     * Wrap method with standard {@link MetricWrapper}. The HoneycombWrapperInterceptor will pick it up
+     * to add cumulative field. The field name is a combination of classifier which is the full name, e.g, with nodeId prefix,
+     * plus the appendix which is calculated after the execution of the method.
+     * The appendix gives caller a chance to append additional token to the name, e.g., the HTTP response code, etc.
+     */
+    @MetricWrapper
+    public <T> T withStandardMetricWrapper( final Supplier<T> method,
+                                            @MetricWrapperNamed final Supplier<String> classifier,
+                                            @MetricWrapperNamedAfterRun final Supplier<String> appendix )
+    {
+        return method.get();
+    }
+
 }
