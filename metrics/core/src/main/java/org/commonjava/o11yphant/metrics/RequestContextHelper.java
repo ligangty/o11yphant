@@ -178,16 +178,6 @@ public class RequestContextHelper
     @Thread
     public static final String IS_METERED = "is-metered";
 
-    @Thread
-    @MDC
-    public static final String CUMULATIVE_TIMINGS = "cumulative-timings";
-
-    @Thread
-    @MDC
-    public static final String CUMULATIVE_COUNTS = "cumulative-counts";
-
-    public static final String AVERAGE_TIME_MS = "average-time-ms";
-
     // these are well-known values we'll be using in our log aggregation filters
     public static final String REQUEST_PHASE_START = "start";
 

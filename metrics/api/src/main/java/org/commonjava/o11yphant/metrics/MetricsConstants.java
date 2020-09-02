@@ -17,12 +17,6 @@ package org.commonjava.o11yphant.metrics;
 
 public class MetricsConstants
 {
-    public static final String METRICS_PHASE = "metrics-phase";
-
-    public static final String PRELIMINARY_METRICS = "preliminary";
-
-    public static final String FINAL_METRICS = "final";
-
     public static final String DEFAULT = "default";
 
     public static final String EXCEPTION = "exception";
@@ -32,6 +26,14 @@ public class MetricsConstants
     public static final String TIMER = "timer";
 
     public static final String SKIP_METRIC = "skip-this-metric";
+
+    public static final String CUMULATIVE_TIMINGS = "cumulative-timings";
+
+    public static final String CUMULATIVE_COUNT = "cumulative-count";
+
+    public static final String AVERAGE_TIME_MS = "avg-time-ms";
+
+    public static final String MAX_TIME_MS = "max-time-ms";
 
     public static final double NANOS_PER_MILLISECOND = 1E6;
 
