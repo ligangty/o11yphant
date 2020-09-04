@@ -7,7 +7,7 @@ public interface Timer
 {
     Context time();
 
-    void update( long duration, TimeUnit nanoseconds );
+    void update( long duration, TimeUnit timeUnit );
 
     Snapshot getSnapshot();
 
