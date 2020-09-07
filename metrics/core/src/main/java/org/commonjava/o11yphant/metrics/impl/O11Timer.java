@@ -57,9 +57,9 @@ public class O11Timer
     }
 
     @Override
-    public void update( long duration, TimeUnit nanoseconds )
+    public void update( long duration, TimeUnit timeUnit )
     {
-        codahaleTimer.update( duration, nanoseconds );
+        codahaleTimer.update( duration, timeUnit );
     }
 
     @Override
