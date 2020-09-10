@@ -36,22 +36,11 @@ public abstract class CassandraConnectionRootSpanFields
      * Get cassandra sessions, each with a name (usually it is the keyspace name).
      */
     protected abstract Map<String, Session> getSessions();
-
-    private Map<String, Session> sessions;
-
-    public CassandraConnectionRootSpanFields()
-    {
-        this.sessions = getSessions();
-    }
-
-    public CassandraConnectionRootSpanFields( Map<String, Session> sessions )
-    {
-        this.sessions = sessions;
-    }
-
+    
     @Override
     public Map<String, Object> get()
     {
+        final Map<String, Session> sessions = getSessions();
         if ( sessions == null || sessions.isEmpty() )
         {
             return emptyMap();
