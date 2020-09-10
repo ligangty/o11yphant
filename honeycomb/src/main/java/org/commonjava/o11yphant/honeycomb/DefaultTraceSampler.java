@@ -28,7 +28,6 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Random;
 
 import static org.commonjava.o11yphant.honeycomb.util.InterceptorUtils.SAMPLE_OVERRIDE;
 
@@ -36,8 +35,6 @@ import static org.commonjava.o11yphant.honeycomb.util.InterceptorUtils.SAMPLE_OV
 public class DefaultTraceSampler
                 implements TraceSampler<String>
 {
-    private final Random random = new Random();
-
     private final Logger logger = LoggerFactory.getLogger( getClass() );
 
     @Inject
@@ -46,6 +43,14 @@ public class DefaultTraceSampler
     @Inject
     private HoneycombConfiguration configuration;
 
+    /**
+     * Decides whether to sample the input.
+     * If it returns 0, it should not be sampled.
+     * If positive then it should be sampled and the concrete value represents the {@code sampleRate}.
+     *
+     * @param input to test. According to {@link io.honeycomb.beeline.tracing.SpanBuilderFactory} this is the traceId.
+     * @return Positive int if the input is to be sampled.
+     */
     @Override
     public int sample( final String input )
     {
@@ -80,13 +85,6 @@ public class DefaultTraceSampler
             }
         }
 
-        if ( rate == 1 || Math.abs( random.nextInt() ) % rate == 0 )
-        {
-            logger.debug( "Including span due to sampling rate: {} (span: {})", rate, input );
-            return 1;
-        }
-
-        logger.debug( "Skipping span due to sampling rate: {} (span: {})", rate, input );
-        return 0;
+        return rate;
     }
 }
