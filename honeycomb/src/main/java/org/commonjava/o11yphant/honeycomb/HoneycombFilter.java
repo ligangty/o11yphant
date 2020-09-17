@@ -16,6 +16,7 @@
 package org.commonjava.o11yphant.honeycomb;
 
 import io.honeycomb.beeline.tracing.Span;
+import io.honeycomb.libhoney.shaded.org.apache.http.impl.EnglishReasonPhraseCatalog;
 import org.commonjava.o11yphant.honeycomb.config.HoneycombConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -75,6 +77,9 @@ public class HoneycombFilter
             logger.debug( "END: {}", hsr.getPathInfo() );
             if ( rootSpan != null )
             {
+                HttpServletResponse resp = (HttpServletResponse) response;
+                honeycombManager.addSpanField( "status_code", getStatusLine( resp.getStatus() ) );
+
                 honeycombManager.addFields( rootSpan );
                 rootSpan.close();
                 honeycombManager.endTrace();
@@ -82,6 +87,11 @@ public class HoneycombFilter
 
             logger.trace( "END: {}", getClass().getSimpleName() );
         }
+    }
+
+    private String getStatusLine( int status )
+    {
+        return status + " " + EnglishReasonPhraseCatalog.INSTANCE.getReason( status, null );
     }
 
     private String getEndpointName( String method, String pathInfo )
