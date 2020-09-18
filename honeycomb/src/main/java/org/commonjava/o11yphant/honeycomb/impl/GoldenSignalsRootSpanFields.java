@@ -28,7 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @ApplicationScoped
-public abstract class GoldenSignalsRootSpanFields
+public class GoldenSignalsRootSpanFields
                 implements RootSpanFields
 {
     private GoldenSignalsMetricSet goldenSignalsMetricSet;

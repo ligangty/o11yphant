@@ -133,4 +133,8 @@ public interface HoneycombConfiguration
         return getBaseSampleRate();
     }
 
+    default boolean isConsoleTransport()
+    {
+        return false;
+    }
 }

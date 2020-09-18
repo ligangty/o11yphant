@@ -28,6 +28,9 @@ import io.honeycomb.beeline.tracing.sampling.Sampling;
 import io.honeycomb.libhoney.EventPostProcessor;
 import io.honeycomb.libhoney.HoneyClient;
 import io.honeycomb.libhoney.LibHoney;
+import io.honeycomb.libhoney.Options;
+import io.honeycomb.libhoney.responses.ResponseObservable;
+import io.honeycomb.libhoney.transport.impl.ConsoleTransport;
 import org.commonjava.cdi.util.weft.ThreadContext;
 import org.commonjava.o11yphant.metrics.RequestContextHelper;
 import org.commonjava.o11yphant.honeycomb.config.HoneycombConfiguration;
@@ -100,8 +103,20 @@ public class HoneycombManager
             String dataset = configuration.getDataset();
 
             logger.debug( "Init Honeycomb manager, dataset: {}", dataset );
-            client = new HoneyClient( LibHoney.options().setDataset( dataset ).setWriteKey( writeKey )
-                                              .setEventPostProcessor( eventPostProcessor ).build() ); //, new ConsoleTransport( new ResponseObservable() ) );
+            Options options = LibHoney.options()
+                                      .setDataset( dataset )
+                                      .setWriteKey( writeKey )
+                                      .setEventPostProcessor( eventPostProcessor )
+                                      .build();
+            if ( configuration.isConsoleTransport() )
+            {
+                client = new HoneyClient( options, new ConsoleTransport( new ResponseObservable() ) );
+            }
+            else
+            {
+                client = new HoneyClient( options );
+            }
+
             LibHoney.setDefault( client );
 
             SpanPostProcessor postProcessor = Tracing.createSpanProcessor( client, Sampling.alwaysSampler() );
