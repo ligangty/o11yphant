@@ -59,7 +59,7 @@ public abstract class GoldenSignalsRootSpanFields
             {
                 value = ( (Meter) v ).getOneMinuteRate();
             }
-            ret.put( k, value );
+            ret.put( "golden." + k, value );
         } );
         return ret;
     }

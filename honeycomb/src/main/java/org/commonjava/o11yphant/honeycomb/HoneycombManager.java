@@ -248,6 +248,7 @@ public class HoneycombManager
             {
                 fields.forEach( ( k, v ) -> span.addField( k, v ) );
             }
+            logger.debug( "Add root span fields for: {}, fields: {}", rootSpanFields, fields );
         } );
     }
 
