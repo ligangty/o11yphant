@@ -17,9 +17,9 @@ package org.commonjava.o11yphant.honeycomb.interceptor.vertical;
 
 import io.honeycomb.beeline.tracing.Beeline;
 import io.honeycomb.beeline.tracing.Span;
-import org.commonjava.o11yphant.metrics.annotation.MetricWrapper;
 import org.commonjava.o11yphant.honeycomb.HoneycombManager;
 import org.commonjava.o11yphant.honeycomb.config.HoneycombConfiguration;
+import org.commonjava.o11yphant.metrics.annotation.MetricWrapperEnd;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +33,7 @@ import static org.commonjava.o11yphant.metrics.MetricsConstants.SKIP_METRIC;
 import static org.commonjava.o11yphant.metrics.RequestContextHelper.getContext;
 
 @Interceptor
-@MetricWrapper
+@MetricWrapperEnd
 public class HoneycombWrapperEndInterceptor
 {
     private final Logger logger = LoggerFactory.getLogger( getClass() );
