@@ -49,14 +49,13 @@ public class GoldenSignalsFilter
 
     private final Logger logger = LoggerFactory.getLogger( getClass() );
 
-    // For Unit-testing
-    GoldenSignalsFilter( final GoldenSignalsMetricSet metricSet, TrafficClassifier classifier )
+    public GoldenSignalsFilter( final GoldenSignalsMetricSet metricSet, TrafficClassifier classifier )
     {
         this.metricSet = metricSet;
         this.classifier = classifier;
     }
 
-    GoldenSignalsFilter() {}
+    public GoldenSignalsFilter() {}
 
     @Override
     public void init( final FilterConfig filterConfig )
