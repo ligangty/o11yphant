@@ -155,7 +155,7 @@ public class RequestContextHelper
     public static final String X_FORWARDED_FOR = "x-forwarded-for";
 
     @Header @Thread @MDC
-    public static final String EXTERNAL_TRACE_ID = "trace-id";
+    public static final String EXTERNAL_TRACE_ID = "external-id";
 
     @Header
     public static final String SPAN_ID_HEADER = "span-id";

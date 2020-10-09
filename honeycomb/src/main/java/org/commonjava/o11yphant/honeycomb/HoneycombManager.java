@@ -175,8 +175,10 @@ public class HoneycombManager
             }
             else
             {
+/*
                 String traceId = RequestContextHelper.getContext( TRACE_ID );
                 String parentId = RequestContextHelper.getContext( REQUEST_PARENT_SPAN );
+*/
 
                 span = beeline.getSpanBuilderFactory().createBuilder()
                               //.setParentContext( parentContext )
