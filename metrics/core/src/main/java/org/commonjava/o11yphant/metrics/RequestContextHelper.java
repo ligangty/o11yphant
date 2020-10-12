@@ -79,15 +79,15 @@ public class RequestContextHelper
 
     @Target( { FIELD } )
     @Retention( SOURCE )
-    public @interface Header{}
+    private @interface Header{}
 
     @Target( { FIELD } )
     @Retention( SOURCE )
-    public @interface MDC{}
+    private @interface MDC{}
 
     @Target( { FIELD } )
     @Retention( SOURCE )
-    public @interface Thread{}
+    private @interface Thread{}
 
     //
 
