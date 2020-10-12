@@ -23,6 +23,7 @@ import io.honeycomb.beeline.tracing.SpanBuilderFactory;
 import io.honeycomb.beeline.tracing.SpanPostProcessor;
 import io.honeycomb.beeline.tracing.Tracer;
 import io.honeycomb.beeline.tracing.Tracing;
+import io.honeycomb.beeline.tracing.ids.TraceIdProvider;
 import io.honeycomb.beeline.tracing.propagation.PropagationContext;
 import io.honeycomb.beeline.tracing.sampling.Sampling;
 import io.honeycomb.libhoney.EventPostProcessor;
@@ -30,9 +31,9 @@ import io.honeycomb.libhoney.HoneyClient;
 import io.honeycomb.libhoney.LibHoney;
 import io.honeycomb.libhoney.Options;
 import io.honeycomb.libhoney.responses.ResponseObservable;
+import io.honeycomb.libhoney.transport.batch.impl.SystemClockProvider;
 import io.honeycomb.libhoney.transport.impl.ConsoleTransport;
 import org.commonjava.cdi.util.weft.ThreadContext;
-import org.commonjava.o11yphant.metrics.RequestContextHelper;
 import org.commonjava.o11yphant.honeycomb.config.HoneycombConfiguration;
 import org.commonjava.o11yphant.metrics.annotation.MetricWrapper;
 import org.commonjava.o11yphant.metrics.annotation.MetricWrapperNamed;
@@ -77,7 +78,10 @@ public class HoneycombManager
     private HoneycombConfiguration configuration;
 
     @Inject
-    private DefaultTraceSampler traceSampler;
+    private DefaultTraceSampler defaultTraceSampler;
+
+    @Inject
+    private Instance<CustomTraceIdProvider> traceIdProviderInstance;
 
     @Inject
     private DefaultTracingContext tracingContext;
@@ -120,7 +124,19 @@ public class HoneycombManager
             LibHoney.setDefault( client );
 
             SpanPostProcessor postProcessor = Tracing.createSpanProcessor( client, Sampling.alwaysSampler() );
-            SpanBuilderFactory factory = Tracing.createSpanBuilderFactory( postProcessor, traceSampler );
+
+            SpanBuilderFactory factory;
+            if ( traceIdProviderInstance.isUnsatisfied() )
+            {
+                factory = Tracing.createSpanBuilderFactory( postProcessor, defaultTraceSampler );
+            }
+            else
+            {
+                TraceIdProvider traceIdProvider = traceIdProviderInstance.get();
+                logger.info( "Init SpanBuilderFactory by {}", traceIdProvider );
+                factory = new SpanBuilderFactory( postProcessor, SystemClockProvider.getInstance(), traceIdProvider,
+                                                  defaultTraceSampler );
+            }
 
             Tracer tracer = Tracing.createTracer( factory, tracingContext );
             beeline = Tracing.createBeeline( tracer, factory );
