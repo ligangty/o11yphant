@@ -52,6 +52,12 @@ public class DefaultMetricsConfig
     }
 
     @Override
+    public PrometheusConfig getPrometheusConfig()
+    {
+        return null;
+    }
+
+    @Override
     public ELKConfig getELKConfig()
     {
         return null;

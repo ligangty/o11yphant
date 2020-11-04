@@ -23,6 +23,8 @@ public interface MetricsConfig
 
     String REPORTER_ELK = "elasticsearch";
 
+    String REPORTER_PROMETHEUS = "prometheus";
+
     String getNodePrefix();
 
     boolean isEnabled();
@@ -32,6 +34,8 @@ public interface MetricsConfig
     ConsoleConfig getConsoleConfig();
 
     GraphiteConfig getGraphiteConfig();
+
+    PrometheusConfig getPrometheusConfig();
 
     ELKConfig getELKConfig();
 
