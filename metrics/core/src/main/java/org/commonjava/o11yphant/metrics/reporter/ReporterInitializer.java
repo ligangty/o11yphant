@@ -42,6 +42,8 @@ import static org.commonjava.o11yphant.metrics.conf.MetricsConfig.REPORTER_GRAPH
 @ApplicationScoped
 public class ReporterInitializer
 {
+    private final Logger logger = LoggerFactory.getLogger( getClass() );
+
     private final static String FILTER_JVM = "jvm";
 
     @Inject
@@ -54,13 +56,22 @@ public class ReporterInitializer
     {
     }
 
+    private volatile boolean initiated;
+
     @PostConstruct
     public void init() throws Exception
     {
+        if ( initiated )
+        {
+            logger.warn( "Metrics reporter already initialized" );
+            return;
+        }
+
         String reporter = config.getReporter();
         if ( isBlank( reporter ) )
         {
             initConsoleReporter( metrics, config.getConsoleConfig() );
+            initiated = true;
             return;
         }
 
@@ -80,6 +91,7 @@ public class ReporterInitializer
             initELKReporterForSimpleMetric( metrics, config.getELKConfig() );
             initELKReporterForJVMMetric( metrics, config.getELKConfig() );
         }
+        initiated = true;
     }
 
     private boolean isJvmMetric( String name )
