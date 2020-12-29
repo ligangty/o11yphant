@@ -27,27 +27,10 @@
   <artifactId>o11yphant-honeycomb</artifactId>
   <name>o11yphant :: Honeycomb</name>
 
-  <dependencies>
-    <dependency>
-      <groupId>io.honeycomb.beeline</groupId>
-      <artifactId>beeline-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.commonjava.util</groupId>
-      <artifactId>o11yphant-metrics-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.spec.javax.servlet</groupId>
-      <artifactId>jboss-servlet-api_3.0_spec</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.agroal</groupId>
-      <artifactId>agroal-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.datastax.cassandra</groupId>
-      <artifactId>cassandra-driver-core</artifactId>
-    </dependency>
-  </dependencies>
+  <packaging>pom</packaging>
+  <modules>
+    <module>api</module>
+    <module>core</module>
+  </modules>
 
 </project>

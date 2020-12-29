@@ -34,8 +34,8 @@ import java.io.IOException;
 import java.util.Collection;
 
 import static org.commonjava.o11yphant.metrics.MetricsConstants.NANOS_PER_MILLISECOND;
-import static org.commonjava.o11yphant.metrics.RequestContextHelper.REQUEST_LATENCY_MILLIS;
-import static org.commonjava.o11yphant.metrics.RequestContextHelper.REQUEST_LATENCY_NS;
+import static org.commonjava.o11yphant.metrics.RequestContextConstants.REQUEST_LATENCY_MILLIS;
+import static org.commonjava.o11yphant.metrics.RequestContextConstants.REQUEST_LATENCY_NS;
 
 @ApplicationScoped
 public class GoldenSignalsFilter

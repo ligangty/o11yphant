@@ -53,8 +53,8 @@ import static org.commonjava.o11yphant.metrics.MetricsConstants.EXCEPTION;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.NANOS_PER_MILLISECOND;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.SKIP_METRIC;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.TIMER;
+import static org.commonjava.o11yphant.metrics.RequestContextConstants.IS_METERED;
 import static org.commonjava.o11yphant.metrics.util.NameUtils.getDefaultName;
-import static org.commonjava.o11yphant.metrics.RequestContextHelper.IS_METERED;
 import static org.commonjava.o11yphant.metrics.util.HealthCheckUtils.wrap;
 import static org.commonjava.o11yphant.metrics.util.NameUtils.name;
 
