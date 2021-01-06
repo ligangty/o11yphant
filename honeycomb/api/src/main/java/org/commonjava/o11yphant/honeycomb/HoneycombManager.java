@@ -21,6 +21,10 @@ import org.commonjava.o11yphant.honeycomb.config.HoneycombConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 public abstract class HoneycombManager
 {
     private final Logger logger = LoggerFactory.getLogger( getClass() );
@@ -41,6 +45,8 @@ public abstract class HoneycombManager
     {
         return null;
     }
+
+    protected List<RootSpanFields> rootSpanFieldsList = new ArrayList<>();
 
     public HoneycombManager()
     {
@@ -116,6 +122,14 @@ public abstract class HoneycombManager
 
             beeline = Tracing.createBeeline( tracer, factory );
         }
+    }
+
+    /**
+     * Register new {@link RootSpanFields} instances in case CDI is not available in client library.
+     */
+    public void registerRootSpanFields( RootSpanFields rootSpanFields )
+    {
+        rootSpanFieldsList.add( rootSpanFields );
     }
 
     public Beeline getBeeline()
@@ -227,6 +241,27 @@ public abstract class HoneycombManager
         {
             span.addField( name, value );
         }
+    }
+
+    public void addRootSpanFields()
+    {
+        Span span = getActiveSpan();
+        if ( span != null )
+        {
+            addRootSpanFields( span );
+        }
+    }
+
+    public void addRootSpanFields( Span span )
+    {
+        rootSpanFieldsList.forEach( rootSpanFields -> {
+            Map<String, Object> fields = rootSpanFields.get();
+            if ( fields != null )
+            {
+                fields.forEach( ( k, v ) -> span.addField( k, v ) );
+            }
+            logger.debug( "Add root span fields for: {}, fields: {}", rootSpanFields, fields );
+        } );
     }
 
 }
