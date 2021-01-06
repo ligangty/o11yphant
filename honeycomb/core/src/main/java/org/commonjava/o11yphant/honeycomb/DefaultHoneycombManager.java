@@ -29,8 +29,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -56,8 +54,6 @@ public class DefaultHoneycombManager
 
     @Inject
     private Instance<RootSpanFields> rootSpanFieldsInstance;
-
-    private List<RootSpanFields> rootSpanFieldsList = new ArrayList<>();
 
     @Inject
     public DefaultHoneycombManager( HoneycombConfiguration honeycombConfiguration,
@@ -87,14 +83,6 @@ public class DefaultHoneycombManager
             return traceIdProviderInstance.get();
         }
         return null;
-    }
-
-    /**
-     * Register new {@link RootSpanFields} instances in case CDI is not available in client library.
-     */
-    public void registerRootSpanFields( RootSpanFields rootSpanFields )
-    {
-        rootSpanFieldsList.add( rootSpanFields );
     }
 
     public void addFields( Span span )
@@ -127,18 +115,6 @@ public class DefaultHoneycombManager
 
             addRootSpanFields( span ); // add custom root span fields via RootSpanFields
         }
-    }
-
-    private void addRootSpanFields( Span span )
-    {
-        rootSpanFieldsList.forEach( rootSpanFields -> {
-            Map<String, Object> fields = rootSpanFields.get();
-            if ( fields != null )
-            {
-                fields.forEach( ( k, v ) -> span.addField( k, v ) );
-            }
-            logger.debug( "Add root span fields for: {}, fields: {}", rootSpanFields, fields );
-        } );
     }
 
     public Optional<Timer> getSpanTimer( String name )
