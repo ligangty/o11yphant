@@ -38,7 +38,7 @@ public class PrometheusConfig
 
     public boolean isMetricExpressed( String name )
     {
-        return expressedMetrics.stream().filter( n->{
+        return expressedMetrics != null && expressedMetrics.stream().filter( n->{
             String pname = n.replace( '.', '_' );
             if ( name.equals( n ) || name.contains( n ) || pname.equals( n ) || pname.contains( n ) )
             {
