@@ -53,7 +53,7 @@ public class CodahalePrometheusDeploymentProvider implements PrometheusDeploymen
         logger.info( "Configuring Prometheus metrics reporter" );
         CollectorRegistry.defaultRegistry.register( new DropwizardExports(
                         new PrometheusFilteringRegistry( codahaleMetricRegistry, config.getPrometheusConfig() ),
-                        new PrometheusSampleBuilder( config.getNodePrefix() ) ) );
+                        new PrometheusSampleBuilder( config.getPrometheusConfig().getNodeLabel() ) ) );
 
         final ServletInfo servlet = Servlets.servlet( "prometheus-metrics", LoggingPrometheusServlet.class,
                                                       new ImmediateInstanceFactory<>( new LoggingPrometheusServlet() ) )

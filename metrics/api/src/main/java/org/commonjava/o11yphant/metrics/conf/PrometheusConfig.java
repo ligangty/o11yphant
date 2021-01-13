@@ -26,6 +26,8 @@ public class PrometheusConfig
 
     private List<String> expressedMetrics;
 
+    private String nodeLabel;
+
     public List<String> getExpressedMetrics()
     {
         return expressedMetrics;
@@ -38,15 +40,26 @@ public class PrometheusConfig
 
     public boolean isMetricExpressed( String name )
     {
-        return expressedMetrics != null && expressedMetrics.stream().filter( n->{
+        return expressedMetrics != null && expressedMetrics.stream().anyMatch( n->{
             String pname = n.replace( '.', '_' );
-            if ( name.equals( n ) || name.contains( n ) || pname.equals( n ) || pname.contains( n ) )
+            if ( name.equals( n ) || name.contains( n ) || name.matches( n ) || pname.equals( name ) || pname.contains(
+                            name ) )
             {
-                logger.info( "ACCEPT metric: {} for expression: {}", name, n );
+                logger.trace( "ACCEPT metric: {} for expression: {}", name, n );
                 return true;
             }
-            logger.info("REJECT metric: {} for expression: {}", name, n );
+            logger.trace("REJECT metric: {} for expression: {}", name, n );
             return false;
-        } ).findFirst().isPresent();
+        } );
+    }
+
+    public String getNodeLabel()
+    {
+        return nodeLabel;
+    }
+
+    public void setNodeLabel( String nodeLabel )
+    {
+        this.nodeLabel = nodeLabel;
     }
 }
