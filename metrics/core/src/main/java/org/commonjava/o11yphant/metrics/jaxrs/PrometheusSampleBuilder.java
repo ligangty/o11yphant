@@ -21,17 +21,19 @@ import io.prometheus.client.dropwizard.samplebuilder.DefaultSampleBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+
 public class PrometheusSampleBuilder
         extends DefaultSampleBuilder
 {
-    private static final String NODE_NAME_LABEL = "node";
+    private static final String LABEL_NODE = "node";
 
-    private String nodeName;
+    private String nodeLabel;
 
-    public PrometheusSampleBuilder( String nodeName )
+    public PrometheusSampleBuilder( String nodeLabel )
     {
         super();
-        this.nodeName = nodeName;
+        this.nodeLabel = nodeLabel;
     }
 
     @Override
@@ -40,11 +42,14 @@ public class PrometheusSampleBuilder
                                                               final List<String> additionalLabelValues,
                                                               final double value )
     {
-        List<String> labelNames = new ArrayList( additionalLabelNames );
-        labelNames.add( NODE_NAME_LABEL );
+        List<String> labelNames = additionalLabelNames == null ? new ArrayList<>() : new ArrayList<>( additionalLabelNames );
+        List<String> labelValues = additionalLabelValues == null ? new ArrayList<>() : new ArrayList<>( additionalLabelValues );
 
-        List<String> labelValues = new ArrayList( additionalLabelValues );
-        labelValues.add( nodeName );
+        if ( isNotEmpty( nodeLabel ) )
+        {
+            labelNames.add( LABEL_NODE );
+            labelValues.add( nodeLabel );
+        }
 
         return super.createSample( dropwizardName, nameSuffix, labelNames, labelValues, value );
     }
