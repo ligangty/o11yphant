@@ -32,6 +32,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.commonjava.o11yphant.metrics.MetricsConstants.NANOS_PER_MILLISECOND;
 import static org.commonjava.o11yphant.metrics.RequestContextConstants.REQUEST_LATENCY_MILLIS;
@@ -74,7 +77,9 @@ public class GoldenSignalsFilter
         HttpServletRequest req = (HttpServletRequest) servletRequest;
         HttpServletResponse resp = (HttpServletResponse) servletResponse;
         String path = req.getPathInfo();
-        Collection<String> functions = classifier.classifyFunctions( path, req.getMethod() );
+        Map<String, String> headers = Collections.list(req.getHeaderNames()).stream()
+                                                .collect( Collectors.toMap( h -> h, req::getHeader));
+        Collection<String> functions = classifier.classifyFunctions( path, req.getMethod(), headers );
         logger.debug( "Get classified golden functions, path: {}, method: {}, functions: {}", path, req.getMethod(), functions );
         try
         {
