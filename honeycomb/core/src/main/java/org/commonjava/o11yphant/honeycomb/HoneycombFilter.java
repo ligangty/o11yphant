@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.commonjava.o11yphant.honeycomb.util.HeaderMetricConstants.HEADERS;
 
 @ApplicationScoped
 public class HoneycombFilter
@@ -67,7 +68,7 @@ public class HoneycombFilter
             rootSpan = honeycombManager.startRootTracer( getEndpointName( hsr.getMethod(), hsr.getPathInfo() ) );
             if ( rootSpan != null )
             {
-                rootSpan.addField( "path_info", hsr.getPathInfo() );
+                addRequestFields( hsr );
             }
 
             chain.doFilter( request, response );
@@ -115,6 +116,16 @@ public class HoneycombFilter
             }
         }
         return sb.toString();
+    }
+
+    private void addRequestFields( HttpServletRequest request )
+    {
+        honeycombManager.addSpanField( "path_info", request.getPathInfo() );
+        for ( String header : HEADERS )
+        {
+            String value = request.getHeader( header );
+            honeycombManager.addSpanField( header, value == null ? "NOOP" : value );
+        }
     }
 
     @Override
