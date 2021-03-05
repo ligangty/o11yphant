@@ -15,6 +15,7 @@
  */
 package org.commonjava.o11yphant.honeycomb.impl;
 
+import org.apache.commons.lang3.StringUtils;
 import org.commonjava.o11yphant.honeycomb.RootSpanFields;
 import org.commonjava.o11yphant.metrics.api.Gauge;
 import org.commonjava.o11yphant.metrics.api.Meter;
@@ -24,8 +25,12 @@ import org.commonjava.o11yphant.metrics.sli.GoldenSignalsMetricSet;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 @ApplicationScoped
 public class GoldenSignalsRootSpanFields
@@ -44,23 +49,37 @@ public class GoldenSignalsRootSpanFields
     {
         final Map<String, Object> ret = new HashMap<>();
 
+        // NOTE This is awkward, but we get http_status and latency_ms from the DefaultHoneycombManager's field injection.
+        // Those fields give us measurements, and the presence of the event gives us the data point we can aggregate for
+        // load calculations.
+        // The thing we really need from this is a single field that contains traffic classifiers, so we can group
+        // the metrics / traces by traffic type.
+        //
+        // To avoid disrupting the collection of normal metrics from GoldenSignalsFilter, we'll just chop up the function
+        // classifiers and push the tokens into a single set. Indy, for example, publishes things like:
+        // content.metadata
+        // content.metadata.maven
+        //
+        // ...for a single request. Those would result in the following traffic_type field:
+        //
+        // traffic_type = content,metadata,maven
+        //
+        // Using this, we can filter using a WHERE CONTAINS(..) substring match to look for content.metadata, and
+        // aggregate maven + NPM metadata traffic, if necessary.
+        //
+        // Or, we can use a GROUP BY traffic_type and see the different traffic types broken down in a single graph.
+        //
         final Map<String, Metric> metrics = goldenSignalsMetricSet.getMetrics();
+        Set<String> classifierTokens = new LinkedHashSet<>();
         metrics.forEach( ( k, v ) -> {
-            Object value = null;
-            if ( v instanceof Gauge )
+            String[] parts = k.split( "\\." );
+            for ( int i = 0; i < parts.length - 1; i++ )
             {
-                value = ( (Gauge) v ).getValue();
+                classifierTokens.add( parts[i] );
             }
-            else if ( v instanceof Timer )
-            {
-                value = ( (Timer) v ).getSnapshot().get95thPercentile();
-            }
-            else if ( v instanceof Meter )
-            {
-                value = ( (Meter) v ).getOneMinuteRate();
-            }
-            ret.put( "golden." + k, value );
         } );
+
+        ret.put( "traffic_type", StringUtils.join( classifierTokens, "," ) );
         return ret;
     }
 }
