@@ -102,6 +102,11 @@
             </dependency>
             <dependency>
                 <groupId>org.commonjava.util</groupId>
+                <artifactId>o11yphant-metrics-common</artifactId>
+                <version>1.4-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.commonjava.util</groupId>
                 <artifactId>o11yphant-metrics-core</artifactId>
                 <version>1.4-SNAPSHOT</version>
             </dependency>
