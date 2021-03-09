@@ -17,7 +17,7 @@ package org.commonjava.o11yphant.honeycomb;
 
 import io.honeycomb.beeline.tracing.sampling.TraceSampler;
 import org.commonjava.cdi.util.weft.ThreadContext;
-import org.commonjava.o11yphant.metrics.TrafficClassifier;
+import org.commonjava.o11yphant.metrics.DefaultTrafficClassifier;
 import org.commonjava.o11yphant.honeycomb.config.HoneycombConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +38,7 @@ public class DefaultTraceSampler
     public static final String SAMPLE_OVERRIDE = "honeycomb.sample-override";
 
     @Inject
-    private TrafficClassifier classifier;
+    private DefaultTrafficClassifier classifier;
 
     @Inject
     private HoneycombConfiguration configuration;
