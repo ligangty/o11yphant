@@ -125,6 +125,9 @@ public class RequestContextConstants
     @Thread
     public static final String IS_METERED = "is-metered";
 
+    @MDC
+    public static final String TRAFFIC_TYPE = "traffic_type";
+
     public static final String REQUEST_PHASE_START = "start";
 
     public static final String REQUEST_PHASE_END = "end";
