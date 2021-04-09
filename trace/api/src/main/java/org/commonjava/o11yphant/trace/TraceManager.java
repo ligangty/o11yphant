@@ -16,12 +16,12 @@
 package org.commonjava.o11yphant.trace;
 
 import org.commonjava.cdi.util.weft.ThreadContext;
-import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
-import org.commonjava.o11yphant.trace.spi.adapter.SpanContext;
-import org.commonjava.o11yphant.trace.spi.adapter.TracerType;
 import org.commonjava.o11yphant.trace.spi.ContextPropagator;
 import org.commonjava.o11yphant.trace.spi.O11yphantTracePlugin;
 import org.commonjava.o11yphant.trace.spi.SpanProvider;
+import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
+import org.commonjava.o11yphant.trace.spi.adapter.SpanContext;
+import org.commonjava.o11yphant.trace.spi.adapter.TracerType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

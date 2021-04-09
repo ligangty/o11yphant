@@ -17,14 +17,12 @@ import org.commonjava.o11yphant.trace.spi.SpanProvider;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-@ApplicationScoped
 public class OtelTracePlugin implements O11yphantTracePlugin<OtelType>
 {
     private OtelContextPropagator contextPropagator;
 
     private OtelSpanProvider spanProvider;
 
-    @Inject
     public OtelTracePlugin( OtelConfiguration otelConfig )
     {
         //FIXME: This needs to be more exposed to configuration options, especially for endpoint and exporter formats.

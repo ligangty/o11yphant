@@ -70,7 +70,7 @@ public class InterceptorUtils
     }
 
     /**
-     * Wrap method with standard {@link MetricWrapper}. The HoneycombWrapperInterceptor will pick it up
+     * Wrap method with standard {@link MetricWrapper}. The FlatTraceWrapperInterceptor will pick it up
      * to add cumulative field. The field name is a combination of classifier which is the full name, e.g, with nodeId prefix,
      * plus the appendix which is calculated after the execution of the method.
      * The appendix gives caller a chance to append additional token to the name, e.g., the HTTP response code, etc.
