@@ -20,10 +20,9 @@ public class CDIHoneycombSpanProvider extends HoneycombSpanProvider
     @Inject
     public CDIHoneycombSpanProvider( HoneycombConfiguration configuration, TracerConfiguration tracerConfiguration,
                                      TraceSampler traceSampler, TracingContext tracingContext,
-                                     EventPostProcessor eventPostProcessor, RootSpanDecorator rootSpanDecorator )
+                                     EventPostProcessor eventPostProcessor )
     {
-        super( configuration, tracerConfiguration, traceSampler, tracingContext, eventPostProcessor,
-               rootSpanDecorator );
+        super( configuration, tracerConfiguration, traceSampler, tracingContext, eventPostProcessor);
     }
 
     @Override

@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class OtelSpan
-                implements SpanAdapter<OtelType>
+                implements SpanAdapter
 {
     private Span span;
 

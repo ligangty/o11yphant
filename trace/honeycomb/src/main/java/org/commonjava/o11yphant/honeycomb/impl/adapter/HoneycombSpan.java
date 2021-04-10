@@ -5,7 +5,7 @@ import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 
 import java.util.function.BiConsumer;
 
-public class HoneycombSpan implements SpanAdapter<HoneycombType>
+public class HoneycombSpan implements SpanAdapter
 {
     private final Span span;
 

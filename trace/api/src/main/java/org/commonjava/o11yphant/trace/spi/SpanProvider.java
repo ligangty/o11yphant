@@ -8,8 +8,8 @@ import java.util.Optional;
 
 public interface SpanProvider<T extends TracerType>
 {
-    SpanAdapter<T> startServiceRootSpan( String spanName, Optional<SpanContext<T>> parentContext );
+    SpanAdapter startServiceRootSpan( String spanName, Optional<SpanContext<T>> parentContext );
 
-    SpanAdapter<T> startChildSpan( String spanName, Optional<SpanContext<T>> parentContext );
+    SpanAdapter startChildSpan( String spanName, Optional<SpanContext<T>> parentContext );
 
 }

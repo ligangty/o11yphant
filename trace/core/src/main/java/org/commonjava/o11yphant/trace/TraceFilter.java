@@ -77,8 +77,6 @@ public class TraceFilter
             {
                 HttpServletResponse resp = (HttpServletResponse) response;
                 traceManager.addSpanField( "status_code", Integer.toString( resp.getStatus() ) );
-
-                traceManager.addRootSpanFields( rootSpan );
                 rootSpan.close();
             }
 

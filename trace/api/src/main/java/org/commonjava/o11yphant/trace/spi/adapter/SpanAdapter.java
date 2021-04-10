@@ -1,6 +1,6 @@
 package org.commonjava.o11yphant.trace.spi.adapter;
 
-public interface SpanAdapter<T extends TracerType>
+public interface SpanAdapter
 {
     String getTraceId();
 

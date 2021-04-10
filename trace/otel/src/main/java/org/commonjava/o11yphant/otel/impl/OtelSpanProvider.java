@@ -29,7 +29,7 @@ public class OtelSpanProvider implements SpanProvider<OtelType>
     }
 
     @Override
-    public SpanAdapter<OtelType> startServiceRootSpan( String spanName, Optional<SpanContext<OtelType>> parentContext )
+    public SpanAdapter startServiceRootSpan( String spanName, Optional<SpanContext<OtelType>> parentContext )
     {
         SpanBuilder spanBuilder = tracer.spanBuilder( spanName );
         if ( parentContext.isPresent() )
@@ -44,7 +44,7 @@ public class OtelSpanProvider implements SpanProvider<OtelType>
     }
 
     @Override
-    public SpanAdapter<OtelType> startChildSpan( String spanName, Optional<SpanContext<OtelType>> parentContext )
+    public SpanAdapter startChildSpan( String spanName, Optional<SpanContext<OtelType>> parentContext )
     {
         SpanBuilder spanBuilder = tracer.spanBuilder( spanName );
         if ( parentContext.isPresent() )

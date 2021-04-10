@@ -45,28 +45,25 @@ public class HoneycombSpanProvider implements SpanProvider<HoneycombType>
 
     protected EventPostProcessor eventPostProcessor;
 
-    private RootSpanDecorator rootSpanDecorator;
-
     protected HoneyClient client;
 
     protected Beeline beeline;
 
     public HoneycombSpanProvider( HoneycombConfiguration configuration, TracerConfiguration tracerConfiguration,
-                                  TraceSampler traceSampler, RootSpanDecorator rootSpanDecorator )
+                                  TraceSampler traceSampler )
     {
-        this( configuration, tracerConfiguration, traceSampler, null, null, rootSpanDecorator );
+        this( configuration, tracerConfiguration, traceSampler, null, null );
     }
 
     public HoneycombSpanProvider( HoneycombConfiguration honeycombConfiguration, TracerConfiguration tracerConfiguration,
                              TraceSampler traceSampler, TracingContext tracingContext,
-                             EventPostProcessor eventPostProcessor, RootSpanDecorator rootSpanDecorator )
+                             EventPostProcessor eventPostProcessor )
     {
         this.tracerConfiguration = tracerConfiguration;
         this.honeycombConfiguration = honeycombConfiguration;
         this.traceSampler = traceSampler;
         this.tracingContext = tracingContext;
         this.eventPostProcessor = eventPostProcessor;
-        this.rootSpanDecorator = rootSpanDecorator;
     }
 
     public void init()
@@ -133,7 +130,7 @@ public class HoneycombSpanProvider implements SpanProvider<HoneycombType>
     }
 
     @Override
-    public SpanAdapter<HoneycombType> startServiceRootSpan( String spanName, Optional<SpanContext<HoneycombType>> parentContext )
+    public SpanAdapter startServiceRootSpan( String spanName, Optional<SpanContext<HoneycombType>> parentContext )
     {
         if ( beeline != null )
         {
@@ -175,7 +172,6 @@ public class HoneycombSpanProvider implements SpanProvider<HoneycombType>
 
             span.markStart();
             return new HoneycombSpan( span, (as, s)->{
-                rootSpanDecorator.decorate( as );
                 s.close();
                 beeline.getTracer().endTrace();
             } );
@@ -185,7 +181,7 @@ public class HoneycombSpanProvider implements SpanProvider<HoneycombType>
     }
 
     @Override
-    public SpanAdapter<HoneycombType> startChildSpan( String spanName, Optional<SpanContext<HoneycombType>> parentContext )
+    public SpanAdapter startChildSpan( String spanName, Optional<SpanContext<HoneycombType>> parentContext )
     {
         if ( beeline != null )
         {

@@ -16,6 +16,7 @@
 package org.commonjava.o11yphant.trace;
 
 import org.commonjava.cdi.util.weft.ThreadContext;
+import org.commonjava.o11yphant.trace.impl.RootSpan;
 import org.commonjava.o11yphant.trace.spi.ContextPropagator;
 import org.commonjava.o11yphant.trace.spi.O11yphantTracePlugin;
 import org.commonjava.o11yphant.trace.spi.SpanProvider;
@@ -55,24 +56,26 @@ public final class TraceManager<T extends TracerType>
         this.rootSpanDecorator = rootSpanDecorator;
     }
 
-    public SpanAdapter<T> startServiceRootSpan( String spanName, Optional<SpanContext<T>> parentContext )
+    public SpanAdapter startServiceRootSpan( String spanName, Optional<SpanContext<T>> parentContext )
     {
-        SpanAdapter<T> span = spanProvider.startServiceRootSpan( spanName, parentContext);
+        SpanAdapter span = spanProvider.startServiceRootSpan( spanName, parentContext);
         if ( span != null )
         {
             setActiveSpan( span );
         }
+
+        span = new RootSpan( span, rootSpanDecorator );
         return span;
     }
 
-    public SpanAdapter<T> startChildSpan( final String spanName )
+    public SpanAdapter startChildSpan( final String spanName )
     {
         return startChildSpan( spanName, Optional.empty() );
     }
 
-    public SpanAdapter<T> startChildSpan( final String spanName, Optional<SpanContext<T>> parentContext )
+    public SpanAdapter startChildSpan( final String spanName, Optional<SpanContext<T>> parentContext )
     {
-        SpanAdapter<T> span = spanProvider.startChildSpan( spanName, parentContext );
+        SpanAdapter span = spanProvider.startChildSpan( spanName, parentContext );
         if ( span != null )
         {
             setActiveSpan( span );
@@ -82,21 +85,21 @@ public final class TraceManager<T extends TracerType>
 
     public void addSpanField( String name, Object value )
     {
-        SpanAdapter<T> span = getActiveSpan();
+        SpanAdapter span = getActiveSpan();
         if ( span != null )
         {
             span.addField( name, value );
         }
     }
 
-    public void addStartField( SpanAdapter<T> span, String name, long begin )
+    public void addStartField( SpanAdapter span, String name, long begin )
     {
         String startFieldName = name( name, REQUEST_PHASE_START );
         logger.trace( "addStartField, span: {}, name: {}, begin: {}", span, name, begin );
         span.setInProgressField( startFieldName, begin );
     }
 
-    public void addEndField( SpanAdapter<T> span, String name, long end )
+    public void addEndField( SpanAdapter span, String name, long end )
     {
         String startFieldName = name( name, REQUEST_PHASE_START );
         Long begin = span.getInProgressField( startFieldName, null );
@@ -111,7 +114,7 @@ public final class TraceManager<T extends TracerType>
         span.clearInProgressField( startFieldName );
     }
 
-    public void addCumulativeField( SpanAdapter<T> span, String name, long elapse )
+    public void addCumulativeField( SpanAdapter span, String name, long elapse )
     {
         // cumulative timing
         String cumulativeTimingName = name( name, CUMULATIVE_TIMINGS );
@@ -141,37 +144,23 @@ public final class TraceManager<T extends TracerType>
                       elapse, cumulativeMs, cumulativeCount );
     }
 
-    public void addRootSpanFields()
-    {
-        SpanAdapter<T> span = getActiveSpan();
-        if ( span != null )
-        {
-            addRootSpanFields( span );
-        }
-    }
-
-    public void addRootSpanFields( SpanAdapter<T> span )
-    {
-        rootSpanDecorator.decorate( span );
-    }
-
     public Optional<SpanContext<T>> extractContext( HttpServletRequest request )
     {
         return contextPropagator.extractContext( request );
     }
 
-    private void setActiveSpan( SpanAdapter<T> spanAdapter )
+    private void setActiveSpan( SpanAdapter spanAdapter )
     {
         ThreadContext ctx = ThreadContext.getContext( true );
         ctx.put( ACTIVE_SPAN, spanAdapter );
     }
 
-    public SpanAdapter<T> getActiveSpan()
+    public SpanAdapter getActiveSpan()
     {
         ThreadContext ctx = ThreadContext.getContext( false );
         if ( ctx != null )
         {
-            return (SpanAdapter<T>) ctx.get( ACTIVE_SPAN );
+            return (SpanAdapter) ctx.get( ACTIVE_SPAN );
         }
 
         return null;
