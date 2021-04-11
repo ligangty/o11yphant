@@ -12,4 +12,5 @@ public interface SpanProvider<T extends TracerType>
 
     SpanAdapter startChildSpan( String spanName, Optional<SpanContext<T>> parentContext );
 
+    SpanAdapter startClientSpan( String spanName );
 }

@@ -27,6 +27,7 @@ import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 import java.lang.reflect.Method;
+import java.util.Optional;
 
 import static java.lang.System.currentTimeMillis;
 
@@ -69,19 +70,17 @@ public class FlatTraceMeasureInterceptor
         }
 
         long begin = currentTimeMillis();
-        SpanAdapter span = null;
         try
         {
-            span = traceManager.getActiveSpan();
             return context.proceed();
         }
         finally
         {
-            if ( span != null )
-            {
+            Optional<SpanAdapter> span = traceManager.getActiveSpan();
+            span.ifPresent( s->{
                 long elapse = currentTimeMillis() - begin;
-                traceManager.addCumulativeField( span, name, elapse );
-            }
+                traceManager.addCumulativeField( s, name, elapse );
+            } );
             logger.trace( "END: trace method wrapper: {}", name );
         }
     }

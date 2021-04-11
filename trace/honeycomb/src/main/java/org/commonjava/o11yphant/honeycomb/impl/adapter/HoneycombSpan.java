@@ -1,6 +1,7 @@
 package org.commonjava.o11yphant.honeycomb.impl.adapter;
 
 import io.honeycomb.beeline.tracing.Span;
+import io.honeycomb.beeline.tracing.propagation.PropagationContext;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 
 import java.util.function.BiConsumer;
@@ -20,6 +21,12 @@ public class HoneycombSpan implements SpanAdapter
     {
         this.span = span;
         this.closer = closer;
+    }
+
+    @Override
+    public boolean isLocalRoot()
+    {
+        return span.getParentSpanId() == null;
     }
 
     @Override
@@ -71,4 +78,8 @@ public class HoneycombSpan implements SpanAdapter
         span.addField( key, null );
     }
 
+    public PropagationContext getPropagationContext()
+    {
+        return new PropagationContext( span.getTraceId(), span.getSpanId(), span.getDataset(), span.getTraceFields() );
+    }
 }

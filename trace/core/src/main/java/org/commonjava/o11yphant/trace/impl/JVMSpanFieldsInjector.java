@@ -18,7 +18,7 @@ package org.commonjava.o11yphant.trace.impl;
 import org.commonjava.o11yphant.metrics.api.Gauge;
 import org.commonjava.o11yphant.metrics.api.MetricSet;
 import org.commonjava.o11yphant.metrics.jvm.JVMInstrumentation;
-import org.commonjava.o11yphant.trace.spi.RootSpanFields;
+import org.commonjava.o11yphant.trace.spi.SpanFieldsInjector;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -29,13 +29,13 @@ import java.util.Map;
  * Retrieve values for various kinds of memory usage in the JVM, along with counts of various kinds of threads.
  */
 @ApplicationScoped
-public class JVMRootSpanFields
-                implements RootSpanFields
+public class JVMSpanFieldsInjector
+                implements SpanFieldsInjector
 {
     private JVMInstrumentation jvmInstrumentation;
 
     @Inject
-    public JVMRootSpanFields( JVMInstrumentation jvmInstrumentation )
+    public JVMSpanFieldsInjector( JVMInstrumentation jvmInstrumentation )
     {
         this.jvmInstrumentation = jvmInstrumentation;
     }

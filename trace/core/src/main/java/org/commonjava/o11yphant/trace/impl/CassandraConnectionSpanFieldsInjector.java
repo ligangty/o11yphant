@@ -17,7 +17,7 @@ package org.commonjava.o11yphant.trace.impl;
 
 import com.datastax.driver.core.Host;
 import com.datastax.driver.core.Session;
-import org.commonjava.o11yphant.trace.spi.RootSpanFields;
+import org.commonjava.o11yphant.trace.spi.SpanFieldsInjector;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -29,8 +29,8 @@ import static org.commonjava.o11yphant.metrics.util.NameUtils.name;
 /**
  * Allow an application to register a new RootSpanFields implementation for any Cassandra connection pool it sets up.
  */
-public abstract class CassandraConnectionRootSpanFields
-                implements RootSpanFields
+public abstract class CassandraConnectionSpanFieldsInjector
+                implements SpanFieldsInjector
 {
     /**
      * Get cassandra sessions, each with a name (usually it is the keyspace name).

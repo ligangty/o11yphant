@@ -40,17 +40,19 @@ public class OtelSpanProvider implements SpanProvider<OtelType>
 
         Span span = spanBuilder.startSpan();
         span.makeCurrent();
-        return new OtelSpan( span );
+        return new OtelSpan( span, true );
     }
 
     @Override
     public SpanAdapter startChildSpan( String spanName, Optional<SpanContext<OtelType>> parentContext )
     {
         SpanBuilder spanBuilder = tracer.spanBuilder( spanName );
+        boolean isRoot = true;
         if ( parentContext.isPresent() )
         {
             Context ctx = (( OtelSpanContext ) parentContext.get()).getContext();
             spanBuilder.setParent( ctx);
+            isRoot = false;
         }
         else
         {
@@ -58,11 +60,29 @@ public class OtelSpanProvider implements SpanProvider<OtelType>
             if ( ctx != null )
             {
                 spanBuilder.setParent( ctx );
+                isRoot = false;
             }
         }
 
         Span span = spanBuilder.startSpan();
         span.makeCurrent();
-        return new OtelSpan( span );
+        return new OtelSpan( span, isRoot );
+    }
+
+    @Override
+    public SpanAdapter startClientSpan( String spanName )
+    {
+        SpanBuilder spanBuilder = tracer.spanBuilder( spanName );
+        Context ctx = Context.current();
+        boolean localRoot = true;
+        if ( ctx != null )
+        {
+            spanBuilder.setParent( ctx );
+            localRoot = false;
+        }
+
+        Span span = spanBuilder.startSpan();
+        span.makeCurrent();
+        return new OtelSpan( span, localRoot );
     }
 }

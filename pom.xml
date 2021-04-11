@@ -61,6 +61,7 @@
         <weftVersion>1.16</weftVersion>
         <agroalVersion>1.8</agroalVersion>
         <datastaxVersion>3.7.2</datastaxVersion>
+        <httpclientVersion>4.5.9</httpclientVersion>
     </properties>
 
     <dependencyManagement>
@@ -218,6 +219,12 @@
                 <groupId>com.datastax.cassandra</groupId>
                 <artifactId>cassandra-driver-core</artifactId>
                 <version>${datastaxVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>${httpclientVersion}</version>
             </dependency>
 
             <dependency>

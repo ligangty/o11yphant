@@ -21,7 +21,6 @@ import org.commonjava.o11yphant.honeycomb.impl.adapter.HoneycombSpan;
 import org.commonjava.o11yphant.honeycomb.impl.adapter.HoneycombSpanContext;
 import org.commonjava.o11yphant.honeycomb.impl.adapter.HoneycombType;
 import org.commonjava.o11yphant.honeycomb.HoneycombConfiguration;
-import org.commonjava.o11yphant.trace.RootSpanDecorator;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanContext;
 import org.commonjava.o11yphant.trace.TracerConfiguration;
@@ -182,6 +181,30 @@ public class HoneycombSpanProvider implements SpanProvider<HoneycombType>
 
     @Override
     public SpanAdapter startChildSpan( String spanName, Optional<SpanContext<HoneycombType>> parentContext )
+    {
+        if ( beeline != null )
+        {
+            if ( tracingContext != null && tracingContext.isEmpty() )
+            {
+                logger.debug( "Parent span from context: {} is a NO-OP, starting root trace instead in: {}",
+                              tracingContext, Thread.currentThread().getId() );
+                return startServiceRootSpan( spanName, Optional.empty() );
+            }
+
+            Span span = beeline.startChildSpan( spanName );
+
+            logger.debug( "Child span: {} (id: {}, trace: {}, parent: {}, thread: {})", span, span.getSpanId(),
+                          span.getTraceId(), span.getParentSpanId(), Thread.currentThread().getId() );
+
+            span.markStart();
+            return new HoneycombSpan( span );
+        }
+
+        return null;
+    }
+
+    @Override
+    public SpanAdapter startClientSpan( String spanName )
     {
         if ( beeline != null )
         {

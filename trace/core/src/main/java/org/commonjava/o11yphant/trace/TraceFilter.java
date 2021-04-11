@@ -62,7 +62,7 @@ public class TraceFilter
         try
         {
             Optional<SpanContext> spanContext = traceManager.extractContext( hsr );
-            rootSpan = traceManager.startServiceRootSpan( getEndpointName( hsr.getMethod(), hsr.getPathInfo() ), spanContext );
+            rootSpan = traceManager.startServiceRootSpan( getEndpointName( hsr.getMethod(), hsr.getPathInfo() ), hsr );
             if ( rootSpan != null )
             {
                 addRequestFields( hsr );

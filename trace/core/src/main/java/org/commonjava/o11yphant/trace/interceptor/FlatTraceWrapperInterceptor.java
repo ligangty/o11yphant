@@ -20,6 +20,7 @@ import org.commonjava.o11yphant.metrics.util.NameUtils;
 import org.commonjava.o11yphant.trace.TraceManager;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 import org.commonjava.o11yphant.trace.TracerConfiguration;
+import org.commonjava.o11yphant.trace.spi.adapter.SpanContext;
 import org.commonjava.o11yphant.trace.util.InterceptorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +29,8 @@ import javax.inject.Inject;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
+
+import java.util.Optional;
 
 import static java.lang.System.currentTimeMillis;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.SKIP_METRIC;
@@ -62,20 +65,19 @@ public class FlatTraceWrapperInterceptor
         }
 
         long begin = currentTimeMillis();
-        SpanAdapter span = null;
         try
         {
-            span = traceManager.getActiveSpan();
             return context.proceed();
         }
         finally
         {
-            if ( span != null )
-            {
+            final String nom = NameUtils.name( name, InterceptorUtils.getMetricNameFromContextAfterRun( context ) );
+
+            Optional<SpanAdapter> span = traceManager.getActiveSpan();
+            span.ifPresent( s->{
                 long elapse = currentTimeMillis() - begin;
-                name = NameUtils.name( name, InterceptorUtils.getMetricNameFromContextAfterRun( context ) );
-                traceManager.addCumulativeField( span, name, elapse );
-            }
+                traceManager.addCumulativeField( s, nom, elapse );
+            } );
             logger.debug( "END: trace lambda wrapper: {}", name );
         }
     }

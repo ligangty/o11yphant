@@ -1,19 +1,27 @@
 package org.commonjava.o11yphant.trace.impl;
 
-import org.commonjava.o11yphant.trace.RootSpanDecorator;
+import org.commonjava.o11yphant.trace.SpanFieldsDecorator;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 
-public class RootSpan
+public class FieldInjectionSpan
                 implements SpanAdapter
 {
     private SpanAdapter delegate;
 
-    private RootSpanDecorator rootSpanDecorator;
+    private SpanFieldsDecorator spanFieldsDecorator;
 
-    public RootSpan( SpanAdapter delegate, RootSpanDecorator rootSpanDecorator )
+    public FieldInjectionSpan( SpanAdapter delegate, SpanFieldsDecorator spanFieldsDecorator )
     {
         this.delegate = delegate;
-        this.rootSpanDecorator = rootSpanDecorator;
+        this.spanFieldsDecorator = spanFieldsDecorator;
+    }
+
+    @Override
+    public boolean isLocalRoot()
+    {
+        // We're injecting context gathered during local service execution, so this must be the root span for the local
+        // service...
+        return true;
     }
 
     @java.lang.Override
@@ -37,7 +45,7 @@ public class RootSpan
     @java.lang.Override
     public void close()
     {
-        rootSpanDecorator.decorate( delegate );
+        spanFieldsDecorator.decorate( delegate );
         delegate.close();
     }
 

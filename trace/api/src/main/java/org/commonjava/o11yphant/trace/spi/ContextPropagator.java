@@ -1,5 +1,7 @@
 package org.commonjava.o11yphant.trace.spi;
 
+import org.apache.http.client.methods.HttpUriRequest;
+import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanContext;
 import org.commonjava.o11yphant.trace.spi.adapter.TracerType;
 
@@ -9,4 +11,6 @@ import java.util.Optional;
 public interface ContextPropagator<T extends TracerType>
 {
     Optional<SpanContext<T>> extractContext( HttpServletRequest request );
+
+    void injectContext( HttpUriRequest request, SpanAdapter clientSpan );
 }

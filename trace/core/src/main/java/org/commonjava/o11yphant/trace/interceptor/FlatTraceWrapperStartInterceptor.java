@@ -28,6 +28,8 @@ import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 
+import java.util.Optional;
+
 import static java.lang.System.currentTimeMillis;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.SKIP_METRIC;
 
@@ -63,11 +65,8 @@ public class FlatTraceWrapperStartInterceptor
         long begin = currentTimeMillis();
         try
         {
-            SpanAdapter span = traceManager.getActiveSpan();
-            if ( span != null )
-            {
-                traceManager.addStartField( span, name, begin );
-            }
+            Optional<SpanAdapter> span = traceManager.getActiveSpan();
+            span.ifPresent( s->traceManager.addStartField( s, name, begin ) );
         }
         finally
         {

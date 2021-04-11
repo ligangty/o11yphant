@@ -29,8 +29,10 @@ import static org.commonjava.o11yphant.metrics.RequestContextConstants.*;
 
 public interface TracerConfiguration
 {
+    Integer DEFAULT_BASE_SAMPLE_RATE = 100;
+
     Set<String> DEFAULT_FIELDS = Collections.unmodifiableSet(
-                    new HashSet<>( Arrays.asList( CONTENT_TRACKING_ID, HTTP_METHOD, HTTP_STATUS, TRACE_ID, CLIENT_ADDR,
+                    new HashSet<>( Arrays.asList( CONTENT_TRACKING_ID, HTTP_METHOD, HTTP_STATUS, CLIENT_ADDR,
                                                   PATH, PACKAGE_TYPE, REST_ENDPOINT_PATH, REQUEST_LATENCY_MILLIS ) ) );
 
     boolean isEnabled();
@@ -77,7 +79,10 @@ public interface TracerConfiguration
     /**
      * Base sample rate is used when none specific rate found for a function, or so called 'classifier'.
      */
-    Integer getBaseSampleRate();
+    default Integer getBaseSampleRate()
+    {
+        return DEFAULT_BASE_SAMPLE_RATE;
+    }
 
     default int getSampleRate( Method method )
     {

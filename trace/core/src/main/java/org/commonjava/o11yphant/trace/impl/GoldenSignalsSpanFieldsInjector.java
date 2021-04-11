@@ -18,7 +18,7 @@ package org.commonjava.o11yphant.trace.impl;
 import org.apache.commons.lang3.StringUtils;
 import org.commonjava.o11yphant.metrics.RequestContextHelper;
 import org.commonjava.o11yphant.metrics.sli.GoldenSignalsMetricSet;
-import org.commonjava.o11yphant.trace.spi.RootSpanFields;
+import org.commonjava.o11yphant.trace.spi.SpanFieldsInjector;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -31,13 +31,13 @@ import java.util.Set;
 import static org.commonjava.o11yphant.metrics.RequestContextConstants.GOLDEN_SIGNALS_FUNCTIONS;
 
 @ApplicationScoped
-public class GoldenSignalsRootSpanFields
-                implements RootSpanFields
+public class GoldenSignalsSpanFieldsInjector
+                implements SpanFieldsInjector
 {
     private GoldenSignalsMetricSet goldenSignalsMetricSet;
 
     @Inject
-    public GoldenSignalsRootSpanFields( GoldenSignalsMetricSet goldenSignalsMetricSet )
+    public GoldenSignalsSpanFieldsInjector( GoldenSignalsMetricSet goldenSignalsMetricSet )
     {
         this.goldenSignalsMetricSet = goldenSignalsMetricSet;
     }

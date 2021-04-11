@@ -15,8 +15,9 @@
  */
 package org.commonjava.o11yphant.trace;
 
+import org.apache.http.client.methods.HttpUriRequest;
 import org.commonjava.cdi.util.weft.ThreadContext;
-import org.commonjava.o11yphant.trace.impl.RootSpan;
+import org.commonjava.o11yphant.trace.impl.FieldInjectionSpan;
 import org.commonjava.o11yphant.trace.spi.ContextPropagator;
 import org.commonjava.o11yphant.trace.spi.O11yphantTracePlugin;
 import org.commonjava.o11yphant.trace.spi.SpanProvider;
@@ -44,27 +45,59 @@ public final class TraceManager<T extends TracerType>
 
     private final ContextPropagator<T> contextPropagator;
 
-    private RootSpanDecorator rootSpanDecorator;
+    private final SpanFieldsDecorator spanFieldsDecorator;
+
+    private final TracerConfiguration config;
 
     private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
-    public TraceManager( O11yphantTracePlugin tracePlugin,
-                         RootSpanDecorator rootSpanDecorator )
+    public TraceManager( O11yphantTracePlugin<T> tracePlugin, SpanFieldsDecorator spanFieldsDecorator,
+                         TracerConfiguration config )
     {
         this.spanProvider = tracePlugin.getSpanProvider();
         this.contextPropagator = tracePlugin.getContextPropagator();
-        this.rootSpanDecorator = rootSpanDecorator;
+        this.spanFieldsDecorator = spanFieldsDecorator;
+        this.config = config;
     }
 
-    public SpanAdapter startServiceRootSpan( String spanName, Optional<SpanContext<T>> parentContext )
+    public SpanAdapter startClientRequestSpan(String spanName, HttpUriRequest request )
     {
-        SpanAdapter span = spanProvider.startServiceRootSpan( spanName, parentContext);
+        if ( !config.isEnabled() )
+        {
+            return null;
+        }
+
+        SpanAdapter span = spanProvider.startClientSpan( spanName );
+        contextPropagator.injectContext( request, span );
+        setActiveSpan( span );
+
+        if ( span.isLocalRoot() )
+        {
+            span = new FieldInjectionSpan( span, spanFieldsDecorator );
+        }
+
+        return span;
+    }
+
+    public SpanAdapter startServiceRootSpan( String spanName, HttpServletRequest hsr )
+    {
+        if ( !config.isEnabled() )
+        {
+            return null;
+        }
+
+        Optional<SpanContext<T>> parentContext = contextPropagator.extractContext( hsr );
+        SpanAdapter span = spanProvider.startServiceRootSpan( spanName, parentContext );
         if ( span != null )
         {
             setActiveSpan( span );
+
+            if ( span.isLocalRoot() )
+            {
+                span = new FieldInjectionSpan( span, spanFieldsDecorator );
+            }
         }
 
-        span = new RootSpan( span, rootSpanDecorator );
         return span;
     }
 
@@ -73,27 +106,45 @@ public final class TraceManager<T extends TracerType>
         return startChildSpan( spanName, Optional.empty() );
     }
 
+    // FIXME: Is this parentContext parameter really necessary? Are we leaking state outside the trace manager with this?
     public SpanAdapter startChildSpan( final String spanName, Optional<SpanContext<T>> parentContext )
     {
+        if ( !config.isEnabled() )
+        {
+            return null;
+        }
+
         SpanAdapter span = spanProvider.startChildSpan( spanName, parentContext );
         if ( span != null )
         {
             setActiveSpan( span );
+
+            if ( span.isLocalRoot() )
+            {
+                span = new FieldInjectionSpan( span, spanFieldsDecorator );
+            }
         }
+
         return span;
     }
 
     public void addSpanField( String name, Object value )
     {
-        SpanAdapter span = getActiveSpan();
-        if ( span != null )
+        if ( !config.isEnabled() )
         {
-            span.addField( name, value );
+            return;
         }
+
+        getActiveSpan().ifPresent( span -> span.addField( name, value ) );
     }
 
     public void addStartField( SpanAdapter span, String name, long begin )
     {
+        if ( !config.isEnabled() )
+        {
+            return;
+        }
+
         String startFieldName = name( name, REQUEST_PHASE_START );
         logger.trace( "addStartField, span: {}, name: {}, begin: {}", span, name, begin );
         span.setInProgressField( startFieldName, begin );
@@ -101,6 +152,11 @@ public final class TraceManager<T extends TracerType>
 
     public void addEndField( SpanAdapter span, String name, long end )
     {
+        if ( !config.isEnabled() )
+        {
+            return;
+        }
+
         String startFieldName = name( name, REQUEST_PHASE_START );
         Long begin = span.getInProgressField( startFieldName, null );
         if ( begin == null )
@@ -116,6 +172,11 @@ public final class TraceManager<T extends TracerType>
 
     public void addCumulativeField( SpanAdapter span, String name, long elapse )
     {
+        if ( !config.isEnabled() )
+        {
+            return;
+        }
+
         // cumulative timing
         String cumulativeTimingName = name( name, CUMULATIVE_TIMINGS );
         Long cumulativeMs = span.getInProgressField( cumulativeTimingName, 0L );
@@ -146,24 +207,39 @@ public final class TraceManager<T extends TracerType>
 
     public Optional<SpanContext<T>> extractContext( HttpServletRequest request )
     {
+        if ( !config.isEnabled() )
+        {
+            return Optional.empty();
+        }
+
         return contextPropagator.extractContext( request );
     }
 
     private void setActiveSpan( SpanAdapter spanAdapter )
     {
+        if ( !config.isEnabled() )
+        {
+            return;
+        }
+
         ThreadContext ctx = ThreadContext.getContext( true );
         ctx.put( ACTIVE_SPAN, spanAdapter );
     }
 
-    public SpanAdapter getActiveSpan()
+    public Optional<SpanAdapter> getActiveSpan()
     {
+        if ( !config.isEnabled() )
+        {
+            return Optional.empty();
+        }
+
         ThreadContext ctx = ThreadContext.getContext( false );
         if ( ctx != null )
         {
-            return (SpanAdapter) ctx.get( ACTIVE_SPAN );
+            return Optional.of( (SpanAdapter) ctx.get( ACTIVE_SPAN ) );
         }
 
-        return null;
+        return Optional.empty();
     }
 
 }

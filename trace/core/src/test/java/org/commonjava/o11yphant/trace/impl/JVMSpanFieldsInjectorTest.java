@@ -16,17 +16,16 @@
 package org.commonjava.o11yphant.trace.impl;
 
 import org.commonjava.o11yphant.metrics.jvm.JVMInstrumentation;
-import org.commonjava.o11yphant.trace.impl.JVMRootSpanFields;
 import org.junit.Test;
 
 import java.util.Map;
 
-public class JVMRootSpanFieldsTest
+public class JVMSpanFieldsInjectorTest
 {
     @Test
     public void run()
     {
-        JVMRootSpanFields jvmRootSpanFields = new JVMRootSpanFields( new JVMInstrumentation( null ) );
+        JVMSpanFieldsInjector jvmRootSpanFields = new JVMSpanFieldsInjector( new JVMInstrumentation( null ) );
         Map<String, Object> map = jvmRootSpanFields.get();
         System.out.println( map ); // print something like below,
         /*

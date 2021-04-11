@@ -2,6 +2,8 @@ package org.commonjava.o11yphant.trace.spi.adapter;
 
 public interface SpanAdapter
 {
+    boolean isLocalRoot();
+
     String getTraceId();
 
     String getSpanId();

@@ -4,7 +4,6 @@ import io.honeycomb.beeline.tracing.context.TracingContext;
 import io.honeycomb.beeline.tracing.sampling.TraceSampler;
 import io.honeycomb.libhoney.EventPostProcessor;
 import org.commonjava.o11yphant.honeycomb.HoneycombConfiguration;
-import org.commonjava.o11yphant.trace.RootSpanDecorator;
 import org.commonjava.o11yphant.trace.TracerConfiguration;
 
 import javax.enterprise.context.ApplicationScoped;

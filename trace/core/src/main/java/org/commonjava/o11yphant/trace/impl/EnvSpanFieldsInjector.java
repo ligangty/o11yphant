@@ -17,7 +17,7 @@ package org.commonjava.o11yphant.trace.impl;
 
 import org.apache.commons.lang.StringUtils;
 import org.commonjava.o11yphant.trace.TracerConfiguration;
-import org.commonjava.o11yphant.trace.spi.RootSpanFields;
+import org.commonjava.o11yphant.trace.spi.SpanFieldsInjector;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -29,8 +29,8 @@ import java.util.stream.Stream;
  * Allow configuration of a set of environment variables to extract from the system and add to the Span as fields.
  */
 @ApplicationScoped
-public class EnvRootSpanFields
-                implements RootSpanFields
+public class EnvSpanFieldsInjector
+                implements SpanFieldsInjector
 {
     @Inject
     private TracerConfiguration configuration;

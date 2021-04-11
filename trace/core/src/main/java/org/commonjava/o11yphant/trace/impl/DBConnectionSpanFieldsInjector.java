@@ -18,7 +18,7 @@ package org.commonjava.o11yphant.trace.impl;
 import io.agroal.api.AgroalDataSource;
 import io.agroal.api.AgroalDataSourceMetrics;
 import org.commonjava.o11yphant.trace.TracerConfiguration;
-import org.commonjava.o11yphant.trace.spi.RootSpanFields;
+import org.commonjava.o11yphant.trace.spi.SpanFieldsInjector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,8 +40,8 @@ import static org.commonjava.o11yphant.metrics.util.NameUtils.name;
  * We should be able to monitor connections active vs. available, along with system-wide latency stats.
  */
 @ApplicationScoped
-public class DBConnectionRootSpanFields
-                implements RootSpanFields
+public class DBConnectionSpanFieldsInjector
+                implements SpanFieldsInjector
 {
     private final Logger logger = LoggerFactory.getLogger( getClass() );
 
