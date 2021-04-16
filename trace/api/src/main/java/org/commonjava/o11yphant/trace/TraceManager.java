@@ -15,15 +15,20 @@
  */
 package org.commonjava.o11yphant.trace;
 
+import org.apache.http.HttpRequest;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.commonjava.cdi.util.weft.ThreadContext;
+import org.commonjava.o11yphant.metrics.api.Metric;
 import org.commonjava.o11yphant.trace.impl.FieldInjectionSpan;
+import org.commonjava.o11yphant.trace.impl.ThreadedSpan;
 import org.commonjava.o11yphant.trace.spi.ContextPropagator;
 import org.commonjava.o11yphant.trace.spi.O11yphantTracePlugin;
 import org.commonjava.o11yphant.trace.spi.SpanProvider;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanContext;
 import org.commonjava.o11yphant.trace.spi.adapter.TracerType;
+import org.commonjava.o11yphant.trace.thread.ThreadedTraceContext;
+import org.commonjava.o11yphant.trace.thread.TraceThreadContextualizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,12 +39,11 @@ import static org.commonjava.o11yphant.metrics.MetricsConstants.AVERAGE_TIME_MS;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.CUMULATIVE_COUNT;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.CUMULATIVE_TIMINGS;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.MAX_TIME_MS;
-import static org.commonjava.o11yphant.metrics.RequestContextConstants.REQUEST_PHASE_START;
 import static org.commonjava.o11yphant.metrics.util.NameUtils.name;
 
 public final class TraceManager<T extends TracerType>
 {
-    public static final String ACTIVE_SPAN = TraceManager.class.getSimpleName() + ".active-span";
+    private static final ThreadLocal<SpanAdapter> ACTIVE_SPAN = new ThreadLocal<>();
 
     private final SpanProvider<T> spanProvider;
 
@@ -51,11 +55,16 @@ public final class TraceManager<T extends TracerType>
 
     private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
+    private TraceThreadContextualizer<T> traceThreadContextualizer;
+
     public TraceManager( O11yphantTracePlugin<T> tracePlugin, SpanFieldsDecorator spanFieldsDecorator,
                          TracerConfiguration config )
     {
         this.spanProvider = tracePlugin.getSpanProvider();
         this.contextPropagator = tracePlugin.getContextPropagator();
+        this.traceThreadContextualizer =
+                        new TraceThreadContextualizer( config, this, tracePlugin.getThreadTracingContext() );
+
         this.spanFieldsDecorator = spanFieldsDecorator;
         this.config = config;
     }
@@ -76,14 +85,71 @@ public final class TraceManager<T extends TracerType>
             span = new FieldInjectionSpan( span, spanFieldsDecorator );
         }
 
+        logger.info( "Started span: {}", span.getSpanId() );
         return span;
     }
 
-    public SpanAdapter startServiceRootSpan( String spanName, HttpServletRequest hsr )
+    public Optional<SpanAdapter> startClientRequestSpan(String spanName, HttpRequest request )
     {
         if ( !config.isEnabled() )
         {
-            return null;
+            return Optional.empty();
+        }
+
+        SpanAdapter span = spanProvider.startClientSpan( spanName );
+        contextPropagator.injectContext( request, span );
+        setActiveSpan( span );
+
+        if ( span.isLocalRoot() )
+        {
+            span = new FieldInjectionSpan( span, spanFieldsDecorator );
+        }
+
+        logger.info( "Started span: {}", span.getSpanId() );
+        return Optional.of( span );
+    }
+
+    public Optional<SpanAdapter> startThreadRootSpan( String spanName, ThreadedTraceContext threadedContext )
+    {
+        if ( !config.isEnabled() )
+        {
+            return Optional.empty();
+        }
+
+        Optional<SpanContext<T>> parentContext = contextPropagator.extractContext( threadedContext );
+        SpanAdapter span = spanProvider.startServiceRootSpan( spanName, parentContext );
+        if ( span != null )
+        {
+            setActiveSpan( span );
+
+            SpanAdapter finalSpan = span;
+            threadedContext.getActiveSpan().ifPresent( parentSpan ->{
+                parentSpan.getFields().forEach( (k,v) ->{
+                    if ( !( v instanceof Metric ) )
+                    {
+                        finalSpan.addField( k, v );
+                    }
+                } );
+            } );
+
+
+            if ( span.isLocalRoot() )
+            {
+                span = new FieldInjectionSpan( span, spanFieldsDecorator );
+            }
+
+            span = new ThreadedSpan( span, threadedContext.getActiveSpan() );
+        }
+
+        logger.info( "Started span: {}", span.getSpanId() );
+        return Optional.of( span );
+    }
+
+    public Optional<SpanAdapter> startServletRootSpan( String spanName, HttpServletRequest hsr )
+    {
+        if ( !config.isEnabled() )
+        {
+            return Optional.empty();
         }
 
         Optional<SpanContext<T>> parentContext = contextPropagator.extractContext( hsr );
@@ -98,20 +164,44 @@ public final class TraceManager<T extends TracerType>
             }
         }
 
-        return span;
+        logger.info( "Started span: {}", span.getSpanId() );
+        return Optional.of( span );
     }
 
-    public SpanAdapter startChildSpan( final String spanName )
+    public Optional<SpanAdapter> startRootSpan( String spanName, HttpRequest req )
+    {
+        if ( !config.isEnabled() )
+        {
+            return Optional.empty();
+        }
+
+        Optional<SpanContext<T>> parentContext = contextPropagator.extractContext( req );
+        SpanAdapter span = spanProvider.startServiceRootSpan( spanName, parentContext );
+        if ( span != null )
+        {
+            setActiveSpan( span );
+
+            if ( span.isLocalRoot() )
+            {
+                span = new FieldInjectionSpan( span, spanFieldsDecorator );
+            }
+        }
+
+        logger.info( "Started span: {}", span.getSpanId() );
+        return Optional.of( span );
+    }
+
+    public Optional<SpanAdapter> startChildSpan( final String spanName )
     {
         return startChildSpan( spanName, Optional.empty() );
     }
 
     // FIXME: Is this parentContext parameter really necessary? Are we leaking state outside the trace manager with this?
-    public SpanAdapter startChildSpan( final String spanName, Optional<SpanContext<T>> parentContext )
+    public Optional<SpanAdapter> startChildSpan( final String spanName, Optional<SpanContext<T>> parentContext )
     {
         if ( !config.isEnabled() )
         {
-            return null;
+            return Optional.empty();
         }
 
         SpanAdapter span = spanProvider.startChildSpan( spanName, parentContext );
@@ -125,7 +215,8 @@ public final class TraceManager<T extends TracerType>
             }
         }
 
-        return span;
+        logger.info( "Started span: {}", span.getSpanId() );
+        return Optional.of( span );
     }
 
     public void addSpanField( String name, Object value )
@@ -145,7 +236,7 @@ public final class TraceManager<T extends TracerType>
             return;
         }
 
-        String startFieldName = name( name, REQUEST_PHASE_START );
+        String startFieldName = name;
         logger.trace( "addStartField, span: {}, name: {}, begin: {}", span, name, begin );
         span.setInProgressField( startFieldName, begin );
     }
@@ -157,7 +248,7 @@ public final class TraceManager<T extends TracerType>
             return;
         }
 
-        String startFieldName = name( name, REQUEST_PHASE_START );
+        String startFieldName = name;
         Long begin = span.getInProgressField( startFieldName, null );
         if ( begin == null )
         {
@@ -199,7 +290,7 @@ public final class TraceManager<T extends TracerType>
 
         // average
         String averageName = name( name, AVERAGE_TIME_MS );
-        span.setInProgressField( averageName, ( cumulativeMs / cumulativeCount ) );
+        span.setInProgressField( averageName, (double) ( cumulativeMs / cumulativeCount ) );
 
         logger.trace( "addCumulativeField, span: {}, name: {}, elapse: {}, cumulative-ms: {}, count: {}", span, name,
                       elapse, cumulativeMs, cumulativeCount );
@@ -222,24 +313,33 @@ public final class TraceManager<T extends TracerType>
             return;
         }
 
-        ThreadContext ctx = ThreadContext.getContext( true );
-        ctx.put( ACTIVE_SPAN, spanAdapter );
+        ACTIVE_SPAN.set(spanAdapter);
     }
 
-    public Optional<SpanAdapter> getActiveSpan()
+    public static Optional<SpanAdapter> getActiveSpan()
     {
-        if ( !config.isEnabled() )
-        {
-            return Optional.empty();
-        }
-
         ThreadContext ctx = ThreadContext.getContext( false );
         if ( ctx != null )
         {
-            return Optional.of( (SpanAdapter) ctx.get( ACTIVE_SPAN ) );
+            SpanAdapter span = ACTIVE_SPAN.get();
+            return span == null ? Optional.empty() : Optional.of( span );
         }
 
         return Optional.empty();
     }
 
+    public static void addFieldToActiveSpan( String name, Object value )
+    {
+        getActiveSpan().ifPresent( span -> {
+            Logger logger = LoggerFactory.getLogger( TraceManager.class );
+
+            logger.info( "Adding field: {} with value: {} to span: {}", name, value, span.getSpanId() );
+            span.addField( name, value );
+        } );
+    }
+
+    public TraceThreadContextualizer<T> getTraceThreadContextualizer()
+    {
+        return traceThreadContextualizer;
+    }
 }

@@ -56,13 +56,18 @@ public class HoneycombSpanProvider implements SpanProvider<HoneycombType>
 
     public HoneycombSpanProvider( HoneycombConfiguration honeycombConfiguration, TracerConfiguration tracerConfiguration,
                              TraceSampler traceSampler, TracingContext tracingContext,
-                             EventPostProcessor eventPostProcessor )
+                             Optional<EventPostProcessor> eventPostProcessor )
     {
         this.tracerConfiguration = tracerConfiguration;
         this.honeycombConfiguration = honeycombConfiguration;
         this.traceSampler = traceSampler;
         this.tracingContext = tracingContext;
-        this.eventPostProcessor = eventPostProcessor;
+        if ( eventPostProcessor.isPresent() )
+        {
+            this.eventPostProcessor = eventPostProcessor.get();
+        }
+
+        init();
     }
 
     public void init()
@@ -170,10 +175,7 @@ public class HoneycombSpanProvider implements SpanProvider<HoneycombType>
                           span.getSpanId(), span.getTraceId(), span.getParentSpanId(), Thread.currentThread().getId() );
 
             span.markStart();
-            return new HoneycombSpan( span, (as, s)->{
-                s.close();
-                beeline.getTracer().endTrace();
-            } );
+            return new HoneycombSpan( span, beeline );
         }
 
         return null;
@@ -197,7 +199,7 @@ public class HoneycombSpanProvider implements SpanProvider<HoneycombType>
                           span.getTraceId(), span.getParentSpanId(), Thread.currentThread().getId() );
 
             span.markStart();
-            return new HoneycombSpan( span );
+            return new HoneycombSpan( span, beeline );
         }
 
         return null;
@@ -221,7 +223,7 @@ public class HoneycombSpanProvider implements SpanProvider<HoneycombType>
                           span.getTraceId(), span.getParentSpanId(), Thread.currentThread().getId() );
 
             span.markStart();
-            return new HoneycombSpan( span );
+            return new HoneycombSpan( span, beeline );
         }
 
         return null;

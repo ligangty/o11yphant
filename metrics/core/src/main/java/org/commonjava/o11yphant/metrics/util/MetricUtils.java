@@ -19,6 +19,8 @@ import com.codahale.metrics.health.HealthCheckRegistry;
 import org.commonjava.o11yphant.metrics.DefaultMetricRegistry;
 import org.commonjava.o11yphant.metrics.api.Gauge;
 import org.commonjava.o11yphant.metrics.api.MetricSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 

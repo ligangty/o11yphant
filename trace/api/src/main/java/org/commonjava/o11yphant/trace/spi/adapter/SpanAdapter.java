@@ -1,5 +1,7 @@
 package org.commonjava.o11yphant.trace.spi.adapter;
 
+import java.util.Map;
+
 public interface SpanAdapter
 {
     boolean isLocalRoot();
@@ -10,6 +12,8 @@ public interface SpanAdapter
 
     void addField( String name, Object value );
 
+    Map<String, Object> getFields();
+
     void close();
 
     void setInProgressField(String key, Object value);
@@ -17,4 +21,6 @@ public interface SpanAdapter
     <V> V getInProgressField( String key, V defValue );
 
     void clearInProgressField( String key );
+
+    Map<String, Object> getInProgressFields();
 }

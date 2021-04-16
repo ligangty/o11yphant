@@ -1,26 +1,28 @@
 package org.commonjava.o11yphant.honeycomb.impl.adapter;
 
+import io.honeycomb.beeline.tracing.Beeline;
 import io.honeycomb.beeline.tracing.Span;
 import io.honeycomb.beeline.tracing.propagation.PropagationContext;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.BiConsumer;
 
 public class HoneycombSpan implements SpanAdapter
 {
     private final Span span;
 
-    private BiConsumer<SpanAdapter, Span> closer;
+    private Beeline beeline;
 
-    public HoneycombSpan( Span span )
+    private Map<String, Object> inProgress = new HashMap<>();
+
+    public HoneycombSpan( Span span, Beeline beeline )
     {
         this.span = span;
-    }
-
-    public HoneycombSpan( Span span, BiConsumer<SpanAdapter, Span> closer )
-    {
-        this.span = span;
-        this.closer = closer;
+        this.beeline = beeline;
     }
 
     @Override
@@ -48,34 +50,44 @@ public class HoneycombSpan implements SpanAdapter
     }
 
     @Override
+    public Map<String, Object> getFields()
+    {
+        return span.getFields();
+    }
+
+    @Override
     public void close()
     {
-        if ( closer != null )
+        span.addFields( inProgress );
+        span.close();
+        if ( span.getParentSpanId() == null )
         {
-            closer.accept( this, span );
-        }
-        else
-        {
-            span.close();
+            beeline.getTracer().endTrace();
         }
     }
 
     @Override
     public void setInProgressField( String key, Object value )
     {
-        span.addField( key, value );
+        inProgress.put( key, value );
     }
 
     @Override
     public <V> V getInProgressField( String key, V defValue )
     {
-        return (V) span.getFields().getOrDefault( key, defValue );
+        return (V) inProgress.getOrDefault( key, defValue );
+    }
+
+    @Override
+    public Map<String, Object> getInProgressFields()
+    {
+        return inProgress;
     }
 
     @Override
     public void clearInProgressField( String key )
     {
-        span.addField( key, null );
+        inProgress.remove( key );
     }
 
     public PropagationContext getPropagationContext()

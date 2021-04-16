@@ -3,6 +3,7 @@ package org.commonjava.o11yphant.otel.impl;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanBuilder;
+import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
@@ -37,8 +38,12 @@ public class OtelSpanProvider implements SpanProvider<OtelType>
             Context ctx = (( OtelSpanContext ) parentContext.get()).getContext();
             spanBuilder.setParent( ctx);
         }
+        else
+        {
+            spanBuilder.setNoParent();
+        }
 
-        Span span = spanBuilder.startSpan();
+        Span span = spanBuilder.setSpanKind( SpanKind.SERVER ).startSpan();
         span.makeCurrent();
         return new OtelSpan( span, true );
     }
@@ -62,9 +67,13 @@ public class OtelSpanProvider implements SpanProvider<OtelType>
                 spanBuilder.setParent( ctx );
                 isRoot = false;
             }
+            else
+            {
+                spanBuilder.setNoParent();
+            }
         }
 
-        Span span = spanBuilder.startSpan();
+        Span span = spanBuilder.setSpanKind( SpanKind.INTERNAL ).startSpan();
         span.makeCurrent();
         return new OtelSpan( span, isRoot );
     }
@@ -80,8 +89,12 @@ public class OtelSpanProvider implements SpanProvider<OtelType>
             spanBuilder.setParent( ctx );
             localRoot = false;
         }
+        else
+        {
+            spanBuilder.setNoParent();
+        }
 
-        Span span = spanBuilder.startSpan();
+        Span span = spanBuilder.setSpanKind( SpanKind.CLIENT ).startSpan();
         span.makeCurrent();
         return new OtelSpan( span, localRoot );
     }

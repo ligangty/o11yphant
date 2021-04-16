@@ -58,11 +58,11 @@ public class TraceFilter
         HttpServletRequest hsr = (HttpServletRequest) request;
         logger.debug( "START: {}", hsr.getPathInfo() );
 
-        SpanAdapter rootSpan = null;
+        Optional<SpanAdapter> rootSpan = null;
         try
         {
             Optional<SpanContext> spanContext = traceManager.extractContext( hsr );
-            rootSpan = traceManager.startServiceRootSpan( getEndpointName( hsr.getMethod(), hsr.getPathInfo() ), hsr );
+            rootSpan = traceManager.startServletRootSpan( getEndpointName( hsr.getMethod(), hsr.getPathInfo() ), hsr );
             if ( rootSpan != null )
             {
                 addRequestFields( hsr );
@@ -73,12 +73,9 @@ public class TraceFilter
         finally
         {
             logger.debug( "END: {}", hsr.getPathInfo() );
-            if ( rootSpan != null )
-            {
-                HttpServletResponse resp = (HttpServletResponse) response;
-                traceManager.addSpanField( "status_code", Integer.toString( resp.getStatus() ) );
-                rootSpan.close();
-            }
+            HttpServletResponse resp = (HttpServletResponse) response;
+            traceManager.addSpanField( "status_code", Integer.toString( resp.getStatus() ) );
+            rootSpan.ifPresent( SpanAdapter::close );
 
             logger.trace( "END: {}", getClass().getSimpleName() );
         }

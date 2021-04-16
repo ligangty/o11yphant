@@ -22,23 +22,23 @@ import org.commonjava.o11yphant.metrics.api.Meter;
 import org.commonjava.o11yphant.metrics.conf.MetricsConfig;
 import org.commonjava.o11yphant.metrics.util.NameUtils;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
 import static org.commonjava.o11yphant.metrics.MetricsConstants.METER;
 import static org.commonjava.o11yphant.metrics.util.NameUtils.getDefaultName;
 
-@ApplicationScoped
-public class DefaultEventPostProcessor
+public class MeteringEventPostProcessor
                 implements EventPostProcessor
 {
-    @Inject
     private MetricsManager metricsManager;
 
-    @Inject
     private MetricsConfig metricsConfig;
 
     private final static String TRANSFER_HONEYCOMB_EVENT = "transferred.honeycomb.event";
+
+    public MeteringEventPostProcessor( MetricsManager metricsManager, MetricsConfig metricsConfig )
+    {
+        this.metricsManager = metricsManager;
+        this.metricsConfig = metricsConfig;
+    }
 
     @Override
     public void process( EventData<?> eventData )
@@ -46,7 +46,7 @@ public class DefaultEventPostProcessor
         if ( metricsConfig != null && metricsManager != null )
         {
             String name = NameUtils.getName( metricsConfig.getNodePrefix(), TRANSFER_HONEYCOMB_EVENT,
-                                             getDefaultName( DefaultEventPostProcessor.class, "process" ), METER );
+                                             getDefaultName( MeteringEventPostProcessor.class, "process" ), METER );
             Meter meter = metricsManager.getMeter( name );
             meter.mark();
         }

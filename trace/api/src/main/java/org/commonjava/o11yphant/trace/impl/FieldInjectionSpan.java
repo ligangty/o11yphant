@@ -3,6 +3,8 @@ package org.commonjava.o11yphant.trace.impl;
 import org.commonjava.o11yphant.trace.SpanFieldsDecorator;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 
+import java.util.Map;
+
 public class FieldInjectionSpan
                 implements SpanAdapter
 {
@@ -14,6 +16,7 @@ public class FieldInjectionSpan
     {
         this.delegate = delegate;
         this.spanFieldsDecorator = spanFieldsDecorator;
+        spanFieldsDecorator.decorateOnStart( delegate );
     }
 
     @Override
@@ -42,10 +45,16 @@ public class FieldInjectionSpan
         delegate.addField( name, value );
     }
 
+    @Override
+    public Map<String, Object> getFields()
+    {
+        return delegate.getFields();
+    }
+
     @java.lang.Override
     public void close()
     {
-        spanFieldsDecorator.decorate( delegate );
+        spanFieldsDecorator.decorateOnClose( delegate );
         delegate.close();
     }
 
@@ -65,5 +74,11 @@ public class FieldInjectionSpan
     public void clearInProgressField( String key )
     {
         delegate.clearInProgressField( key );
+    }
+
+    @Override
+    public Map<String, Object> getInProgressFields()
+    {
+        return delegate.getInProgressFields();
     }
 }

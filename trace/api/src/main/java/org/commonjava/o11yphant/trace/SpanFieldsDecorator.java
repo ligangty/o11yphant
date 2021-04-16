@@ -29,15 +29,17 @@ public class SpanFieldsDecorator
         this.spanFieldInjectors = spanFieldInjectors;
     }
 
-    public final void decorate( SpanAdapter span )
+    public final void decorateOnStart( SpanAdapter span )
     {
         spanFieldInjectors.forEach( injectSpanFields -> {
-            Map<String, Object> fields = injectSpanFields.get();
-            if ( fields != null )
-            {
-                fields.forEach( span::addField );
-            }
-            logger.debug( "Add injected span fields for: {}, fields: {}", injectSpanFields, fields );
+            injectSpanFields.decorateSpanAtStart( span );
+        } );
+    }
+
+    public final void decorateOnClose( SpanAdapter span )
+    {
+        spanFieldInjectors.forEach( injectSpanFields -> {
+            injectSpanFields.decorateSpanAtClose( span );
         } );
     }
 }

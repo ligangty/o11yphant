@@ -17,35 +17,31 @@ package org.commonjava.o11yphant.honeycomb.impl;
 
 import io.honeycomb.beeline.tracing.sampling.TraceSampler;
 import org.commonjava.cdi.util.weft.ThreadContext;
-import org.commonjava.o11yphant.metrics.DefaultTrafficClassifier;
-import org.commonjava.o11yphant.honeycomb.HoneycombConfiguration;
+import org.commonjava.o11yphant.metrics.TrafficClassifier;
 import org.commonjava.o11yphant.trace.TracerConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-@ApplicationScoped
-public class DefaultTraceSampler
+public class ConfigurableTraceSampler
                 implements TraceSampler<String>
 {
     private final Logger logger = LoggerFactory.getLogger( getClass() );
 
     public static final String SAMPLE_OVERRIDE = "honeycomb.sample-override";
 
-    @Inject
-    private DefaultTrafficClassifier classifier;
+    private TrafficClassifier classifier;
 
-    @Inject
     private TracerConfiguration config;
 
-    @Inject
-    private HoneycombConfiguration honeycombConfiguration;
+    public ConfigurableTraceSampler( TrafficClassifier classifier, TracerConfiguration config )
+    {
+        this.classifier = classifier;
+        this.config = config;
+    }
 
     /**
      * Decides whether to sample the input.

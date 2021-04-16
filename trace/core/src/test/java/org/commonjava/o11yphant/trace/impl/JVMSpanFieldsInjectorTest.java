@@ -26,8 +26,10 @@ public class JVMSpanFieldsInjectorTest
     public void run()
     {
         JVMSpanFieldsInjector jvmRootSpanFields = new JVMSpanFieldsInjector( new JVMInstrumentation( null ) );
-        Map<String, Object> map = jvmRootSpanFields.get();
-        System.out.println( map ); // print something like below,
+        MockSpan span = new MockSpan();
+        jvmRootSpanFields.decorateSpanAtStart( span );
+        jvmRootSpanFields.decorateSpanAtClose( span );
+        System.out.println( span.getFields() ); // print something like below,
         /*
         jvm.memory.heap.used=15177840,
         jvm.memory.non-heap.init=2555904,

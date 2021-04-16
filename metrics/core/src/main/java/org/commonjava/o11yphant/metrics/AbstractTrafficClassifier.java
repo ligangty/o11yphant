@@ -21,7 +21,8 @@ import java.util.*;
 
 import static java.util.Arrays.asList;
 
-public abstract class DefaultTrafficClassifier implements TrafficClassifier
+public abstract class AbstractTrafficClassifier
+                implements TrafficClassifier
 {
     public static final String CACHED_FUNCTIONS = "cached-functions";
 

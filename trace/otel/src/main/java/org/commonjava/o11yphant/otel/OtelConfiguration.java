@@ -11,4 +11,9 @@ public interface OtelConfiguration
     {
         return "1.0";
     }
+
+    default String getGrpcEndpointUri()
+    {
+        return "http://localhost:55680";
+    }
 }

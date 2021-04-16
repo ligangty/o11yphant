@@ -33,6 +33,7 @@
     <module>core</module>
     <module>otel</module>
     <module>honeycomb</module>
+    <module>helper-jhttpc</module>
   </modules>
 
 </project>

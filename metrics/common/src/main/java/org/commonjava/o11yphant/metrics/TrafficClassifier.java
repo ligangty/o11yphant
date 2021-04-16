@@ -17,8 +17,19 @@ package org.commonjava.o11yphant.metrics;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public interface TrafficClassifier
 {
     List<String> classifyFunctions( String restPath, String method, Map<String, String> headers );
+
+    default void putCachedFunctionClassifiers( List<String> result )
+    {}
+
+    default Optional<List<String>> getCachedFunctionClassifiers()
+    {
+        return Optional.empty();
+    }
+
+
 }

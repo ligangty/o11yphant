@@ -17,6 +17,7 @@ package org.commonjava.o11yphant.trace.impl;
 
 import org.commonjava.o11yphant.trace.TracerConfiguration;
 import org.commonjava.o11yphant.trace.spi.SpanFieldsInjector;
+import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -34,17 +35,9 @@ public class ConfiguredSpanFieldsInjector
     @Inject
     private TracerConfiguration configuration;
 
-    private final Map<String, Object> configured = new HashMap<>();
-
-    @PostConstruct
-    public void init()
-    {
-        configured.put( "config.node.id", configuration.getNodeId() );
-    }
-
     @Override
-    public Map<String, Object> get()
+    public void decorateSpanAtStart( SpanAdapter span )
     {
-        return configured;
+        span.addField( "config.node.id", configuration.getNodeId() );
     }
 }

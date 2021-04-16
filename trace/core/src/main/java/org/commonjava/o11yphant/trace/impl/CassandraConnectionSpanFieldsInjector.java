@@ -18,6 +18,7 @@ package org.commonjava.o11yphant.trace.impl;
 import com.datastax.driver.core.Host;
 import com.datastax.driver.core.Session;
 import org.commonjava.o11yphant.trace.spi.SpanFieldsInjector;
+import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -36,14 +37,14 @@ public abstract class CassandraConnectionSpanFieldsInjector
      * Get cassandra sessions, each with a name (usually it is the keyspace name).
      */
     protected abstract Map<String, Session> getSessions();
-    
+
     @Override
-    public Map<String, Object> get()
+    public void decorateSpanAtClose( SpanAdapter span )
     {
         final Map<String, Session> sessions = getSessions();
         if ( sessions == null || sessions.isEmpty() )
         {
-            return emptyMap();
+            return;
         }
 
         Map<String, Object> ret = new HashMap<>();
@@ -56,11 +57,10 @@ public abstract class CassandraConnectionSpanFieldsInjector
                 int trashed = st.getTrashedConnections( host );
                 int total = open + trashed;
                 String prefix = name( "cassandra", sessionName );
-                ret.put( name( prefix, hostname, "totalConnections" ), total );
-                ret.put( name( prefix, hostname, "openConnections" ), open );
-                ret.put( name( prefix, hostname, "trashedConnections" ), trashed );
+                span.addField( name( prefix, hostname, "totalConnections" ), total );
+                span.addField( name( prefix, hostname, "openConnections" ), open );
+                span.addField( name( prefix, hostname, "trashedConnections" ), trashed );
             } );
         } );
-        return ret;
     }
 }

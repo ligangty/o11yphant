@@ -14,6 +14,6 @@ public class HoneycombSpanContext implements SpanContext<HoneycombType>
 
     public PropagationContext getPropagationContext()
     {
-        return getPropagationContext();
+        return ctx;
     }
 }

@@ -16,19 +16,16 @@
 package org.commonjava.o11yphant.honeycomb.impl;
 
 import io.honeycomb.beeline.tracing.sampling.TraceSampler;
-import org.commonjava.o11yphant.honeycomb.HoneycombConfiguration;
 import org.commonjava.o11yphant.trace.TracerConfiguration;
 
 public class SimpleTraceSampler
                 implements TraceSampler<String>
 {
     private TracerConfiguration tracerConfiguration;
-    private HoneycombConfiguration honeycombConfiguration;
 
-    public SimpleTraceSampler( TracerConfiguration tracerConfiguration, HoneycombConfiguration honeycombConfiguration )
+    public SimpleTraceSampler( TracerConfiguration tracerConfiguration )
     {
         this.tracerConfiguration = tracerConfiguration;
-        this.honeycombConfiguration = honeycombConfiguration;
     }
 
     /**

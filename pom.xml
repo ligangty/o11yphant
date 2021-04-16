@@ -58,10 +58,11 @@
         <elasticsearchVersion>2.2.0</elasticsearchVersion>
         <logbackVersion>1.2.3</logbackVersion>
         <undertowVersion>2.1.0.Final</undertowVersion>
-        <weftVersion>1.16</weftVersion>
+        <weftVersion>1.19-SNAPSHOT</weftVersion>
         <agroalVersion>1.8</agroalVersion>
         <datastaxVersion>3.7.2</datastaxVersion>
         <httpclientVersion>4.5.9</httpclientVersion>
+        <jhttpcVersion>1.12-SNAPSHOT</jhttpcVersion>
     </properties>
 
     <dependencyManagement>
@@ -77,10 +78,9 @@
             <dependency>
                 <groupId>io.opentelemetry</groupId>
                 <artifactId>opentelemetry-bom</artifactId>
-                <version>0.17.0</version>
+                <version>0.17.1</version>
                 <type>pom</type>
                 <scope>import</scope>
-
             </dependency>
 
             <dependency>
@@ -210,6 +210,12 @@
             </dependency>
 
             <dependency>
+                <groupId>org.commonjava.util</groupId>
+                <artifactId>jhttpc</artifactId>
+                <version>${jhttpcVersion}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>io.agroal</groupId>
                 <artifactId>agroal-api</artifactId>
                 <version>${agroalVersion}</version>
@@ -225,6 +231,17 @@
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
                 <version>${httpclientVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-netty</artifactId>
+                <version>1.35.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>23.6-jre</version>
             </dependency>
 
             <dependency>

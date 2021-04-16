@@ -18,6 +18,7 @@ package org.commonjava.o11yphant.trace.impl;
 import org.apache.commons.lang.StringUtils;
 import org.commonjava.o11yphant.trace.TracerConfiguration;
 import org.commonjava.o11yphant.trace.spi.SpanFieldsInjector;
+import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -36,12 +37,11 @@ public class EnvSpanFieldsInjector
     private TracerConfiguration configuration;
 
     @Override
-    public Map<String, Object> get()
+    public void decorateSpanAtStart( SpanAdapter span )
     {
         String environmentMappings = configuration.getEnvironmentMappings();
 
         String[] mappings = environmentMappings == null ? new String[0] : environmentMappings.split( "\\s*,\\s*" );
-        Map<String, Object> envars = new HashMap<>();
         Stream.of( mappings ).forEach( kv -> {
             String[] keyAlias = kv.split( "\\s*=\\s*" );
             if ( keyAlias.length > 1 )
@@ -52,9 +52,8 @@ public class EnvSpanFieldsInjector
                     value = "Unknown";
                 }
 
-                envars.put( keyAlias[1].trim(), value );
+                span.addField( keyAlias[1].trim(), value );
             }
         } );
-        return envars;
     }
 }

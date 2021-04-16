@@ -17,6 +17,8 @@ public class OtelSpan
 
     private Map<String, Object> inProgress = new HashMap<>();
 
+    private Map<String, Object> attributes = new HashMap<>();
+
     public OtelSpan( Span span, boolean localRoot )
     {
         this.span = span;
@@ -44,12 +46,20 @@ public class OtelSpan
     @Override
     public void addField( String name, Object value )
     {
-        span.setAttribute( name, String.valueOf( value ) );
+        attributes.put( name, String.valueOf( value ) );
+    }
+
+    @Override
+    public Map<String, Object> getFields()
+    {
+        return attributes;
     }
 
     @Override
     public void close()
     {
+        attributes.forEach( ( k, v ) -> span.setAttribute( k, (String) v ) );
+
         inProgress.forEach( ( k, v ) -> {
             if ( v instanceof Long )
             {
@@ -88,6 +98,12 @@ public class OtelSpan
     public void clearInProgressField( String key )
     {
         inProgress.remove( key );
+    }
+
+    @Override
+    public Map<String, Object> getInProgressFields()
+    {
+        return inProgress;
     }
 
     public SpanContext getSpanContext()

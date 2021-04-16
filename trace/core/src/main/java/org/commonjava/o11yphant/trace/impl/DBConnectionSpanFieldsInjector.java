@@ -19,6 +19,7 @@ import io.agroal.api.AgroalDataSource;
 import io.agroal.api.AgroalDataSourceMetrics;
 import org.commonjava.o11yphant.trace.TracerConfiguration;
 import org.commonjava.o11yphant.trace.spi.SpanFieldsInjector;
+import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,33 +90,31 @@ public class DBConnectionSpanFieldsInjector
     }
 
     @Override
-    public Map<String, Object> get()
+    public void decorateSpanAtClose( SpanAdapter span )
     {
         if ( dataSourceMetricsMap.isEmpty() )
         {
-            return emptyMap();
+            return;
         }
 
-        Map<String, Object> ret = new HashMap<>();
         dataSourceMetricsMap.forEach( ( name, metrics ) -> {
-            ret.put( name( name, "acquireCount" ), metrics.acquireCount() );
-            ret.put( name( name, "creationCount" ), metrics.creationCount() );
-            ret.put( name( name, "leakDetectionCount" ), metrics.leakDetectionCount() );
-            ret.put( name( name, "destroyCount" ), metrics.destroyCount() );
-            ret.put( name( name, "flushCount" ), metrics.flushCount() );
-            ret.put( name( name, "invalidCount" ), metrics.invalidCount() );
-            ret.put( name( name, "reapCount" ), metrics.reapCount() );
-            ret.put( name( name, "activeCount" ), metrics.activeCount() );
-            ret.put( name( name, "availableCount" ), metrics.availableCount() );
-            ret.put( name( name, "maxUsedCount" ), metrics.maxUsedCount() );
-            ret.put( name( name, "awaitingCount" ), metrics.awaitingCount() );
-            ret.put( name( name, "blockingTimeAverage" ), metrics.blockingTimeAverage() );
-            ret.put( name( name, "blockingTimeMax" ), metrics.blockingTimeMax() );
-            ret.put( name( name, "blockingTimeTotal" ), metrics.blockingTimeTotal() );
-            ret.put( name( name, "creationTimeAverage" ), metrics.creationTimeAverage() );
-            ret.put( name( name, "creationTimeMax" ), metrics.creationTimeMax() );
-            ret.put( name( name, "creationTimeTotal" ), metrics.creationTimeTotal() );
+            span.addField( name( name, "acquireCount" ), metrics.acquireCount() );
+            span.addField( name( name, "creationCount" ), metrics.creationCount() );
+            span.addField( name( name, "leakDetectionCount" ), metrics.leakDetectionCount() );
+            span.addField( name( name, "destroyCount" ), metrics.destroyCount() );
+            span.addField( name( name, "flushCount" ), metrics.flushCount() );
+            span.addField( name( name, "invalidCount" ), metrics.invalidCount() );
+            span.addField( name( name, "reapCount" ), metrics.reapCount() );
+            span.addField( name( name, "activeCount" ), metrics.activeCount() );
+            span.addField( name( name, "availableCount" ), metrics.availableCount() );
+            span.addField( name( name, "maxUsedCount" ), metrics.maxUsedCount() );
+            span.addField( name( name, "awaitingCount" ), metrics.awaitingCount() );
+            span.addField( name( name, "blockingTimeAverage" ), metrics.blockingTimeAverage() );
+            span.addField( name( name, "blockingTimeMax" ), metrics.blockingTimeMax() );
+            span.addField( name( name, "blockingTimeTotal" ), metrics.blockingTimeTotal() );
+            span.addField( name( name, "creationTimeAverage" ), metrics.creationTimeAverage() );
+            span.addField( name( name, "creationTimeMax" ), metrics.creationTimeMax() );
+            span.addField( name( name, "creationTimeTotal" ), metrics.creationTimeTotal() );
         } );
-        return ret;
     }
 }

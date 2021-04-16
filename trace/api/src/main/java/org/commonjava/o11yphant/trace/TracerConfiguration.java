@@ -37,6 +37,8 @@ public interface TracerConfiguration
 
     boolean isEnabled();
 
+    boolean isConsoleTransport();
+
     /**
      * Service/application name, e,g. indy.
      */

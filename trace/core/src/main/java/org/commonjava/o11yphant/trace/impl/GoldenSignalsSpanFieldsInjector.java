@@ -19,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.commonjava.o11yphant.metrics.RequestContextHelper;
 import org.commonjava.o11yphant.metrics.sli.GoldenSignalsMetricSet;
 import org.commonjava.o11yphant.trace.spi.SpanFieldsInjector;
+import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -43,10 +44,8 @@ public class GoldenSignalsSpanFieldsInjector
     }
 
     @Override
-    public Map<String, Object> get()
+    public void decorateSpanAtStart( SpanAdapter span )
     {
-        final Map<String, Object> ret = new HashMap<>();
-
         // NOTE This is awkward, but we get http_status and latency_ms from the DefaultHoneycombManager's field injection.
         // Those fields give us measurements, and the presence of the event gives us the data point we can aggregate for
         // load calculations.
@@ -70,7 +69,7 @@ public class GoldenSignalsSpanFieldsInjector
         Collection<String> functions = RequestContextHelper.getContext( GOLDEN_SIGNALS_FUNCTIONS );
         if ( functions == null || functions.isEmpty() )
         {
-            return ret;
+            return;
         }
 
         Set<String> classifierTokens = new LinkedHashSet<>();
@@ -82,7 +81,6 @@ public class GoldenSignalsSpanFieldsInjector
             }
         } ) );
 
-        ret.put( "traffic_type", StringUtils.join( classifierTokens, "," ) );
-        return ret;
+        span.addField( "traffic_type", StringUtils.join( classifierTokens, "," ) );
     }
 }

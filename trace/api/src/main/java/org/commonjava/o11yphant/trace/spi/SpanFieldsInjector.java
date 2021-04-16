@@ -15,6 +15,8 @@
  */
 package org.commonjava.o11yphant.trace.spi;
 
+import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
+
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -23,6 +25,14 @@ import java.util.function.Supplier;
  * more like the first span in a service). RootSpanFields instances should be iterated with the root span when a service is finished executing (or on error!).
  */
 public interface SpanFieldsInjector
-                extends Supplier<Map<String,Object>>
 {
+    default void decorateSpanAtStart( SpanAdapter span )
+    {
+        return;
+    }
+
+    default void decorateSpanAtClose( SpanAdapter span )
+    {
+        return;
+    }
 }
