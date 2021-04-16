@@ -96,13 +96,29 @@ public final class TraceManager<T extends TracerType>
             return Optional.empty();
         }
 
-        SpanAdapter span = spanProvider.startClientSpan( spanName );
-        contextPropagator.injectContext( request, span );
-        setActiveSpan( span );
+        Optional<SpanAdapter> pspan = getActiveSpan();
 
-        if ( span.isLocalRoot() )
+        SpanAdapter span = spanProvider.startClientSpan( spanName );
+        if ( span != null )
         {
-            span = new FieldInjectionSpan( span, spanFieldsDecorator );
+            contextPropagator.injectContext( request, span );
+
+            SpanAdapter finalSpan = span;
+            pspan.ifPresent( parentSpan ->{
+                parentSpan.getFields().forEach( (k,v) ->{
+                    if ( !( v instanceof Metric ) )
+                    {
+                        finalSpan.addField( k, v );
+                    }
+                } );
+            } );
+
+            setActiveSpan( span );
+
+            if ( span.isLocalRoot() )
+            {
+                span = new FieldInjectionSpan( span, spanFieldsDecorator );
+            }
         }
 
         logger.info( "Started span: {}", span.getSpanId() );

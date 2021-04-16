@@ -53,11 +53,11 @@ public class TracerHttpClient
                 span = Optional.empty();
             }
 
-            addFieldToActiveSpan( "target-url", request.getRequestLine().getUri() );
+            addFieldToActiveSpan( "target-http-url", request.getRequestLine().getUri() );
             CloseableHttpResponse response = delegate.execute( target, request, context );
             if ( response != null )
             {
-                addFieldToActiveSpan( "target-response", response.getStatusLine().getStatusCode() );
+                addFieldToActiveSpan( "target-http-status", response.getStatusLine().getStatusCode() );
             }
 
             return new SpanClosingResponse( response, span );
