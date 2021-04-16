@@ -34,6 +34,8 @@
     <module>otel</module>
     <module>honeycomb</module>
     <module>helper-jhttpc</module>
+    <module>helper-servlet</module>
+    <module>helper-httpclient</module>
   </modules>
 
 </project>

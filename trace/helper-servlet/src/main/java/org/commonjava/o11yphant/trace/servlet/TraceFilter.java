@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.commonjava.o11yphant.trace;
+package org.commonjava.o11yphant.trace.servlet;
 
+import org.commonjava.o11yphant.trace.TraceManager;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
-import org.commonjava.o11yphant.trace.spi.adapter.SpanContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.commonjava.o11yphant.trace.servlet.ServletContextTools.contextExtractor;
 
 @ApplicationScoped
 public class TraceFilter
@@ -58,15 +59,13 @@ public class TraceFilter
         HttpServletRequest hsr = (HttpServletRequest) request;
         logger.debug( "START: {}", hsr.getPathInfo() );
 
-        Optional<SpanAdapter> rootSpan = null;
+        Optional<SpanAdapter> rootSpan = Optional.empty();
         try
         {
-            Optional<SpanContext> spanContext = traceManager.extractContext( hsr );
-            rootSpan = traceManager.startServletRootSpan( getEndpointName( hsr.getMethod(), hsr.getPathInfo() ), hsr );
-            if ( rootSpan != null )
-            {
-                addRequestFields( hsr );
-            }
+            rootSpan = traceManager.startServiceRootSpan( getEndpointName( hsr.getMethod(), hsr.getPathInfo() ),
+                                                          contextExtractor( hsr ) );
+
+            rootSpan.ifPresent( rs -> addRequestFields( hsr ) );
 
             chain.doFilter( request, response );
         }

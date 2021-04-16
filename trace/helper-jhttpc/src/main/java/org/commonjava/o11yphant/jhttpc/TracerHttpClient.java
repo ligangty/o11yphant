@@ -18,6 +18,8 @@ import java.net.URL;
 import java.util.Optional;
 
 import static org.commonjava.o11yphant.trace.TraceManager.addFieldToActiveSpan;
+import static org.commonjava.o11yphant.trace.httpclient.HttpClientTools.contextExtractor;
+import static org.commonjava.o11yphant.trace.httpclient.HttpClientTools.contextInjector;
 
 public class TracerHttpClient
                 extends CloseableHttpClient
@@ -44,9 +46,10 @@ public class TracerHttpClient
             Optional<SpanAdapter> span;
             if ( traceManager.isPresent() )
             {
-                span = traceManager.get().startClientRequestSpan(
-                                request.getRequestLine().getMethod() + "_" + url.getHost() + "_" + url.getPort(),
-                                request );
+                span = traceManager.get()
+                                   .startClientRequestSpan(
+                                                   request.getRequestLine().getMethod() + "_" + url.getHost() + "_"
+                                                                   + url.getPort(), contextInjector( request ) );
             }
             else
             {
