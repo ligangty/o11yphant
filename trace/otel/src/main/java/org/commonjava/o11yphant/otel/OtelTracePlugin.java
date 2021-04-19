@@ -5,12 +5,12 @@ import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
 import io.opentelemetry.context.propagation.ContextPropagators;
 import io.opentelemetry.exporter.logging.LoggingSpanExporter;
 import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporter;
+import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporterBuilder;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.trace.SdkTracerProvider;
 import io.opentelemetry.sdk.trace.SpanProcessor;
 import io.opentelemetry.sdk.trace.export.BatchSpanProcessor;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
-import io.opentelemetry.sdk.trace.samplers.Sampler;
 import org.commonjava.o11yphant.otel.impl.OtelContextPropagator;
 import org.commonjava.o11yphant.otel.impl.OtelSpanProvider;
 import org.commonjava.o11yphant.otel.impl.OtelThreadTracingContext;
@@ -22,8 +22,8 @@ import org.commonjava.o11yphant.trace.spi.SpanProvider;
 import org.commonjava.o11yphant.trace.thread.ThreadTracingContext;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class OtelTracePlugin implements O11yphantTracePlugin<OtelType>
 {
@@ -46,7 +46,16 @@ public class OtelTracePlugin implements O11yphantTracePlugin<OtelType>
                     exp.add( new LoggingSpanExporter() );
                 }
 
-                exp.add( OtlpGrpcSpanExporter.builder().setEndpoint( otelConfig.getGrpcEndpointUri() ).build() );
+                OtlpGrpcSpanExporterBuilder grpcExporterBuilder = OtlpGrpcSpanExporter.builder();
+                grpcExporterBuilder.setEndpoint( otelConfig.getGrpcEndpointUri() );
+                Map<String, String> exporterHeaders = otelConfig.getGrpcHeaders();
+                if ( exporterHeaders != null )
+                {
+                    exporterHeaders.forEach( ( k, v ) -> grpcExporterBuilder.addHeader( k, v ) );
+                }
+
+                OtlpGrpcSpanExporter otelGrpcExporter = grpcExporterBuilder.build();
+                exp.add( grpcExporterBuilder.build() );
 
                 exporters = exp.toArray( new SpanExporter[]{} );
             }
