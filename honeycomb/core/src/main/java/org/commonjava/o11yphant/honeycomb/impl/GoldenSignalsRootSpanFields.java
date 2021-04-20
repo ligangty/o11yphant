@@ -17,20 +17,18 @@ package org.commonjava.o11yphant.honeycomb.impl;
 
 import org.apache.commons.lang3.StringUtils;
 import org.commonjava.o11yphant.honeycomb.RootSpanFields;
-import org.commonjava.o11yphant.metrics.api.Gauge;
-import org.commonjava.o11yphant.metrics.api.Meter;
-import org.commonjava.o11yphant.metrics.api.Metric;
-import org.commonjava.o11yphant.metrics.api.Timer;
+import org.commonjava.o11yphant.metrics.RequestContextHelper;
 import org.commonjava.o11yphant.metrics.sli.GoldenSignalsMetricSet;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+
+import static org.commonjava.o11yphant.metrics.RequestContextConstants.GOLDEN_SIGNALS_FUNCTIONS;
 
 @ApplicationScoped
 public class GoldenSignalsRootSpanFields
@@ -69,15 +67,20 @@ public class GoldenSignalsRootSpanFields
         //
         // Or, we can use a GROUP BY traffic_type and see the different traffic types broken down in a single graph.
         //
-        final Map<String, Metric> metrics = goldenSignalsMetricSet.getMetrics();
+        Collection<String> functions = RequestContextHelper.getContext( GOLDEN_SIGNALS_FUNCTIONS );
+        if ( functions == null || functions.isEmpty() )
+        {
+            return ret;
+        }
+
         Set<String> classifierTokens = new LinkedHashSet<>();
-        metrics.forEach( ( k, v ) -> {
-            String[] parts = k.split( "\\." );
+        functions.forEach( function -> goldenSignalsMetricSet.function( function ).ifPresent( metric->{
+            String[] parts = function.split( "\\." );
             for ( int i = 0; i < parts.length - 1; i++ )
             {
                 classifierTokens.add( parts[i] );
             }
-        } );
+        } ) );
 
         ret.put( "traffic_type", StringUtils.join( classifierTokens, "," ) );
         return ret;

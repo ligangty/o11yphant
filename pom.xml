@@ -51,7 +51,7 @@
         <javaVersion>1.8</javaVersion>
         <test-forkCount>1</test-forkCount>
         <metricsVersion>4.0.2</metricsVersion>
-        <honeycombVersion>1.1.0</honeycombVersion>
+        <honeycombVersion>1.5.1</honeycombVersion>
         <prometheusVersion>0.7.0</prometheusVersion>
         <zabbixVersion>0.0.2</zabbixVersion>
         <httpTestserverVersion>1.4</httpTestserverVersion>

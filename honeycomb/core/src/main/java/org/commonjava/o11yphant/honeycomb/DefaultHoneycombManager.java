@@ -62,16 +62,20 @@ public class DefaultHoneycombManager
                                     EventPostProcessor defaultEventPostProcessor )
     {
         super( honeycombConfiguration, defaultTraceSampler, defaultTracingContext, defaultEventPostProcessor );
-
-        if ( rootSpanFieldsInstance != null )
-        {
-            rootSpanFieldsInstance.forEach( instance -> rootSpanFieldsList.add( instance ) );
-        }
     }
 
     @PostConstruct
     public void init()
     {
+        logger.debug( "Registering root-span field handlers..." );
+        if ( rootSpanFieldsInstance != null )
+        {
+            rootSpanFieldsInstance.forEach( instance -> {
+                logger.debug( "Registering root-span fields from: {}", instance.getClass().getSimpleName() );
+                rootSpanFieldsList.add( instance );
+            } );
+        }
+
         super.init();
     }
 

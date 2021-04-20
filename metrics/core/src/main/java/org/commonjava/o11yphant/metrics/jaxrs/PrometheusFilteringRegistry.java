@@ -24,6 +24,8 @@ import com.codahale.metrics.MetricFilter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import org.commonjava.o11yphant.metrics.conf.PrometheusConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.SortedMap;
@@ -33,6 +35,8 @@ import java.util.TreeMap;
 public class PrometheusFilteringRegistry
                 extends MetricRegistry
 {
+    private final Logger logger = LoggerFactory.getLogger( getClass() );
+
     private final MetricRegistry delegate;
 
     private final PrometheusConfig config;
@@ -118,11 +122,21 @@ public class PrometheusFilteringRegistry
     private <T extends Metric> SortedMap<String, T> filter( Map<String, T> input )
     {
         TreeMap<String, T> result = new TreeMap<>();
+
+        StringBuilder sb = new StringBuilder("Included in Prometheus metrics:\n");
         input.forEach( (k,v)->{
-            if (config.isMetricExpressed(k)){
+            if ( logger.isTraceEnabled() )
+            {
+                sb.append( config.isMetricExpressed( k ) ? "\n+  " : "\n-  " ).append( k );
+            }
+
+            if ( config.isMetricExpressed( k ) )
+            {
                 result.put( k, v );
             }
         } );
+
+        logger.trace( sb.toString() );
         return result;
     }
 }

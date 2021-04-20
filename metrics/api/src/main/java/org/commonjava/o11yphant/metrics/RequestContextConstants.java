@@ -132,4 +132,7 @@ public class RequestContextConstants
 
     public static final String REQUEST_PHASE_END = "end";
 
+    @Thread
+    public static final String GOLDEN_SIGNALS_FUNCTIONS = "golden-signals-functions";
+
 }

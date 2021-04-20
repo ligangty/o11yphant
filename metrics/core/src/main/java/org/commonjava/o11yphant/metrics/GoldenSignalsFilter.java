@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.commonjava.o11yphant.metrics.MetricsConstants.NANOS_PER_MILLISECOND;
+import static org.commonjava.o11yphant.metrics.RequestContextConstants.GOLDEN_SIGNALS_FUNCTIONS;
 import static org.commonjava.o11yphant.metrics.RequestContextConstants.REQUEST_LATENCY_MILLIS;
 import static org.commonjava.o11yphant.metrics.RequestContextConstants.REQUEST_LATENCY_NS;
 
@@ -81,6 +82,8 @@ public class GoldenSignalsFilter
                                                 .collect( Collectors.toMap( h -> h, req::getHeader));
         Collection<String> functions = classifier.classifyFunctions( path, req.getMethod(), headers );
         logger.debug( "Get classified golden functions, path: {}, method: {}, functions: {}", path, req.getMethod(), functions );
+
+        RequestContextHelper.setContext( GOLDEN_SIGNALS_FUNCTIONS, functions );
         try
         {
             functions.forEach( function -> metricSet.function( function ).ifPresent(
