@@ -76,10 +76,8 @@ public class TracerHttpClient
             {
                 throw (RuntimeException) t;
             }
+            throw new RuntimeException( "Failed to execute: " + t.getMessage(), t );
         }
-
-        // should never reach!
-        return null;
     }
 
     @Override
