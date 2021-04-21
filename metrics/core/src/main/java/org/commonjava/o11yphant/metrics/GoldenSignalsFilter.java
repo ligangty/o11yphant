@@ -49,7 +49,7 @@ public class GoldenSignalsFilter
     private GoldenSignalsMetricSet metricSet;
 
     @Inject
-    private AbstractTrafficClassifier classifier;
+    private TrafficClassifier classifier;
 
     private final Logger logger = LoggerFactory.getLogger( getClass() );
 
