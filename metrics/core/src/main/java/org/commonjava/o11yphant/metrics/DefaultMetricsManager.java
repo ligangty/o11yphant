@@ -180,6 +180,7 @@ public class DefaultMetricsManager
         Timer.Context tctx = (Timer.Context) ctx.get( TIMER + name );
         if ( tctx != null )
         {
+            ctx.remove( TIMER + name );
             return tctx.stop();
         }
 
