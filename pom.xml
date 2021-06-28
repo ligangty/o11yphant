@@ -58,11 +58,11 @@
         <elasticsearchVersion>2.2.0</elasticsearchVersion>
         <logbackVersion>1.2.3</logbackVersion>
         <undertowVersion>2.1.0.Final</undertowVersion>
-        <weftVersion>1.19-SNAPSHOT</weftVersion>
+        <weftVersion>1.19</weftVersion>
         <agroalVersion>1.8</agroalVersion>
         <datastaxVersion>3.7.2</datastaxVersion>
         <httpclientVersion>4.5.9</httpclientVersion>
-        <jhttpcVersion>1.12-SNAPSHOT</jhttpcVersion>
+        <jhttpcVersion>1.12</jhttpcVersion>
     </properties>
 
     <dependencyManagement>
