@@ -29,11 +29,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.SortedMap;
-import java.util.SortedSet;
 import java.util.TreeMap;
 
 public class PrometheusFilteringRegistry
-                extends MetricRegistry
+        extends MetricRegistry
 {
     private final Logger logger = LoggerFactory.getLogger( getClass() );
 
@@ -48,27 +47,9 @@ public class PrometheusFilteringRegistry
     }
 
     @Override
-    public SortedSet<String> getNames()
-    {
-        return super.getNames();
-    }
-
-    @Override
     public SortedMap<String, Gauge> getGauges()
     {
-        return filter(delegate.getGauges() );
-    }
-
-    @Override
-    public SortedMap<String, Gauge> getGauges( MetricFilter filter )
-    {
-        return super.getGauges( filter );
-    }
-
-    @Override
-    public SortedMap<String, Counter> getCounters()
-    {
-        return super.getCounters();
+        return filter( delegate.getGauges() );
     }
 
     @Override
@@ -123,8 +104,8 @@ public class PrometheusFilteringRegistry
     {
         TreeMap<String, T> result = new TreeMap<>();
 
-        StringBuilder sb = new StringBuilder("Included in Prometheus metrics:\n");
-        input.forEach( (k,v)->{
+        StringBuilder sb = new StringBuilder( "Included in Prometheus metrics:\n" );
+        input.forEach( ( k, v ) -> {
             if ( logger.isTraceEnabled() )
             {
                 sb.append( config.isMetricExpressed( k ) ? "\n+  " : "\n-  " ).append( k );

@@ -34,13 +34,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.codahale.metrics.MetricRegistry.name;
-import static org.commonjava.o11yphant.metrics.MetricsConstants.DEFAULT;
-import static org.commonjava.o11yphant.metrics.MetricsConstants.EXCEPTION;
-import static org.commonjava.o11yphant.metrics.MetricsConstants.METER;
-import static org.commonjava.o11yphant.metrics.MetricsConstants.NANOS_PER_MILLISECOND;
-import static org.commonjava.o11yphant.metrics.MetricsConstants.TIMER;
-import static org.commonjava.o11yphant.metrics.util.NameUtils.getDefaultName;
-import static org.commonjava.o11yphant.metrics.util.NameUtils.getName;
+import static org.commonjava.o11yphant.metrics.MetricsConstants.*;
+import static org.commonjava.o11yphant.metrics.util.NameUtils.*;
 
 @Interceptor
 @Measure
