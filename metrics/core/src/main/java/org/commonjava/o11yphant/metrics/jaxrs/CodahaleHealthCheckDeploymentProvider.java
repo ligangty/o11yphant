@@ -20,7 +20,6 @@ import io.undertow.servlet.Servlets;
 import io.undertow.servlet.api.DeploymentInfo;
 import io.undertow.servlet.api.ServletInfo;
 import org.commonjava.o11yphant.metrics.conf.MetricsConfig;
-import org.commonjava.o11yphant.metrics.DefaultMetricsManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,9 +34,6 @@ public class CodahaleHealthCheckDeploymentProvider
 
     @Inject
     private MetricsConfig config;
-
-    @Inject
-    private DefaultMetricsManager metricsManager;
 
     public DeploymentInfo getDeploymentInfo( String contextRoot )
     {

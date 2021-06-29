@@ -22,12 +22,12 @@ import org.commonjava.o11yphant.metrics.annotation.MetricWrapperEnd;
 import org.commonjava.o11yphant.metrics.annotation.MetricWrapperNamed;
 import org.commonjava.o11yphant.metrics.annotation.MetricWrapperStart;
 import org.commonjava.o11yphant.metrics.api.Gauge;
-import org.commonjava.o11yphant.metrics.api.healthcheck.HealthCheck;
 import org.commonjava.o11yphant.metrics.api.Meter;
 import org.commonjava.o11yphant.metrics.api.MetricRegistry;
 import org.commonjava.o11yphant.metrics.api.Timer;
-import org.commonjava.o11yphant.metrics.conf.MetricsConfig;
 import org.commonjava.o11yphant.metrics.api.healthcheck.CompoundHealthCheck;
+import org.commonjava.o11yphant.metrics.api.healthcheck.HealthCheck;
+import org.commonjava.o11yphant.metrics.conf.MetricsConfig;
 import org.commonjava.o11yphant.metrics.healthcheck.impl.AbstractHealthCheck;
 import org.commonjava.o11yphant.metrics.jvm.JVMInstrumentation;
 import org.commonjava.o11yphant.metrics.util.NameUtils;
@@ -46,17 +46,10 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
-import static org.commonjava.o11yphant.metrics.MetricsConstants.CUMULATIVE_COUNT;
-import static org.commonjava.o11yphant.metrics.MetricsConstants.CUMULATIVE_TIMINGS;
-import static org.commonjava.o11yphant.metrics.MetricsConstants.DEFAULT;
-import static org.commonjava.o11yphant.metrics.MetricsConstants.EXCEPTION;
-import static org.commonjava.o11yphant.metrics.MetricsConstants.NANOS_PER_MILLISECOND;
-import static org.commonjava.o11yphant.metrics.MetricsConstants.SKIP_METRIC;
-import static org.commonjava.o11yphant.metrics.MetricsConstants.TIMER;
+import static org.commonjava.o11yphant.metrics.MetricsConstants.*;
 import static org.commonjava.o11yphant.metrics.RequestContextConstants.IS_METERED;
-import static org.commonjava.o11yphant.metrics.util.NameUtils.getDefaultName;
 import static org.commonjava.o11yphant.metrics.util.HealthCheckUtils.wrap;
-import static org.commonjava.o11yphant.metrics.util.NameUtils.name;
+import static org.commonjava.o11yphant.metrics.util.NameUtils.*;
 
 @ApplicationScoped
 public class DefaultMetricsManager
@@ -141,12 +134,7 @@ public class DefaultMetricsManager
         {
             return true;
         }
-        else if ( meteringOverride != null && Boolean.TRUE.equals( meteringOverride.get() ) )
-        {
-            return true;
-        }
-
-        return false;
+        return meteringOverride != null && Boolean.TRUE.equals( meteringOverride.get() );
     }
 
     @MetricWrapperStart
@@ -239,7 +227,7 @@ public class DefaultMetricsManager
         long start = System.nanoTime();
         try
         {
-            mark( Arrays.asList( startName ) );
+            mark( Collections.singletonList( startName ) );
 
             return method.get();
         }
@@ -253,7 +241,7 @@ public class DefaultMetricsManager
         finally
         {
             stopTimers( Collections.singletonMap( timerName, timer ) );
-            mark( Arrays.asList( metricName ) );
+            mark( Collections.singletonList( metricName ) );
 
             double elapsed = ( System.nanoTime() - start ) / NANOS_PER_MILLISECOND;
             accumulate( metricName, elapsed );
@@ -272,7 +260,7 @@ public class DefaultMetricsManager
             ctx = ThreadContext.getContext( false );
         }
 
-        return ( ctx == null || ( (Boolean) ctx.getOrDefault( IS_METERED, Boolean.TRUE ) ) );
+        return  ctx == null ||  (Boolean) ctx.getOrDefault( IS_METERED, Boolean.TRUE ) ;
     }
 
     public void stopTimers( final Map<String, Timer.Context> timers )
@@ -285,9 +273,7 @@ public class DefaultMetricsManager
 
     public void mark( final Collection<String> meters )
     {
-        meters.forEach( name -> {
-            getMeter( name ).mark();
-        } );
+        meters.forEach( name -> getMeter( name ).mark() );
     }
 
     public void addGauges( Class<?> className, String method, Map<String, Gauge<Integer>> gauges )
