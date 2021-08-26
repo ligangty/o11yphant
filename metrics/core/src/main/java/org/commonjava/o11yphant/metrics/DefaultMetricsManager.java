@@ -22,6 +22,7 @@ import org.commonjava.o11yphant.metrics.annotation.MetricWrapperEnd;
 import org.commonjava.o11yphant.metrics.annotation.MetricWrapperNamed;
 import org.commonjava.o11yphant.metrics.annotation.MetricWrapperStart;
 import org.commonjava.o11yphant.metrics.api.Gauge;
+import org.commonjava.o11yphant.metrics.api.Histogram;
 import org.commonjava.o11yphant.metrics.api.Meter;
 import org.commonjava.o11yphant.metrics.api.MetricRegistry;
 import org.commonjava.o11yphant.metrics.api.Timer;
@@ -29,6 +30,7 @@ import org.commonjava.o11yphant.metrics.api.healthcheck.CompoundHealthCheck;
 import org.commonjava.o11yphant.metrics.api.healthcheck.HealthCheck;
 import org.commonjava.o11yphant.metrics.conf.MetricsConfig;
 import org.commonjava.o11yphant.metrics.healthcheck.impl.AbstractHealthCheck;
+import org.commonjava.o11yphant.metrics.impl.O11Histogram;
 import org.commonjava.o11yphant.metrics.jvm.JVMInstrumentation;
 import org.commonjava.o11yphant.metrics.util.NameUtils;
 import org.slf4j.Logger;
@@ -178,6 +180,12 @@ public class DefaultMetricsManager
     public Meter getMeter( String name )
     {
         return metricRegistry.meter( name );
+    }
+
+    @Override
+    public Histogram getHistogram( String name )
+    {
+        return metricRegistry.histogram( name );
     }
 
     public void accumulate( String name, final double elapsed )

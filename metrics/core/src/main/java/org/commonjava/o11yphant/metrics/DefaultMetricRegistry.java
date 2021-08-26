@@ -18,18 +18,19 @@ package org.commonjava.o11yphant.metrics;
 import com.codahale.metrics.ConsoleReporter;
 import com.codahale.metrics.health.HealthCheckRegistry;
 import org.commonjava.o11yphant.metrics.api.Gauge;
-import org.commonjava.o11yphant.metrics.api.healthcheck.HealthCheck;
+import org.commonjava.o11yphant.metrics.api.Histogram;
 import org.commonjava.o11yphant.metrics.api.Meter;
 import org.commonjava.o11yphant.metrics.api.Metric;
 import org.commonjava.o11yphant.metrics.api.MetricRegistry;
 import org.commonjava.o11yphant.metrics.api.MetricSet;
 import org.commonjava.o11yphant.metrics.api.Timer;
+import org.commonjava.o11yphant.metrics.api.healthcheck.HealthCheck;
+import org.commonjava.o11yphant.metrics.impl.O11Histogram;
 import org.commonjava.o11yphant.metrics.impl.O11Meter;
 import org.commonjava.o11yphant.metrics.impl.O11Timer;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -82,6 +83,11 @@ public class DefaultMetricRegistry
         {
             registry.register( name, ( (O11Timer) metric ).getCodahaleTimer() );
         }
+        else if ( metric instanceof O11Histogram )
+        {
+            registry.register( name, ( (O11Histogram) metric ).getCodehaleHistogram() );
+        }
+
         metrics.put( name, metric );
         return metric;
     }
@@ -142,6 +148,12 @@ public class DefaultMetricRegistry
     {
         registry.gauge( name, () -> () -> o.getValue() );
         return o;
+    }
+
+    @Override
+    public Histogram histogram( String name )
+    {
+        return new O11Histogram( registry.histogram( name ) );
     }
 
     protected com.codahale.metrics.MetricRegistry getRegistry()

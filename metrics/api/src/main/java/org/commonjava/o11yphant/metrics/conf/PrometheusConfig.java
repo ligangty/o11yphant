@@ -18,15 +18,33 @@ package org.commonjava.o11yphant.metrics.conf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 public class PrometheusConfig
 {
     private final Logger logger = LoggerFactory.getLogger( getClass() );
 
+    private Map<String, Boolean> expressedCache = new HashMap<>();
+
     private List<String> expressedMetrics;
 
     private String nodeLabel;
+
+    private Function<String, Boolean> lookupFunction =
+                    name -> expressedMetrics != null && expressedMetrics.stream().anyMatch( n -> {
+        String pname = n.replace( '.', '_' );
+        if ( name.equals( n ) || name.contains( n ) || name.matches( n ) || pname.equals( name ) || pname.contains(
+                        name ) )
+        {
+            logger.trace( "ACCEPT metric: {} for expression: {}", name, n );
+            return true;
+        }
+        logger.trace( "REJECT metric: {} for expression: {}", name, n );
+        return false;
+    } );
 
     public List<String> getExpressedMetrics()
     {
@@ -38,19 +56,9 @@ public class PrometheusConfig
         this.expressedMetrics = expressedMetrics;
     }
 
-    public boolean isMetricExpressed( String name )
+    public boolean isMetricExpressed( String metricName )
     {
-        return expressedMetrics != null && expressedMetrics.stream().anyMatch( n->{
-            String pname = n.replace( '.', '_' );
-            if ( name.equals( n ) || name.contains( n ) || name.matches( n ) || pname.equals( name ) || pname.contains(
-                            name ) )
-            {
-                logger.trace( "ACCEPT metric: {} for expression: {}", name, n );
-                return true;
-            }
-            logger.trace("REJECT metric: {} for expression: {}", name, n );
-            return false;
-        } );
+        return expressedCache.computeIfAbsent( metricName, lookupFunction);
     }
 
     public String getNodeLabel()

@@ -53,7 +53,7 @@ public class DefaultTracingContext
     {
         if ( config.isEnabled() )
         {
-            logger.debug( "Clearing spans in current thread: {}", Thread.currentThread().getId() );
+            logger.trace( "Clearing spans in current thread: {}", Thread.currentThread().getId() );
             SPANS.set( new ArrayDeque<>() );
         }
     }
@@ -62,7 +62,7 @@ public class DefaultTracingContext
     {
         if ( config.isEnabled() )
         {
-            logger.debug( "Clearing context...SPANs in current thread: {} (thread: {})", SPANS.get().size(),
+            logger.trace( "Clearing context...SPANs in current thread: {} (thread: {})", SPANS.get().size(),
                          Thread.currentThread().getId() );
             TracerSpan tracerSpan = SPANS.get().peekLast();
             if ( tracerSpan != null )
@@ -70,7 +70,7 @@ public class DefaultTracingContext
                 tracerSpan.close();
             }
 
-            logger.debug( "Clearing spans deque in: {}", Thread.currentThread().getId() );
+            logger.trace( "Clearing spans deque in: {}", Thread.currentThread().getId() );
             SPANS.remove();
         }
     }
@@ -84,21 +84,21 @@ public class DefaultTracingContext
     @Override
     public int size()
     {
-        logger.debug( "SPANs in current thread: {} (thread: {})", SPANS.get().size(), Thread.currentThread().getId() );
+        logger.trace( "SPANs in current thread: {} (thread: {})", SPANS.get().size(), Thread.currentThread().getId() );
         return SPANS.get().size();
     }
 
     @Override
     public TracerSpan peekLast()
     {
-        logger.debug( "SPANs in current thread: {} (thread: {})", SPANS.get().size(), Thread.currentThread().getId()  );
+        logger.trace( "SPANs in current thread: {} (thread: {})", SPANS.get().size(), Thread.currentThread().getId()  );
         return SPANS.get().peekLast();
     }
 
     @Override
     public TracerSpan peekFirst()
     {
-        logger.debug( "SPANs in current thread: {} (thread: {})", SPANS.get().size(), Thread.currentThread().getId() );
+        logger.trace( "SPANs in current thread: {} (thread: {})", SPANS.get().size(), Thread.currentThread().getId() );
         return SPANS.get().peekFirst();
     }
 
@@ -106,7 +106,7 @@ public class DefaultTracingContext
     public boolean isEmpty()
     {
         Deque<TracerSpan> spans = SPANS.get();
-        logger.debug( "SPANs in current thread: {} (thread: {})", spans.size(), Thread.currentThread().getId() );
+        logger.trace( "SPANs in current thread: {} (thread: {})", spans.size(), Thread.currentThread().getId() );
         boolean empty = spans.isEmpty();
 
         logger.debug( "SPANs.isEmpty() ? {}", empty );
@@ -116,18 +116,18 @@ public class DefaultTracingContext
     @Override
     public void push( final TracerSpan span )
     {
-        logger.debug( "SPANs in current thread: {} (thread: {})", SPANS.get().size(), Thread.currentThread().getId()  );
+        logger.trace( "SPANs in current thread: {} (thread: {})", SPANS.get().size(), Thread.currentThread().getId()  );
         SPANS.get().push( span );
     }
 
     @Override
     public TracerSpan pop()
     {
-        logger.debug( "Pre-POP SPANs in current thread: {} (thread: {})", SPANS.get().size(), Thread.currentThread().getId()  );
+        logger.trace( "Pre-POP SPANs in current thread: {} (thread: {})", SPANS.get().size(), Thread.currentThread().getId()  );
 
         TracerSpan span = SPANS.get().pop();
 
-        logger.debug( "Post-POP SPANs in current thread: {} (thread: {})", SPANS.get().size(), Thread.currentThread().getId()  );
+        logger.trace( "Post-POP SPANs in current thread: {} (thread: {})", SPANS.get().size(), Thread.currentThread().getId()  );
         return span;
     }
 }

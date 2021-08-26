@@ -81,50 +81,7 @@ public class O11Timer
     public Snapshot getSnapshot()
     {
         final com.codahale.metrics.Snapshot codehaleSnapshot = codahaleTimer.getSnapshot();
-        return new Snapshot()
-        {
-            @Override
-            public double getValue( double var1 )
-            {
-                return codehaleSnapshot.getValue( var1 );
-            }
-
-            @Override
-            public long[] getValues()
-            {
-                return codehaleSnapshot.getValues();
-            }
-
-            @Override
-            public int size()
-            {
-                return codehaleSnapshot.size();
-            }
-
-            @Override
-            public long getMax()
-            {
-                return codehaleSnapshot.getMax();
-            }
-
-            @Override
-            public double getMean()
-            {
-                return codehaleSnapshot.getMean();
-            }
-
-            @Override
-            public long getMin()
-            {
-                return codehaleSnapshot.getMin();
-            }
-
-            @Override
-            public double getStdDev()
-            {
-                return codehaleSnapshot.getStdDev();
-            }
-        };
+        return new O11Snapshot( codehaleSnapshot);
     }
 
     public class O11Context

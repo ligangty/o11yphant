@@ -28,6 +28,8 @@ public class PrometheusSampleBuilder
 {
     private static final String LABEL_NODE = "node";
 
+    private static final String LABEL_HOSTNAME = "hostname";
+
     private String nodeLabel;
 
     public PrometheusSampleBuilder( String nodeLabel )
@@ -49,6 +51,13 @@ public class PrometheusSampleBuilder
         {
             labelNames.add( LABEL_NODE );
             labelValues.add( nodeLabel );
+        }
+
+        String hostname = System.getenv( "HOSTNAME" );
+        if ( isNotEmpty( hostname ) )
+        {
+            labelNames.add( LABEL_HOSTNAME );
+            labelValues.add( hostname );
         }
 
         return super.createSample( dropwizardName, nameSuffix, labelNames, labelValues, value );

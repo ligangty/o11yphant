@@ -19,7 +19,7 @@ import io.honeycomb.beeline.tracing.sampling.TraceSampler;
 import org.commonjava.o11yphant.trace.TracerConfiguration;
 
 public class SimpleTraceSampler
-                implements TraceSampler<String>
+                implements TraceSampler<Object>
 {
     private TracerConfiguration tracerConfiguration;
 
@@ -32,8 +32,8 @@ public class SimpleTraceSampler
      * The input is span name.
      */
     @Override
-    public int sample( String input )
+    public int sample( Object input )
     {
-        return tracerConfiguration.getSampleRate( input );
+        return tracerConfiguration.getBaseSampleRate();
     }
 }
