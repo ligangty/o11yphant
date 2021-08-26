@@ -16,6 +16,8 @@
 package org.commonjava.o11yphant.trace.servlet;
 
 import org.commonjava.o11yphant.trace.TraceManager;
+import org.commonjava.o11yphant.trace.spi.CloseBlockingDecorator;
+import org.commonjava.o11yphant.trace.spi.SpanFieldsInjector;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,18 +67,17 @@ public class TraceFilter
             rootSpan = traceManager.startServiceRootSpan( getEndpointName( hsr.getMethod(), hsr.getPathInfo() ),
                                                           contextExtractor( hsr ) );
 
-            rootSpan.ifPresent( rs -> addRequestFields( hsr ) );
+            if ( rootSpan.isPresent() ){
+                rootSpan.get().addField( "path_info", hsr.getPathInfo() );
+                rootSpan = traceManager.addCloseBlockingDecorator( rootSpan,
+                                                                   new TraceFilterFieldInjector( hsr, (HttpServletResponse) response ) );
+            }
 
             chain.doFilter( request, response );
         }
         finally
         {
-            logger.debug( "END: {}", hsr.getPathInfo() );
-            HttpServletResponse resp = (HttpServletResponse) response;
-            traceManager.addSpanField( "status_code", Integer.toString( resp.getStatus() ) );
             rootSpan.ifPresent( SpanAdapter::close );
-
-            logger.trace( "END: {}", getClass().getSimpleName() );
         }
     }
 
@@ -103,14 +104,32 @@ public class TraceFilter
         return sb.toString();
     }
 
-    private void addRequestFields( HttpServletRequest request )
-    {
-        traceManager.addSpanField( "path_info", request.getPathInfo() );
-    }
-
     @Override
     public void destroy()
     {
+    }
+
+    public static final class TraceFilterFieldInjector implements CloseBlockingDecorator
+    {
+        private final Logger logger = LoggerFactory.getLogger(getClass().getName());
+
+        private HttpServletRequest request;
+        private HttpServletResponse response;
+
+        public TraceFilterFieldInjector( HttpServletRequest request, HttpServletResponse response )
+        {
+            this.request = request;
+            this.response = response;
+        }
+
+        @Override
+        public void decorateSpanAtClose( SpanAdapter span )
+        {
+            logger.debug( "END: {}", request.getPathInfo() );
+            span.addField( "status_code", Integer.toString( response.getStatus() ) );
+
+            logger.trace( "END: {}", getClass().getSimpleName() );
+        }
     }
 
 }

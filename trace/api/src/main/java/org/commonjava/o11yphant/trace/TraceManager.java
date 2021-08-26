@@ -17,10 +17,13 @@ package org.commonjava.o11yphant.trace;
 
 import org.commonjava.cdi.util.weft.ThreadContext;
 import org.commonjava.o11yphant.metrics.api.Metric;
+import org.commonjava.o11yphant.trace.impl.CloseBlockingSpan;
 import org.commonjava.o11yphant.trace.impl.FieldInjectionSpan;
 import org.commonjava.o11yphant.trace.impl.ThreadedSpan;
+import org.commonjava.o11yphant.trace.spi.CloseBlockingDecorator;
 import org.commonjava.o11yphant.trace.spi.ContextPropagator;
 import org.commonjava.o11yphant.trace.spi.O11yphantTracePlugin;
+import org.commonjava.o11yphant.trace.spi.SpanFieldsInjector;
 import org.commonjava.o11yphant.trace.spi.SpanProvider;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanContext;
@@ -295,5 +298,27 @@ public final class TraceManager<T extends TracerType>
     public TraceThreadContextualizer<T> getTraceThreadContextualizer()
     {
         return traceThreadContextualizer;
+    }
+
+    public static Optional<SpanAdapter> addCloseBlockingDecorator( Optional<SpanAdapter> span,
+                                                                   CloseBlockingDecorator injector )
+    {
+        if ( span.isPresent() )
+        {
+            SpanAdapter sa = span.get();
+            if ( sa instanceof CloseBlockingSpan )
+            {
+                ((CloseBlockingSpan) span.get()).addInjector( injector );
+                return span;
+            }
+            else
+            {
+                return Optional.of( new CloseBlockingSpan( span.get(), injector ) );
+            }
+        }
+        else
+        {
+            return span;
+        }
     }
 }
