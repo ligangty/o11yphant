@@ -22,10 +22,14 @@ import org.commonjava.o11yphant.trace.TracerConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 
+// FIXME: This is probably broken, based on how sampling actually uses trace-id or a Span instance. It's also probably slow.
 public class ConfigurableTraceSampler
                 implements TraceSampler<String>
 {
@@ -33,37 +37,23 @@ public class ConfigurableTraceSampler
 
     public static final String SAMPLE_OVERRIDE = "honeycomb.sample-override";
 
+    private Map<String, Integer> sampleRateCache = new HashMap<>();
+
     private TrafficClassifier classifier;
 
     private TracerConfiguration config;
 
-    public ConfigurableTraceSampler( TrafficClassifier classifier, TracerConfiguration config )
-    {
-        this.classifier = classifier;
-        this.config = config;
-    }
-
-    /**
-     * Decides whether to sample the input.
-     * If it returns 0, it should not be sampled.
-     * If positive then it should be sampled and the concrete value represents the {@code sampleRate}.
-     *
-     * @param input to test. According to {@link io.honeycomb.beeline.tracing.SpanBuilderFactory} this is the traceId.
-     * @return Positive int if the input is to be sampled.
-     */
-    @Override
-    public int sample( final String input )
-    {
+    private Function<String, Integer> samplerFunction = input ->{
         ThreadContext ctx = ThreadContext.getContext( false );
         if ( ctx == null )
         {
-            logger.debug( "No ThreadContext for functional diagnosis; skipping span: {}", input );
-            return 0;
+            logger.trace( "No ThreadContext for functional diagnosis; skipping span: {}", input );
+            return config.getBaseSampleRate();
         }
 
         if ( ctx.get( SAMPLE_OVERRIDE ) != null )
         {
-            logger.debug( "Including span via override (span: {})", input );
+            logger.trace( "Including span via override (span: {})", input );
             return 1;
         }
 
@@ -86,5 +76,25 @@ public class ConfigurableTraceSampler
         }
 
         return rate;
+    };
+
+    public ConfigurableTraceSampler( TrafficClassifier classifier, TracerConfiguration config )
+    {
+        this.classifier = classifier;
+        this.config = config;
+    }
+
+    /**
+     * Decides whether to sample the input.
+     * If it returns 0, it should not be sampled.
+     * If positive then it should be sampled and the concrete value represents the {@code sampleRate}.
+     *
+     * @param input to test. According to {@link io.honeycomb.beeline.tracing.SpanBuilderFactory} this is the traceId.
+     * @return Positive int if the input is to be sampled.
+     */
+    @Override
+    public int sample( final String input )
+    {
+        return sampleRateCache.computeIfAbsent( input, samplerFunction );
     }
 }

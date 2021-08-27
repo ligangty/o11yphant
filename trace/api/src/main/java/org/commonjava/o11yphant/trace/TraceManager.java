@@ -17,10 +17,13 @@ package org.commonjava.o11yphant.trace;
 
 import org.commonjava.cdi.util.weft.ThreadContext;
 import org.commonjava.o11yphant.metrics.api.Metric;
+import org.commonjava.o11yphant.trace.impl.CloseBlockingSpan;
 import org.commonjava.o11yphant.trace.impl.FieldInjectionSpan;
 import org.commonjava.o11yphant.trace.impl.ThreadedSpan;
+import org.commonjava.o11yphant.trace.spi.CloseBlockingDecorator;
 import org.commonjava.o11yphant.trace.spi.ContextPropagator;
 import org.commonjava.o11yphant.trace.spi.O11yphantTracePlugin;
+import org.commonjava.o11yphant.trace.spi.SpanFieldsInjector;
 import org.commonjava.o11yphant.trace.spi.SpanProvider;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanContext;
@@ -87,7 +90,7 @@ public final class TraceManager<T extends TracerType>
                 span = new FieldInjectionSpan( span, spanFieldsDecorator );
             }
 
-            logger.info( "Started span: {}", span.getSpanId() );
+            logger.trace( "Started span: {}", span.getSpanId() );
         }
 
         return span == null ? Optional.empty() : Optional.of( span );
@@ -125,7 +128,7 @@ public final class TraceManager<T extends TracerType>
             span = new ThreadedSpan( span, threadedContext.getActiveSpan() );
         }
 
-        logger.info( "Started span: {}", span.getSpanId() );
+        logger.trace( "Started span: {}", span.getSpanId() );
         return Optional.of( span );
     }
 
@@ -142,13 +145,10 @@ public final class TraceManager<T extends TracerType>
         {
             setActiveSpan( span );
 
-            if ( span.isLocalRoot() )
-            {
-                span = new FieldInjectionSpan( span, spanFieldsDecorator );
-            }
+            span = new FieldInjectionSpan( span, spanFieldsDecorator );
         }
 
-        logger.info( "Started span: {}", span.getSpanId() );
+        logger.trace( "Started span: {}", span.getSpanId() );
         return Optional.of( span );
     }
 
@@ -176,7 +176,7 @@ public final class TraceManager<T extends TracerType>
             }
         }
 
-        logger.info( "Started span: {}", span.getSpanId() );
+        logger.trace( "Started span: {}", span.getSpanId() );
         return Optional.of( span );
     }
 
@@ -213,7 +213,7 @@ public final class TraceManager<T extends TracerType>
         Long begin = span.getInProgressField( startFieldName, null );
         if ( begin == null )
         {
-            logger.warn( "Failed to get START field, span: {}, name: {}", span, name );
+            logger.trace( "Failed to get START field, span: {}, name: {}", span, name );
             return;
         }
         logger.trace( "addEndField, span: {}, name: {}, end: {}", span, name, end );
@@ -281,16 +281,44 @@ public final class TraceManager<T extends TracerType>
 
     public static void addFieldToActiveSpan( String name, Object value )
     {
-        getActiveSpan().ifPresent( span -> {
-            Logger logger = LoggerFactory.getLogger( TraceManager.class );
+        Logger logger = LoggerFactory.getLogger( TraceManager.class );
 
-            logger.info( "Adding field: {} with value: {} to span: {}", name, value, span.getSpanId() );
+        Optional<SpanAdapter> s = getActiveSpan();
+        s.ifPresent( span -> {
+            logger.trace( "Adding field: {} with value: {} to span: {}", name, value, span.getSpanId() );
             span.addField( name, value );
         } );
+
+        if ( !s.isPresent() )
+        {
+            logger.info( "NO ACTIVE SPAN for: {} from: {}", name, Thread.currentThread().getStackTrace()[1] );
+        }
     }
 
     public TraceThreadContextualizer<T> getTraceThreadContextualizer()
     {
         return traceThreadContextualizer;
+    }
+
+    public static Optional<SpanAdapter> addCloseBlockingDecorator( Optional<SpanAdapter> span,
+                                                                   CloseBlockingDecorator injector )
+    {
+        if ( span.isPresent() )
+        {
+            SpanAdapter sa = span.get();
+            if ( sa instanceof CloseBlockingSpan )
+            {
+                ((CloseBlockingSpan) span.get()).addInjector( injector );
+                return span;
+            }
+            else
+            {
+                return Optional.of( new CloseBlockingSpan( span.get(), injector ) );
+            }
+        }
+        else
+        {
+            return span;
+        }
     }
 }

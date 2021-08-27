@@ -16,9 +16,13 @@
 package org.commonjava.o11yphant.trace.impl;
 
 import org.commonjava.o11yphant.trace.SpanFieldsDecorator;
+import org.commonjava.o11yphant.trace.spi.SpanFieldsInjector;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class FieldInjectionSpan
                 implements SpanAdapter
@@ -96,4 +100,5 @@ public class FieldInjectionSpan
     {
         return delegate.getInProgressFields();
     }
+
 }

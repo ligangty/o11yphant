@@ -34,6 +34,6 @@ public class SimpleTraceSampler
     @Override
     public int sample( String input )
     {
-        return tracerConfiguration.getSampleRate( input );
+        return tracerConfiguration.getBaseSampleRate();
     }
 }

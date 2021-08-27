@@ -34,4 +34,6 @@ public interface MetricRegistry
     Timer timer( String name );
 
     <T> Gauge<T> gauge( String name, Gauge<T> o );
+
+    Histogram histogram( String name );
 }

@@ -55,6 +55,7 @@ public class HoneycombTracePlugin implements O11yphantTracePlugin<HoneycombType>
         if ( trafficClassifier.isPresent() )
         {
             this.threadTracingContext = new DefaultTracingContext( traceConfig );
+//            this.spanProvider = new HoneycombSpanProvider( hcConfig, traceConfig, new SimpleTraceSampler( traceConfig ),
             this.spanProvider = new HoneycombSpanProvider( hcConfig, traceConfig,
                                                            new ConfigurableTraceSampler( trafficClassifier.get(),
                                                                                          traceConfig ),

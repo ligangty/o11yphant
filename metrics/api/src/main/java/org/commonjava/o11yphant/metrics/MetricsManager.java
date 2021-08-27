@@ -16,6 +16,7 @@
 package org.commonjava.o11yphant.metrics;
 
 import org.commonjava.o11yphant.metrics.api.Gauge;
+import org.commonjava.o11yphant.metrics.api.Histogram;
 import org.commonjava.o11yphant.metrics.api.Meter;
 import org.commonjava.o11yphant.metrics.api.MetricRegistry;
 import org.commonjava.o11yphant.metrics.api.Timer;
@@ -47,4 +48,6 @@ public interface MetricsManager
     void addGauges( Class<?> className, String method, Map<String, Gauge<Integer>> gauges );
 
     MetricRegistry getMetricRegistry();
+
+    Histogram getHistogram( String name );
 }
