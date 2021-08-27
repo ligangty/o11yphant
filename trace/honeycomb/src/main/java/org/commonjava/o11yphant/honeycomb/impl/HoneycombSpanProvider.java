@@ -113,7 +113,7 @@ public class HoneycombSpanProvider implements SpanProvider<HoneycombType>
 
             LibHoney.setDefault( client );
 
-            SpanPostProcessor postProcessor = Tracing.createSpanProcessor( client, traceSampler );
+            SpanPostProcessor postProcessor = Tracing.createSpanProcessor( client, Sampling.alwaysSampler() );
 
             SpanBuilderFactory factory;
 

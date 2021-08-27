@@ -31,24 +31,19 @@ import java.util.function.Function;
 
 // FIXME: This is probably broken, based on how sampling actually uses trace-id or a Span instance. It's also probably slow.
 public class ConfigurableTraceSampler
-                implements TraceSampler<Object>
+                implements TraceSampler<String>
 {
     private final Logger logger = LoggerFactory.getLogger( getClass() );
 
     public static final String SAMPLE_OVERRIDE = "honeycomb.sample-override";
 
-    private Map<Object, Integer> sampleRateCache = new HashMap<>();
+    private Map<String, Integer> sampleRateCache = new HashMap<>();
 
     private TrafficClassifier classifier;
 
     private TracerConfiguration config;
 
-    private Function<Object, Integer> samplerFunction = input ->{
-        if ( !( input instanceof String ) )
-        {
-            return config.getBaseSampleRate();
-        }
-
+    private Function<String, Integer> samplerFunction = input ->{
         ThreadContext ctx = ThreadContext.getContext( false );
         if ( ctx == null )
         {
@@ -63,7 +58,7 @@ public class ConfigurableTraceSampler
         }
 
         Optional<List<String>> functionClassifiers = classifier.getCachedFunctionClassifiers();
-        Integer rate = config.getSampleRate( String.valueOf( input ) );
+        Integer rate = config.getSampleRate( input );
 
         if ( Objects.equals( rate, config.getBaseSampleRate() ) && functionClassifiers.isPresent() )
         {
@@ -98,7 +93,7 @@ public class ConfigurableTraceSampler
      * @return Positive int if the input is to be sampled.
      */
     @Override
-    public int sample( final Object input )
+    public int sample( final String input )
     {
         return sampleRateCache.computeIfAbsent( input, samplerFunction );
     }
