@@ -42,8 +42,6 @@ public class GoldenSignalsFunctionMetrics
 
     private final Meter throughput;
 
-    private final Histogram latencyNs;
-
     public GoldenSignalsFunctionMetrics( String name )
     {
         this.name = name;
@@ -51,14 +49,12 @@ public class GoldenSignalsFunctionMetrics
         this.errors = new O11Meter();
         this.throughput = new O11Meter();
         this.latency = new O11Timer();
-        this.latencyNs = new O11Histogram();
     }
 
     public Map<String, Metric> getMetrics()
     {
         Map<String, Metric> metrics = new HashMap<>();
         metrics.put( name + ".latency", latency );
-        metrics.put( name + ".latency_ns", latencyNs );
         metrics.put( name + ".errors", errors );
         metrics.put( name + ".throughput", throughput );
         metrics.put( name + ".load", load );
@@ -69,7 +65,6 @@ public class GoldenSignalsFunctionMetrics
     public GoldenSignalsFunctionMetrics latency( long duration )
     {
         latency.update( duration, TimeUnit.NANOSECONDS );
-        latencyNs.update( duration );
         return this;
     }
 

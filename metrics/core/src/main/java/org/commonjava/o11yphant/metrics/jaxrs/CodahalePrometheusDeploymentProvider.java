@@ -17,7 +17,6 @@ package org.commonjava.o11yphant.metrics.jaxrs;
 
 import com.codahale.metrics.MetricRegistry;
 import io.prometheus.client.CollectorRegistry;
-import io.prometheus.client.dropwizard.DropwizardExports;
 import io.undertow.servlet.Servlets;
 import io.undertow.servlet.api.DeploymentInfo;
 import io.undertow.servlet.api.ServletInfo;
@@ -51,9 +50,8 @@ public class CodahalePrometheusDeploymentProvider implements PrometheusDeploymen
         }
 
         logger.info( "Configuring Prometheus metrics reporter" );
-        CollectorRegistry.defaultRegistry.register( new DropwizardExports(
-                        new PrometheusFilteringRegistry( codahaleMetricRegistry, config.getPrometheusConfig() ),
-                        new PrometheusSampleBuilder( config.getPrometheusConfig().getNodeLabel() ) ) );
+        CollectorRegistry.defaultRegistry.register(
+                        new PromEnhancedStatsAndTimingExports( codahaleMetricRegistry, config.getPrometheusConfig() ) );
 
         final ServletInfo servlet = Servlets.servlet( "prometheus-metrics", LoggingPrometheusServlet.class,
                                                       new ImmediateInstanceFactory<>( new LoggingPrometheusServlet() ) )
