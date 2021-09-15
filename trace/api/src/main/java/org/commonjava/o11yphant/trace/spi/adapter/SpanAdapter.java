@@ -15,10 +15,22 @@
  */
 package org.commonjava.o11yphant.trace.spi.adapter;
 
+import org.commonjava.o11yphant.trace.impl.SpanWrapper;
+
 import java.util.Map;
 
 public interface SpanAdapter
 {
+    default boolean isWrapper()
+    {
+        return false;
+    }
+
+    default SpanAdapter getBaseInstance()
+    {
+        return this;
+    }
+
     boolean isLocalRoot();
 
     String getTraceId();
@@ -38,4 +50,5 @@ public interface SpanAdapter
     void clearInProgressField( String key );
 
     Map<String, Object> getInProgressFields();
+
 }

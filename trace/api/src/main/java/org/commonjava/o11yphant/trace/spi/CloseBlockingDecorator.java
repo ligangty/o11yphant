@@ -34,8 +34,5 @@ import java.util.Optional;
  */
 public interface CloseBlockingDecorator
 {
-    default void decorateSpanAtClose( SpanAdapter span )
-    {
-        return;
-    }
+    void decorateSpanAtClose( SpanAdapter span );
 }

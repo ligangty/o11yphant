@@ -16,6 +16,7 @@ package org.commonjava.o11yphant.trace.thread;
  * limitations under the License.
  */
 
+import org.commonjava.cdi.util.weft.ThreadContext;
 import org.commonjava.cdi.util.weft.ThreadContextualizer;
 import org.commonjava.o11yphant.metrics.api.Snapshot;
 import org.commonjava.o11yphant.trace.TraceManager;
@@ -43,7 +44,7 @@ public class TraceThreadContextualizer<T extends TracerType>
 
     private static final ThreadLocal<Optional<SpanAdapter>> SPAN = new ThreadLocal<>();
 
-    private static final ThreadLocal<ThreadedTraceContext> TRACE_CONTEXT = new ThreadLocal<>();
+//    private static final ThreadLocal<ThreadedTraceContext> TRACE_CONTEXT = new ThreadLocal<>();
 
     private TraceManager<T> traceManager;
 
@@ -72,7 +73,7 @@ public class TraceThreadContextualizer<T extends TracerType>
         {
             Optional<SpanAdapter> activeSpan = traceManager.getActiveSpan();
             ThreadedTraceContext ctx = new ThreadedTraceContext( activeSpan );
-            logger.trace( "Extracting parent-thread context: {}", ctx );
+            logger.trace( "Extracting parent-thread context: {}\n(TraceManager.getActiveSpan() is: {})", ctx, activeSpan );
             return ctx;
         }
         return null;
@@ -85,9 +86,9 @@ public class TraceThreadContextualizer<T extends TracerType>
         {
             tracingContext.reinitThreadSpans();
             ThreadedTraceContext parentSpanContext = (ThreadedTraceContext) parentContext;
-            TRACE_CONTEXT.set( parentSpanContext );
+//            TRACE_CONTEXT.set( parentSpanContext );
 
-            logger.trace( "Creating thread-level root span using parent-thread context: {}", parentContext );
+            logger.trace( "Creating thread-level root span using parent-thread context: {}\n(TraceManager.getActiveSpan() is: {})", parentContext, TraceManager.getActiveSpan() );
 
             Optional<SpanAdapter> threadSpan = traceManager.startThreadRootSpan( "thread." + Thread.currentThread().getThreadGroup().getName(),
                                                         parentSpanContext );
@@ -109,46 +110,46 @@ public class TraceThreadContextualizer<T extends TracerType>
             Optional<SpanAdapter> span = SPAN.get();
             if ( span != null )
             {
-                logger.trace( "Closing thread-level root span: {}", span );
+                logger.trace( "Closing thread-level root span: {}\n(TraceManager.getActiveSpan() in thread is: {})", span, TraceManager.getActiveSpan() );
                 span.ifPresent( s->{
                     s.addField( THREAD_NAME, Thread.currentThread().getName() );
                     s.addField( THREAD_GROUP_NAME, Thread.currentThread().getThreadGroup().getName() );
 
-                    addSpanContextFields( s );
+//                    addSpanContextFields( s );
 
                     s.close();
                 } );
             }
 
             SPAN.remove();
-            TRACE_CONTEXT.remove();
+//            TRACE_CONTEXT.remove();
 
             tracingContext.clearThreadSpans();
         }
     }
 
-    private void addSpanContextFields( SpanAdapter span )
-    {
-        ThreadedTraceContext threadedTraceContext = TRACE_CONTEXT.get();
-        if ( threadedTraceContext != null )
-        {
-            // TODO: Where are these used?
-            // TODO: I think this is meant to accumulate metric fields upward to the parent span from the child/thread.
-            // To enable that, we need a way to keep the metric fields separate from informational fields, then
-            // call a method to accumulate those upward when the thread span closes.
-            threadedTraceContext.getTimers().forEach( ( k, v ) -> {
-                Snapshot st = v.getSnapshot();
-                span.addField( COUNT + "." + k, v.getCount() );
-                span.addField( MEAN + "." + k, st.getMean() );
-                span.addField( MAX + "." + k, st.getMax() );
-                span.addField( MIN + "." + k, st.getMin() );
-            } );
-
-            threadedTraceContext.getMeters().forEach( ( k, v ) -> {
-                span.addField( k, v.getCount() );
-            } );
-        }
-    }
-
+//    private void addSpanContextFields( SpanAdapter span )
+//    {
+//        ThreadedTraceContext threadedTraceContext = TRACE_CONTEXT.get();
+//        if ( threadedTraceContext != null )
+//        {
+//            // TODO: Where are these used?
+//            // TODO: I think this is meant to accumulate metric fields upward to the parent span from the child/thread.
+//            // To enable that, we need a way to keep the metric fields separate from informational fields, then
+//            // call a method to accumulate those upward when the thread span closes.
+//            threadedTraceContext.getTimers().forEach( ( k, v ) -> {
+//                Snapshot st = v.getSnapshot();
+//                span.addField( COUNT + "." + k, v.getCount() );
+//                span.addField( MEAN + "." + k, st.getMean() );
+//                span.addField( MAX + "." + k, st.getMax() );
+//                span.addField( MIN + "." + k, st.getMin() );
+//            } );
+//
+//            threadedTraceContext.getMeters().forEach( ( k, v ) -> {
+//                span.addField( k, v.getCount() );
+//            } );
+//        }
+//    }
+//
 }
 

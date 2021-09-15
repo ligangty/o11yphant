@@ -24,53 +24,22 @@ import java.util.Map;
 import java.util.Optional;
 
 public class ThreadedSpan
-                implements SpanAdapter
+    extends SpanWrapper
 {
-    private final SpanAdapter span;
-
     private final Optional<SpanAdapter> parentSpan;
 
     private final Logger logger = LoggerFactory.getLogger( getClass() );
 
     public ThreadedSpan( SpanAdapter span, Optional<SpanAdapter> parentSpan )
     {
-        this.span = span;
+        super( span );
         this.parentSpan = parentSpan;
-    }
-
-    @Override
-    public boolean isLocalRoot()
-    {
-        return span.isLocalRoot();
-    }
-
-    @Override
-    public String getTraceId()
-    {
-        return span.getTraceId();
-    }
-
-    @Override
-    public String getSpanId()
-    {
-        return span.getSpanId();
-    }
-
-    @Override
-    public void addField( String name, Object value )
-    {
-        span.addField( name, value );
-    }
-
-    @Override
-    public Map<String, Object> getFields()
-    {
-        return span.getFields();
     }
 
     @Override
     public void close()
     {
+        SpanAdapter span = getDelegate();
         parentSpan.ifPresent( parent->{
             Map<String, Object> localFields = span.getFields();
             try
@@ -104,27 +73,4 @@ public class ThreadedSpan
         span.close();
     }
 
-    @Override
-    public void setInProgressField( String key, Object value )
-    {
-        span.setInProgressField( key, value );
-    }
-
-    @Override
-    public <V> V getInProgressField( String key, V defValue )
-    {
-        return span.getInProgressField( key, defValue );
-    }
-
-    @Override
-    public void clearInProgressField( String key )
-    {
-        span.clearInProgressField( key );
-    }
-
-    @Override
-    public Map<String, Object> getInProgressFields()
-    {
-        return span.getInProgressFields();
-    }
 }

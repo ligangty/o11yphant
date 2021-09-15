@@ -24,26 +24,48 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BiConsumer;
 
 public class HoneycombSpan implements SpanAdapter
 {
+    private final Logger logger = LoggerFactory.getLogger( getClass() );
+
     private final Span span;
+
+    private boolean localRoot;
 
     private Beeline beeline;
 
     private Map<String, Object> inProgress = new HashMap<>();
 
-    public HoneycombSpan( Span span, Beeline beeline )
+    private boolean closed = false;
+
+    private void checkClosed()
+    {
+        if ( closed )
+        {
+            String msg = String.format( "Span: %s (%s) in trace: %s is closed!", span.getSpanName(), span.getSpanId(), span.getTraceId() );
+            if ( logger.isTraceEnabled() )
+            {
+                throw new IllegalStateException( msg );
+            }
+            else
+            {
+                logger.warn( msg );
+            }
+        }
+    }
+
+    public HoneycombSpan( Span span, boolean localRoot, Beeline beeline )
     {
         this.span = span;
+        this.localRoot = localRoot;
         this.beeline = beeline;
     }
 
     @Override
     public boolean isLocalRoot()
     {
-        return span.getParentSpanId() == null;
+        return localRoot;
     }
 
     @Override
@@ -61,6 +83,8 @@ public class HoneycombSpan implements SpanAdapter
     @Override
     public void addField( String key, Object value )
     {
+        logger.trace( "Adding field: {} to: {} / {} (no-op? {})", key, span.getTraceId(), span.getSpanId(), span.isNoop() );
+        checkClosed();
         span.addField( key, value );
     }
 
@@ -74,9 +98,12 @@ public class HoneycombSpan implements SpanAdapter
     public void close()
     {
         span.addFields( inProgress );
+        closed = true;
+        logger.trace( "HONEYCOMB SPAN CLOSE: {}", getSpanId() );
         span.close();
-        if ( span.getParentSpanId() == null )
+        if ( isLocalRoot() )
         {
+            logger.trace( "HONEYCOMB TRACE CLOSE: {} (via span: {})", getTraceId(), getSpanId() );
             beeline.getTracer().endTrace();
         }
     }
@@ -84,6 +111,7 @@ public class HoneycombSpan implements SpanAdapter
     @Override
     public void setInProgressField( String key, Object value )
     {
+        checkClosed();
         inProgress.put( key, value );
     }
 
@@ -108,5 +136,10 @@ public class HoneycombSpan implements SpanAdapter
     public PropagationContext getPropagationContext()
     {
         return new PropagationContext( span.getTraceId(), span.getSpanId(), span.getDataset(), span.getTraceFields() );
+    }
+
+    public String toString()
+    {
+        return "HoneycombSpan(adapter class, trace: " + getTraceId() + ", span: " + getSpanId() + ")";
     }
 }

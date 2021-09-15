@@ -62,6 +62,7 @@ public class TraceFilter
         logger.debug( "START: {}", hsr.getPathInfo() );
 
         Optional<SpanAdapter> rootSpan = Optional.empty();
+        TraceFilterFieldInjector injector = new TraceFilterFieldInjector( (HttpServletResponse) response );
         try
         {
             rootSpan = traceManager.startServiceRootSpan( getEndpointName( hsr.getMethod(), hsr.getPathInfo() ),
@@ -69,15 +70,17 @@ public class TraceFilter
 
             if ( rootSpan.isPresent() ){
                 rootSpan.get().addField( "path_info", hsr.getPathInfo() );
-                rootSpan = traceManager.addCloseBlockingDecorator( rootSpan,
-                                                                   new TraceFilterFieldInjector( hsr, (HttpServletResponse) response ) );
+                traceManager.addCloseBlockingDecorator( rootSpan, injector );
             }
 
             chain.doFilter( request, response );
         }
         finally
         {
+            injector.captureResponse();
             rootSpan.ifPresent( SpanAdapter::close );
+            logger.debug( "END: {}", hsr.getPathInfo() );
+            logger.trace( "END: {}", getClass().getSimpleName() );
         }
     }
 
@@ -113,22 +116,25 @@ public class TraceFilter
     {
         private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
-        private HttpServletRequest request;
         private HttpServletResponse response;
 
-        public TraceFilterFieldInjector( HttpServletRequest request, HttpServletResponse response )
+        private int status = -1;
+
+        public TraceFilterFieldInjector( HttpServletResponse response )
         {
-            this.request = request;
             this.response = response;
         }
 
         @Override
         public void decorateSpanAtClose( SpanAdapter span )
         {
-            logger.debug( "END: {}", request.getPathInfo() );
-            span.addField( "status_code", Integer.toString( response.getStatus() ) );
+            logger.trace( "Span close detected. Adding response status code." );
+            span.addField( "status_code", status );
+        }
 
-            logger.trace( "END: {}", getClass().getSimpleName() );
+        public void captureResponse()
+        {
+            this.status = response.getStatus();
         }
     }
 

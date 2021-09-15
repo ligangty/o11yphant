@@ -36,6 +36,7 @@ import org.commonjava.o11yphant.honeycomb.impl.adapter.HoneycombSpan;
 import org.commonjava.o11yphant.honeycomb.impl.adapter.HoneycombSpanContext;
 import org.commonjava.o11yphant.honeycomb.impl.adapter.HoneycombType;
 import org.commonjava.o11yphant.honeycomb.HoneycombConfiguration;
+import org.commonjava.o11yphant.trace.TraceManager;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanContext;
 import org.commonjava.o11yphant.trace.TracerConfiguration;
@@ -181,16 +182,19 @@ public class HoneycombSpanProvider implements SpanProvider<HoneycombType>
                               .setSpanName( spanName )
                               .setServiceName( tracerConfiguration.getServiceName() )
                               .build();
-
             }
 
-            span = beeline.getTracer().startTrace( span );
+            if ( !parentContext.isPresent() )
+            {
+                span = beeline.getTracer().startTrace( span );
+            }
 
             logger.trace( "Started root span: {} (ID: {}, trace ID: {} and parent: {}, thread: {})", span,
                           span.getSpanId(), span.getTraceId(), span.getParentSpanId(), Thread.currentThread().getId() );
 
             span.markStart();
-            return new HoneycombSpan( span, beeline );
+
+            return new HoneycombSpan( span, !parentContext.isPresent(), beeline );
         }
 
         return null;
@@ -214,7 +218,7 @@ public class HoneycombSpanProvider implements SpanProvider<HoneycombType>
                           span.getTraceId(), span.getParentSpanId(), Thread.currentThread().getId() );
 
             span.markStart();
-            return new HoneycombSpan( span, beeline );
+            return new HoneycombSpan( span, !parentContext.isPresent(), beeline );
         }
 
         return null;
@@ -232,13 +236,19 @@ public class HoneycombSpanProvider implements SpanProvider<HoneycombType>
                 return startServiceRootSpan( spanName, Optional.empty() );
             }
 
+            Optional<SpanAdapter> prevSpan = TraceManager.getActiveSpan();
             Span span = beeline.startChildSpan( spanName );
 
             logger.trace( "Child span: {} (id: {}, trace: {}, parent: {}, thread: {})", span, span.getSpanId(),
                           span.getTraceId(), span.getParentSpanId(), Thread.currentThread().getId() );
 
             span.markStart();
-            return new HoneycombSpan( span, beeline );
+            if ( !prevSpan.isPresent() )
+            {
+                span = beeline.getTracer().startTrace( span );
+            }
+
+            return new HoneycombSpan( span, !prevSpan.isPresent(), beeline );
         }
 
         return null;

@@ -57,7 +57,7 @@ public class HoneycombContextPropagator implements ContextPropagator<HoneycombTy
     {
         if ( threadedContext != null && threadedContext.getActiveSpan().isPresent() )
         {
-            HoneycombSpan span = (HoneycombSpan) threadedContext.getActiveSpan().get();
+            HoneycombSpan span = (HoneycombSpan) threadedContext.getActiveSpan().get().getBaseInstance();
             return Optional.of( new HoneycombSpanContext(
                             new PropagationContext( span.getTraceId(), span.getSpanId(), null, null ) ) );
         }

@@ -50,6 +50,7 @@ public abstract class GoldenSignalsMetricSet
         Map<String, Metric> metrics = new HashMap<>();
         functionMetrics.values().forEach( ms -> metrics.putAll( ms.getMetrics() ) );
 
+        logger.trace( "Returning golden signals metrics map: {}", metrics );
         return metrics;
     }
 

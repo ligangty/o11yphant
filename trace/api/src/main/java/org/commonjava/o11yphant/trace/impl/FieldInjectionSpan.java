@@ -16,89 +16,88 @@
 package org.commonjava.o11yphant.trace.impl;
 
 import org.commonjava.o11yphant.trace.SpanFieldsDecorator;
+import org.commonjava.o11yphant.trace.spi.CloseBlockingDecorator;
 import org.commonjava.o11yphant.trace.spi.SpanFieldsInjector;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * This span wrapper decorates the span when it is finally closed from a variety of sources. It is possible to add
+ * basic field-injection decorators, which will always inject some data when the span is closed, regardless of when
+ * that happens.
+ *
+ * Then, it's also possible to add {@link CloseBlockingDecorator} instances. When these are present, this wrapper is
+ * designed to count the number of close() calls and match them to the number of close-blocking decorators present.
+ * When the close call count matches this close-blocking decorator count, the span gets closed.
+ *
+ * The purpose of the close-blocking decorators is to allow something like a REST request to return when a transfer
+ * stream is still pending. In that case, you want to add some final span information when the transfer completes,
+ * such as a calculated transfer speed measurement over the course of actually doing the transfer.
+ * In this case, we don't want the servlet / filter to terminate the span...we want the transfer thread to do it. On
+ * the other hand, if we're transferring a very small file and that completes before the servlet / filter-chain can
+ * manage to complete, we don't want to lose the span data that the filters might contribute.
+ *
+ * @see org.commonjava.o11yphant.trace.TraceManager#addCloseBlockingDecorator(Optional, CloseBlockingDecorator)
+ * @see CloseBlockingDecorator
+ */
 public class FieldInjectionSpan
-                implements SpanAdapter
+                extends SpanWrapper
 {
-    private SpanAdapter delegate;
+    private final Logger logger = LoggerFactory.getLogger( getClass() );
 
     private SpanFieldsDecorator spanFieldsDecorator;
 
+    private List<CloseBlockingDecorator> looseInjectors = new ArrayList<>();
+
+    private AtomicInteger looseCloseCalls = new AtomicInteger( 0 );
+
     public FieldInjectionSpan( SpanAdapter delegate, SpanFieldsDecorator spanFieldsDecorator )
     {
-        this.delegate = delegate;
+        super(delegate);
         this.spanFieldsDecorator = spanFieldsDecorator;
         spanFieldsDecorator.decorateOnStart( delegate );
     }
 
-    @Override
-    public boolean isLocalRoot()
+    public void addInjector( CloseBlockingDecorator injector )
     {
-        // We're injecting context gathered during local service execution, so this must be the root span for the local
-        // service...
-        return true;
-    }
-
-    @java.lang.Override
-    public String getTraceId()
-    {
-        return delegate.getTraceId();
-    }
-
-    @java.lang.Override
-    public String getSpanId()
-    {
-        return delegate.getSpanId();
-    }
-
-    @java.lang.Override
-    public void addField( String name, Object value )
-    {
-        delegate.addField( name, value );
-    }
-
-    @Override
-    public Map<String, Object> getFields()
-    {
-        return delegate.getFields();
+        looseInjectors.add( 0, injector );
     }
 
     @java.lang.Override
     public void close()
     {
+        if ( logger.isTraceEnabled() )
+        {
+            logger.trace( "SPAN: {}, close() called from: {}. Injectors: {}, previous close call count: {}",
+                          getSpanId(), Thread.currentThread().getStackTrace()[3].getClassName(), looseInjectors,
+                          looseCloseCalls.get() );
+        }
+
+        SpanAdapter delegate = getDelegate();
+        if ( !looseInjectors.isEmpty() )
+        {
+            if ( looseCloseCalls.incrementAndGet() >= looseInjectors.size() )
+            {
+                logger.trace( "Really closing {} this time. Decorating in preparation...", this );
+                looseInjectors.forEach( i -> i.decorateSpanAtClose( delegate ) );
+            }
+            else
+            {
+                return;
+            }
+        }
+
+        logger.trace( "Decorating on close: {}", delegate );
         spanFieldsDecorator.decorateOnClose( delegate );
+        logger.trace( "Calling SpanAdapter.close() on: {}", delegate );
         delegate.close();
-    }
-
-    @java.lang.Override
-    public void setInProgressField( String key, Object value )
-    {
-        delegate.setInProgressField( key, value );
-    }
-
-    @java.lang.Override
-    public <V> V getInProgressField( String key, V defValue )
-    {
-        return delegate.getInProgressField( key, defValue );
-    }
-
-    @java.lang.Override
-    public void clearInProgressField( String key )
-    {
-        delegate.clearInProgressField( key );
-    }
-
-    @Override
-    public Map<String, Object> getInProgressFields()
-    {
-        return delegate.getInProgressFields();
     }
 
 }

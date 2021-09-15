@@ -111,7 +111,7 @@ public class GoldenSignalsFilter
             // latency.
             long end = RequestContextHelper.getRequestEndNanos() - RequestContextHelper.getRawIoWriteNanos();
 
-            RequestContextHelper.setContext( REQUEST_LATENCY_NS, String.valueOf( end - start ) );
+            RequestContextHelper.setContext( REQUEST_LATENCY_NS, end - start );
             RequestContextHelper.setContext( REQUEST_LATENCY_MILLIS, (end-start) / NANOS_PER_MILLISECOND  );
 
             boolean error = resp.getStatus() > 499;

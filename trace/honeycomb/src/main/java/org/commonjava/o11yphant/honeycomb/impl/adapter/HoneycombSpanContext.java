@@ -16,6 +16,7 @@
 package org.commonjava.o11yphant.honeycomb.impl.adapter;
 
 import io.honeycomb.beeline.tracing.propagation.PropagationContext;
+import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanContext;
 
 public class HoneycombSpanContext implements SpanContext<HoneycombType>
@@ -30,5 +31,12 @@ public class HoneycombSpanContext implements SpanContext<HoneycombType>
     public PropagationContext getPropagationContext()
     {
         return ctx;
+    }
+
+    @Override
+    public String toString()
+    {
+        return String.format( "Honeycomb trace context {trace: %s, parent-span: %s}", ctx.getTraceId(),
+                              ctx.getSpanId() );
     }
 }
