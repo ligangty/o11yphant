@@ -38,6 +38,13 @@ public abstract class GoldenSignalsMetricSet
 
     public GoldenSignalsMetricSet()
     {
+        reset();
+    }
+
+    @Override
+    public void reset()
+    {
+        functionMetrics.clear();
         getFunctions().forEach( function -> {
             logger.info( "Wiring SLI metrics for: {}", function );
             functionMetrics.put( function, new GoldenSignalsFunctionMetrics( function ) );

@@ -24,4 +24,6 @@ public interface MetricSetProvider
     String getName();
 
     default boolean isEnabled() { return true; }
+
+    void reset();
 }

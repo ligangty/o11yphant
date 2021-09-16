@@ -20,4 +20,6 @@ import java.util.Map;
 public interface MetricSet
 {
     Map<String, Metric> getMetrics();
+
+    void reset();
 }

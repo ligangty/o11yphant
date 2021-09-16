@@ -27,6 +27,8 @@ import java.util.function.Supplier;
 
 public interface MetricsManager
 {
+    void reset();
+
     boolean isMetered( Supplier<Boolean> meteringOverride );
 
     Timer.Context startTimer( String name );
@@ -46,8 +48,6 @@ public interface MetricsManager
     void mark( final Collection<String> meters );
 
     void addGauges( Class<?> className, String method, Map<String, Gauge<Integer>> gauges );
-
-    MetricRegistry getMetricRegistry();
 
     Histogram getHistogram( String name );
 }
