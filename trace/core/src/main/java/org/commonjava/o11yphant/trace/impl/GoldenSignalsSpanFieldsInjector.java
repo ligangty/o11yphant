@@ -18,6 +18,7 @@ package org.commonjava.o11yphant.trace.impl;
 import org.apache.commons.lang3.StringUtils;
 import org.commonjava.o11yphant.metrics.RequestContextHelper;
 import org.commonjava.o11yphant.metrics.sli.GoldenSignalsMetricSet;
+import org.commonjava.o11yphant.trace.TraceManager;
 import org.commonjava.o11yphant.trace.spi.SpanFieldsInjector;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 import org.slf4j.Logger;
@@ -29,12 +30,14 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.commonjava.o11yphant.metrics.MetricsConstants.NANOS_PER_MILLISECOND;
 import static org.commonjava.o11yphant.metrics.RequestContextConstants.GOLDEN_SIGNALS_FUNCTIONS;
 import static org.commonjava.o11yphant.metrics.RequestContextConstants.REQUEST_LATENCY_MILLIS;
 import static org.commonjava.o11yphant.metrics.RequestContextConstants.REQUEST_LATENCY_NS;
+import static org.commonjava.o11yphant.trace.TracingConstants.LATENCY_TIMER_PAUSE_KEY;
 
 @ApplicationScoped
 public class GoldenSignalsSpanFieldsInjector
@@ -93,8 +96,15 @@ public class GoldenSignalsSpanFieldsInjector
 
 //        Double latencyNanos = RequestContextHelper.getContext( REQUEST_LATENCY_NS );
         Double latencyMillis = RequestContextHelper.getContext( REQUEST_LATENCY_MILLIS  );
+
         if ( latencyMillis != null )
         {
+            Optional<SpanAdapter> activeSpan = TraceManager.getActiveSpan();
+            if ( activeSpan.isPresent() )
+            {
+                latencyMillis -= ( activeSpan.get().getInProgressField( LATENCY_TIMER_PAUSE_KEY, 0.0 ) / NANOS_PER_MILLISECOND );
+            }
+
             logger.trace( "Adding latency to span: {}", latencyMillis );
             span.addField( "latency_ms", latencyMillis );
         }

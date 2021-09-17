@@ -22,13 +22,19 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.params.HttpParams;
+import org.commonjava.o11yphant.trace.TraceManager;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FilterInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Locale;
 import java.util.Optional;
+
+import static org.commonjava.o11yphant.trace.TracingConstants.LATENCY_TIMER_PAUSE_KEY;
 
 public class SpanClosingResponse
                 implements CloseableHttpResponse
@@ -84,7 +90,7 @@ public class SpanClosingResponse
     @Override
     public HttpEntity getEntity()
     {
-        return delegate.getEntity();
+        return new LatencyPauseEntity( delegate.getEntity() );
     }
 
     @Override
@@ -224,6 +230,91 @@ public class SpanClosingResponse
             {
                 throw (RuntimeException) t;
             }
+        }
+    }
+
+    private class LatencyPauseEntity
+                    implements HttpEntity
+    {
+        private HttpEntity entity;
+
+        public LatencyPauseEntity( HttpEntity entity )
+        {
+            this.entity = entity;
+        }
+
+        @Override
+        public boolean isRepeatable()
+        {
+            return entity.isRepeatable();
+        }
+
+        @Override
+        public boolean isChunked()
+        {
+            return entity.isChunked();
+        }
+
+        @Override
+        public long getContentLength()
+        {
+            return entity.getContentLength();
+        }
+
+        @Override
+        public Header getContentType()
+        {
+            return entity.getContentType();
+        }
+
+        @Override
+        public Header getContentEncoding()
+        {
+            return entity.getContentEncoding();
+        }
+
+        @Override
+        public InputStream getContent() throws IOException, IllegalStateException
+        {
+            return new LatencyPauseInputStream( entity.getContent() );
+        }
+
+        @Override
+        public void writeTo( OutputStream outputStream ) throws IOException
+        {
+            entity.writeTo( outputStream );
+        }
+
+        @Override
+        public boolean isStreaming()
+        {
+            return entity.isStreaming();
+        }
+
+        @Override
+        @Deprecated
+        public void consumeContent() throws IOException
+        {
+            entity.consumeContent();
+        }
+    }
+
+    private class LatencyPauseInputStream
+                    extends FilterInputStream
+    {
+        private final long start = System.nanoTime();
+
+        public LatencyPauseInputStream( InputStream content )
+        {
+            super( content );
+        }
+
+        @Override
+        public void close() throws IOException
+        {
+            double elapsed = System.nanoTime() - start;
+            TraceManager.getActiveSpan().ifPresent( s -> s.updateInProgressField( LATENCY_TIMER_PAUSE_KEY, elapsed ) );
+            super.close();
         }
     }
 }

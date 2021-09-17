@@ -35,7 +35,7 @@ public class HoneycombSpan implements SpanAdapter
 
     private Beeline beeline;
 
-    private Map<String, Object> inProgress = new HashMap<>();
+    private Map<String, Double> inProgress = new HashMap<>();
 
     private boolean closed = false;
 
@@ -44,14 +44,7 @@ public class HoneycombSpan implements SpanAdapter
         if ( closed )
         {
             String msg = String.format( "Span: %s (%s) in trace: %s is closed!", span.getSpanName(), span.getSpanId(), span.getTraceId() );
-            if ( logger.isTraceEnabled() )
-            {
-                throw new IllegalStateException( msg );
-            }
-            else
-            {
-                logger.warn( msg );
-            }
+            logger.warn( msg );
         }
     }
 
@@ -109,20 +102,30 @@ public class HoneycombSpan implements SpanAdapter
     }
 
     @Override
-    public void setInProgressField( String key, Object value )
+    public void setInProgressField( String key, Double value )
     {
         checkClosed();
         inProgress.put( key, value );
     }
 
     @Override
-    public <V> V getInProgressField( String key, V defValue )
+    public Double getInProgressField( String key, Double defValue )
     {
-        return (V) inProgress.getOrDefault( key, defValue );
+        return inProgress.getOrDefault( key, defValue );
     }
 
     @Override
-    public Map<String, Object> getInProgressFields()
+    public synchronized Double updateInProgressField( String key, Double value )
+    {
+        checkClosed();
+        Double mappedVal = inProgress.getOrDefault( key, 0.0 );
+        mappedVal += value;
+        inProgress.put( key, mappedVal );
+        return mappedVal;
+    }
+
+    @Override
+    public Map<String, Double> getInProgressFields()
     {
         return inProgress;
     }
@@ -140,6 +143,6 @@ public class HoneycombSpan implements SpanAdapter
 
     public String toString()
     {
-        return "HoneycombSpan(adapter class, trace: " + getTraceId() + ", span: " + getSpanId() + ")";
+        return "HoneycombSpan(" + span.getSpanName() + ", trace: " + getTraceId() + ", span: " + getSpanId() + ")";
     }
 }

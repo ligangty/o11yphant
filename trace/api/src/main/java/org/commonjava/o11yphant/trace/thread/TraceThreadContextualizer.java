@@ -44,7 +44,7 @@ public class TraceThreadContextualizer<T extends TracerType>
 
     private static final ThreadLocal<Optional<SpanAdapter>> SPAN = new ThreadLocal<>();
 
-//    private static final ThreadLocal<ThreadedTraceContext> TRACE_CONTEXT = new ThreadLocal<>();
+    private static final ThreadLocal<ThreadedTraceContext> TRACE_CONTEXT = new ThreadLocal<>();
 
     private TraceManager<T> traceManager;
 
@@ -86,7 +86,7 @@ public class TraceThreadContextualizer<T extends TracerType>
         {
             tracingContext.reinitThreadSpans();
             ThreadedTraceContext parentSpanContext = (ThreadedTraceContext) parentContext;
-//            TRACE_CONTEXT.set( parentSpanContext );
+            TRACE_CONTEXT.set( parentSpanContext );
 
             logger.trace( "Creating thread-level root span using parent-thread context: {}\n(TraceManager.getActiveSpan() is: {})", parentContext, TraceManager.getActiveSpan() );
 
@@ -97,8 +97,10 @@ public class TraceThreadContextualizer<T extends TracerType>
             // TODO: We'd like to propagate normal fields, but metrics that are part of the context should only accumulate
             // back to the parent span, not downward to the threads / children. We need a way to tell the difference,
             // so we're only propagating the non-metric fields downward.
-//            Optional<SpanAdapter> parentSpan = parentSpanContext.getActiveSpan();
-//            parentSpan.ifPresent( span -> span.getFields().forEach( threadSpan::addField ) );
+            Optional<SpanAdapter> parentSpan = parentSpanContext.getActiveSpan();
+            parentSpan.ifPresent( span -> span.getInProgressFields()
+                                              .forEach( ( k, v ) -> threadSpan.ifPresent(
+                                                              s -> s.setInProgressField( k, 0.0 ) ) ) );
         }
     }
 
@@ -115,41 +117,35 @@ public class TraceThreadContextualizer<T extends TracerType>
                     s.addField( THREAD_NAME, Thread.currentThread().getName() );
                     s.addField( THREAD_GROUP_NAME, Thread.currentThread().getThreadGroup().getName() );
 
-//                    addSpanContextFields( s );
+                    addSpanContextFields( s );
 
                     s.close();
                 } );
             }
 
             SPAN.remove();
-//            TRACE_CONTEXT.remove();
+            TRACE_CONTEXT.remove();
 
             tracingContext.clearThreadSpans();
+            TraceManager.clearThreadSpans();
         }
     }
 
-//    private void addSpanContextFields( SpanAdapter span )
-//    {
-//        ThreadedTraceContext threadedTraceContext = TRACE_CONTEXT.get();
-//        if ( threadedTraceContext != null )
-//        {
-//            // TODO: Where are these used?
-//            // TODO: I think this is meant to accumulate metric fields upward to the parent span from the child/thread.
-//            // To enable that, we need a way to keep the metric fields separate from informational fields, then
-//            // call a method to accumulate those upward when the thread span closes.
-//            threadedTraceContext.getTimers().forEach( ( k, v ) -> {
-//                Snapshot st = v.getSnapshot();
-//                span.addField( COUNT + "." + k, v.getCount() );
-//                span.addField( MEAN + "." + k, st.getMean() );
-//                span.addField( MAX + "." + k, st.getMax() );
-//                span.addField( MIN + "." + k, st.getMin() );
-//            } );
-//
-//            threadedTraceContext.getMeters().forEach( ( k, v ) -> {
-//                span.addField( k, v.getCount() );
-//            } );
-//        }
-//    }
-//
+    private void addSpanContextFields( SpanAdapter span )
+    {
+        ThreadedTraceContext threadedTraceContext = TRACE_CONTEXT.get();
+        if ( threadedTraceContext != null )
+        {
+            threadedTraceContext.getActiveSpan()
+                                .ifPresent( s -> s.getInProgressFields()
+                                                  .keySet()
+                                                  .stream()
+                                                  .filter( k -> k.startsWith( "add." ) || k.startsWith( "cumulative" ) )
+                                                  .forEach( k -> s.updateInProgressField( k, span.getInProgressField( k,
+                                                                                                                      0.0 ) ) ) );
+
+        }
+    }
+
 }
 

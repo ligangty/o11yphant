@@ -26,50 +26,15 @@ import java.util.Optional;
 public class ThreadedSpan
     extends SpanWrapper
 {
-    private final Optional<SpanAdapter> parentSpan;
-
-    private final Logger logger = LoggerFactory.getLogger( getClass() );
-
-    public ThreadedSpan( SpanAdapter span, Optional<SpanAdapter> parentSpan )
+    public ThreadedSpan( SpanAdapter span )
     {
         super( span );
-        this.parentSpan = parentSpan;
     }
 
     @Override
     public void close()
     {
         SpanAdapter span = getDelegate();
-        parentSpan.ifPresent( parent->{
-            Map<String, Object> localFields = span.getFields();
-            try
-            {
-                parent.getInProgressFields().forEach( (key,parentVal) -> {
-                    Object localVal = localFields.get( key );
-                    if ( localVal == null )
-                    {
-                        span.setInProgressField( key, parentVal );
-                    }
-                    else if ( parentVal instanceof Long )
-                    {
-                        span.setInProgressField( key, ( (Long) localVal + (Long) parentVal ) );
-                    }
-                    else if ( parentVal instanceof Integer )
-                    {
-                        span.setInProgressField( key, ( (Integer) localVal + (Integer) parentVal ) );
-                    }
-                    else if ( parentVal instanceof Double )
-                    {
-                        span.setInProgressField( key, ( (Double) localVal + (Double) parentVal ) );
-                    }
-                });
-            }
-            catch ( Throwable t )
-            {
-                logger.error( "Failed to propagate cumulative trace metrics back from child to parent spans: "
-                                              + t.getLocalizedMessage(), t );
-            }
-        } );
         span.close();
     }
 

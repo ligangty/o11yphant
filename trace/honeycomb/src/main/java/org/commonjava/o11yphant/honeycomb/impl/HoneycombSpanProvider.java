@@ -170,6 +170,8 @@ public class HoneycombSpanProvider implements SpanProvider<HoneycombType>
                               .setSpanName( spanName )
                               .setServiceName( tracerConfiguration.getServiceName() )
                               .build();
+
+                logger.trace( "{} In thread: {}, is tracingContext empty now? {}", spanName, Thread.currentThread().getId(), tracingContext == null || tracingContext.isEmpty() );
             }
             else
             {
@@ -177,19 +179,29 @@ public class HoneycombSpanProvider implements SpanProvider<HoneycombType>
                 String traceId = RequestContextHelper.getContext( TRACE_ID );
                 String parentId = RequestContextHelper.getContext( REQUEST_PARENT_SPAN );
 */
+                logger.trace( "Starting root span: {} based on NO PARENT context, and thread: {}", spanName,
+                              Thread.currentThread().getId() );
+
                 span = beeline.getSpanBuilderFactory()
                               .createBuilder()
                               .setSpanName( spanName )
                               .setServiceName( tracerConfiguration.getServiceName() )
                               .build();
+
+                logger.trace( "{} In thread: {}, is tracingContext empty now? {}", spanName, Thread.currentThread().getId(), tracingContext == null || tracingContext.isEmpty() );
+
+                logger.trace( "Setting up 'root' span: {}, seems to be missing parent context. Initializing trace from here.", spanName );
+
             }
 
-            if ( !parentContext.isPresent() )
+            if ( tracingContext != null && tracingContext.isEmpty())
             {
                 span = beeline.getTracer().startTrace( span );
             }
 
-            logger.trace( "Started root span: {} (ID: {}, trace ID: {} and parent: {}, thread: {})", span,
+            logger.trace( "{} In thread: {}, is tracingContext empty now? {}", spanName, Thread.currentThread().getId(), tracingContext == null || tracingContext.isEmpty() );
+
+            logger.trace( "{} Started root span: {} (ID: {}, trace ID: {} and parent: {}, thread: {})", spanName, span,
                           span.getSpanId(), span.getTraceId(), span.getParentSpanId(), Thread.currentThread().getId() );
 
             span.markStart();
@@ -205,16 +217,18 @@ public class HoneycombSpanProvider implements SpanProvider<HoneycombType>
     {
         if ( beeline != null )
         {
+            logger.trace( "{} In thread: {}, is tracingContext empty now? {}", spanName, Thread.currentThread().getId(), tracingContext == null || tracingContext.isEmpty() );
+
             if ( tracingContext != null && tracingContext.isEmpty() )
             {
-                logger.trace( "Parent span from context: {} is a NO-OP, starting root trace instead in: {}",
-                              tracingContext, Thread.currentThread().getId() );
+                logger.trace( "{} Parent span from context: {} is a NO-OP, starting root trace instead in: {}",
+                              spanName, tracingContext, Thread.currentThread().getId() );
                 return startServiceRootSpan( spanName, Optional.empty() );
             }
 
             Span span = beeline.startChildSpan( spanName );
 
-            logger.trace( "Child span: {} (id: {}, trace: {}, parent: {}, thread: {})", span, span.getSpanId(),
+            logger.trace( "{} Child span: {} (id: {}, trace: {}, parent: {}, thread: {})", spanName, span, span.getSpanId(),
                           span.getTraceId(), span.getParentSpanId(), Thread.currentThread().getId() );
 
             span.markStart();
@@ -229,24 +243,25 @@ public class HoneycombSpanProvider implements SpanProvider<HoneycombType>
     {
         if ( beeline != null )
         {
+            logger.trace( "{} In thread: {}, is tracingContext empty now? {}", spanName, Thread.currentThread().getId(), tracingContext == null || tracingContext.isEmpty() );
             if ( tracingContext != null && tracingContext.isEmpty() )
             {
-                logger.trace( "Parent span from context: {} is a NO-OP, starting root trace instead in: {}",
-                              tracingContext, Thread.currentThread().getId() );
+                logger.trace( "{} Parent span from context: {} is a NO-OP, starting root trace instead in: {}",
+                              spanName, tracingContext, Thread.currentThread().getId() );
                 return startServiceRootSpan( spanName, Optional.empty() );
             }
 
             Optional<SpanAdapter> prevSpan = TraceManager.getActiveSpan();
             Span span = beeline.startChildSpan( spanName );
 
-            logger.trace( "Child span: {} (id: {}, trace: {}, parent: {}, thread: {})", span, span.getSpanId(),
+            logger.trace( "{} Child span: {} (id: {}, trace: {}, parent: {}, thread: {})", spanName, span, span.getSpanId(),
                           span.getTraceId(), span.getParentSpanId(), Thread.currentThread().getId() );
 
             span.markStart();
-            if ( !prevSpan.isPresent() )
-            {
-                span = beeline.getTracer().startTrace( span );
-            }
+//            if ( !prevSpan.isPresent() )
+//            {
+//                span = beeline.getTracer().startTrace( span );
+//            }
 
             return new HoneycombSpan( span, !prevSpan.isPresent(), beeline );
         }

@@ -65,14 +65,19 @@ public abstract class SpanWrapper
         delegate.close();
     }
 
-    public void setInProgressField( String key, Object value )
+    public void setInProgressField( String key, Double value )
     {
         delegate.setInProgressField( key, value );
     }
 
-    public <V> V getInProgressField( String key, V defValue )
+    public Double getInProgressField( String key, Double defValue )
     {
         return delegate.getInProgressField( key, defValue );
+    }
+
+    public Double updateInProgressField( String key, Double value )
+    {
+        return delegate.updateInProgressField( key, value );
     }
 
     public void clearInProgressField( String key )
@@ -80,7 +85,7 @@ public abstract class SpanWrapper
         delegate.clearInProgressField( key );
     }
 
-    public Map<String, Object> getInProgressFields()
+    public Map<String, Double> getInProgressFields()
     {
         return delegate.getInProgressFields();
     }
