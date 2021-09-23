@@ -60,7 +60,7 @@ public class JVMSpanFieldsInjector
                 // We don't want to override a pre-existing starting measurement...
                 if ( shouldReportMemory( k ) && span.getInProgressField( key, null ) == null )
                 {
-                    span.setInProgressField( key, ( (Gauge) v ).getValue() );
+                    span.setInProgressField( key, Double.valueOf( String.valueOf( ( (Gauge) v ).getValue() ) ) );
                 }
             } );
         }
@@ -72,7 +72,7 @@ public class JVMSpanFieldsInjector
                 // We don't want to override a pre-existing starting measurement...
                 if ( shouldReportThreads( k ) && span.getInProgressField( key, null ) == null )
                 {
-                    Object val = ( (Gauge) v ).getValue();
+                    Double val = Double.valueOf( String.valueOf( ( (Gauge) v ).getValue() ) );
                     span.setInProgressField( key, val );
                 }
             } );
@@ -99,23 +99,16 @@ public class JVMSpanFieldsInjector
             memory.getMetrics().forEach( ( k, v ) -> {
                 if ( shouldReportMemory( k ) )
                 {
-                    Object endValue = ( (Gauge<?>) v ).getValue();
+                    Double endValue = Double.valueOf( String.valueOf( ( (Gauge<?>) v ).getValue() ) );
                     span.addField( "jvm.end.memory." + k, endValue );
 
-                    Object startValue = span.getInProgressField( "jvm.start.memory." + k, null );
+                    Double startValue = span.getInProgressField( "jvm.start.memory." + k, null );
                     if ( startValue != null )
                     {
                         span.clearInProgressField( "jvm.start.memory." + k );
 
                         span.addField( "jvm.start.memory." + k, startValue );
-                        if ( endValue instanceof Long )
-                        {
-                            span.addField( "jvm.delta.memory." + k, (Long)endValue - (Long)startValue );
-                        }
-                        else if ( endValue instanceof Double )
-                        {
-                            span.addField( "jvm.delta.memory." + k, (Double)endValue - (Double)startValue );
-                        }
+                        span.addField( "jvm.delta.memory." + k, endValue - startValue );
                     }
                 }
             } );
@@ -129,7 +122,7 @@ public class JVMSpanFieldsInjector
                     Integer endValue = ( (Gauge<Integer>) v ).getValue();
                     span.addField( "jvm.end.threads." + k, endValue );
 
-                    Integer startValue = span.getInProgressField( "jvm.start.threads." + k, null );
+                    Double startValue = span.getInProgressField( "jvm.start.threads." + k, null );
                     if ( startValue != null )
                     {
                         span.clearInProgressField( "jvm.start.threads." + k );

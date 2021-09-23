@@ -15,11 +15,13 @@
  */
 package org.commonjava.o11yphant.metrics.util;
 
+import com.codahale.metrics.Metric;
 import com.codahale.metrics.health.HealthCheckRegistry;
 import org.commonjava.o11yphant.metrics.DefaultMetricRegistry;
 import org.commonjava.o11yphant.metrics.api.Gauge;
 import org.commonjava.o11yphant.metrics.api.MetricSet;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static java.util.stream.Collectors.toMap;
@@ -34,10 +36,36 @@ public class MetricUtils
 
     public static MetricSet wrapGaugeSet( Map<String, com.codahale.metrics.Metric> metrics )
     {
-        return () -> metrics.entrySet()
-                            .stream()
-                            .collect( toMap( Map.Entry::getKey,
-                                             e -> (Gauge<Object>) () -> ( (com.codahale.metrics.Gauge) e.getValue() ).getValue() ) );
+        return new WrappedMetricSet( metrics );
     }
 
+    private static class WrappedMetricSet
+                    implements MetricSet
+    {
+        private Map<String, Metric> metrics;
+
+        public WrappedMetricSet( Map<String, Metric> metrics )
+        {
+            this.metrics = metrics;
+        }
+
+        @Override
+        public Map<String, org.commonjava.o11yphant.metrics.api.Metric> getMetrics()
+        {
+            Map<String, org.commonjava.o11yphant.metrics.api.Metric> result = new HashMap<>();
+            for(Map.Entry<String, Metric> metricEntry: metrics.entrySet() )
+            {
+                result.put( metricEntry.getKey(),
+                            (Gauge<Object>) () -> ( (com.codahale.metrics.Gauge) metricEntry.getValue() ).getValue() );
+            }
+
+            return result;
+        }
+
+        @Override
+        public void reset()
+        {
+            // No-op
+        }
+    }
 }

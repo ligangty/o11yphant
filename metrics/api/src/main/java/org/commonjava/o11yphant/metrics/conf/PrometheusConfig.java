@@ -21,13 +21,14 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 public class PrometheusConfig
 {
     private final Logger logger = LoggerFactory.getLogger( getClass() );
 
-    private Map<String, Boolean> expressedCache = new HashMap<>();
+    private Map<String, Boolean> expressedCache = new ConcurrentHashMap<>();
 
     private List<String> expressedMetrics;
 

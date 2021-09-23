@@ -30,7 +30,7 @@ public class OtelSpan
 
     private boolean localRoot;
 
-    private Map<String, Object> inProgress = new HashMap<>();
+    private Map<String, Double> inProgress = new HashMap<>();
 
     private Map<String, Object> attributes = new HashMap<>();
 
@@ -74,39 +74,30 @@ public class OtelSpan
     public void close()
     {
         attributes.forEach( ( k, v ) -> span.setAttribute( k, (String) v ) );
-
-        inProgress.forEach( ( k, v ) -> {
-            if ( v instanceof Long )
-            {
-                span.setAttribute( k, (Long) v );
-            }
-            else if ( v instanceof Double )
-            {
-                span.setAttribute( k, (Double) v );
-            }
-            else if ( v instanceof Integer )
-            {
-                span.setAttribute( k, Long.valueOf( (Integer) v ) );
-            }
-            else
-            {
-                span.setAttribute( k, String.valueOf( v ) );
-            }
-        } );
+        inProgress.forEach( span::setAttribute );
 
         span.end();
     }
 
     @Override
-    public void setInProgressField( String key, Object value )
+    public void setInProgressField( String key, Double value )
     {
         inProgress.put( key, value );
     }
 
     @Override
-    public <T> T getInProgressField( String key, T defValue )
+    public Double getInProgressField( String key, Double defValue )
     {
-        return (T) inProgress.getOrDefault( key, defValue );
+        return inProgress.getOrDefault( key, defValue );
+    }
+
+    @Override
+    public synchronized Double updateInProgressField( String key, Double value )
+    {
+        Double mappedVal = inProgress.getOrDefault( key, 0.0 );
+        mappedVal += value;
+        inProgress.put( key, mappedVal );
+        return mappedVal;
     }
 
     @Override
@@ -116,7 +107,7 @@ public class OtelSpan
     }
 
     @Override
-    public Map<String, Object> getInProgressFields()
+    public Map<String, Double> getInProgressFields()
     {
         return inProgress;
     }

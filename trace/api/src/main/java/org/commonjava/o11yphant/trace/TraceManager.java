@@ -15,15 +15,13 @@
  */
 package org.commonjava.o11yphant.trace;
 
-import org.commonjava.cdi.util.weft.ThreadContext;
 import org.commonjava.o11yphant.metrics.api.Metric;
-import org.commonjava.o11yphant.trace.impl.CloseBlockingSpan;
 import org.commonjava.o11yphant.trace.impl.FieldInjectionSpan;
+import org.commonjava.o11yphant.trace.impl.SpanWrapper;
 import org.commonjava.o11yphant.trace.impl.ThreadedSpan;
 import org.commonjava.o11yphant.trace.spi.CloseBlockingDecorator;
 import org.commonjava.o11yphant.trace.spi.ContextPropagator;
 import org.commonjava.o11yphant.trace.spi.O11yphantTracePlugin;
-import org.commonjava.o11yphant.trace.spi.SpanFieldsInjector;
 import org.commonjava.o11yphant.trace.spi.SpanProvider;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanContext;
@@ -33,11 +31,18 @@ import org.commonjava.o11yphant.trace.thread.TraceThreadContextualizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
+import static java.util.Arrays.asList;
+import static org.apache.commons.lang3.StringUtils.join;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.AVERAGE_TIME_MS;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.CUMULATIVE_COUNT;
 import static org.commonjava.o11yphant.metrics.MetricsConstants.CUMULATIVE_TIMINGS;
@@ -46,7 +51,9 @@ import static org.commonjava.o11yphant.metrics.util.NameUtils.name;
 
 public final class TraceManager<T extends TracerType>
 {
-    private static final ThreadLocal<SpanAdapter> ACTIVE_SPAN = new ThreadLocal<>();
+    private static final ThreadLocal<Queue<SpanAdapter>> ACTIVE_SPAN = new ThreadLocal<>();
+
+    private static final String ACTIVE_SPAN_KEY = "active-trace-span";
 
     private final SpanProvider<T> spanProvider;
 
@@ -79,16 +86,19 @@ public final class TraceManager<T extends TracerType>
             return Optional.empty();
         }
 
+        logger.trace( "Setting up client span: {}, ACTIVE_SPAN is: {}", spanName, ACTIVE_SPAN.get() );
         SpanAdapter span = spanProvider.startClientSpan( spanName );
         if ( span != null )
         {
             contextPropagator.injectContext( spanInjector, span );
-            setActiveSpan( span );
+            span = new DeactivationSpan( span );
 
             if ( span.isLocalRoot() )
             {
                 span = new FieldInjectionSpan( span, spanFieldsDecorator );
             }
+
+            setActiveSpan( span );
 
             logger.trace( "Started span: {}", span.getSpanId() );
         }
@@ -104,10 +114,11 @@ public final class TraceManager<T extends TracerType>
         }
 
         Optional<SpanContext<T>> parentContext = contextPropagator.extractContext( threadedContext );
+
         SpanAdapter span = spanProvider.startServiceRootSpan( spanName, parentContext );
         if ( span != null )
         {
-            setActiveSpan( span );
+            span = new DeactivationSpan( span );
 
             SpanAdapter finalSpan = span;
             threadedContext.getActiveSpan().ifPresent( parentSpan ->{
@@ -125,11 +136,12 @@ public final class TraceManager<T extends TracerType>
                 span = new FieldInjectionSpan( span, spanFieldsDecorator );
             }
 
-            span = new ThreadedSpan( span, threadedContext.getActiveSpan() );
+            span = new ThreadedSpan( span );
+            setActiveSpan( span );
+            logger.trace( "Started span: {}", span.getSpanId() );
         }
 
-        logger.trace( "Started span: {}", span.getSpanId() );
-        return Optional.of( span );
+        return span == null ? Optional.empty() : Optional.of( span );
     }
 
     public Optional<SpanAdapter> startServiceRootSpan( String spanName, Supplier<Map<String, String>> mapSupplier )
@@ -143,13 +155,14 @@ public final class TraceManager<T extends TracerType>
         SpanAdapter span = spanProvider.startServiceRootSpan( spanName, parentContext );
         if ( span != null )
         {
-            setActiveSpan( span );
+            span = new DeactivationSpan( span );
 
             span = new FieldInjectionSpan( span, spanFieldsDecorator );
+            setActiveSpan( span );
+            logger.trace( "Started span: {}", span.getSpanId() );
         }
 
-        logger.trace( "Started span: {}", span.getSpanId() );
-        return Optional.of( span );
+        return span == null ? Optional.empty() : Optional.of( span );
     }
 
     public Optional<SpanAdapter> startChildSpan( final String spanName )
@@ -168,38 +181,38 @@ public final class TraceManager<T extends TracerType>
         SpanAdapter span = spanProvider.startChildSpan( spanName, parentContext );
         if ( span != null )
         {
-            setActiveSpan( span );
+            span = new DeactivationSpan( span );
 
             if ( span.isLocalRoot() )
             {
                 span = new FieldInjectionSpan( span, spanFieldsDecorator );
             }
+            setActiveSpan( span );
+            logger.trace( "Started span: {}", span.getSpanId() );
         }
 
-        logger.trace( "Started span: {}", span.getSpanId() );
-        return Optional.of( span );
+        return span == null ? Optional.empty() : Optional.of( span );
     }
 
-    public void addSpanField( String name, Object value )
+//    public void addSpanField( String name, Object value )
+//    {
+//        if ( !config.isEnabled() )
+//        {
+//            return;
+//        }
+//
+//        getActiveSpan().ifPresent( span -> span.addField( name, value ) );
+//    }
+
+    public void addStartField( SpanAdapter span, String name, double begin )
     {
         if ( !config.isEnabled() )
         {
             return;
         }
 
-        getActiveSpan().ifPresent( span -> span.addField( name, value ) );
-    }
-
-    public void addStartField( SpanAdapter span, String name, long begin )
-    {
-        if ( !config.isEnabled() )
-        {
-            return;
-        }
-
-        String startFieldName = name;
         logger.trace( "addStartField, span: {}, name: {}, begin: {}", span, name, begin );
-        span.setInProgressField( startFieldName, begin );
+        span.setInProgressField( name, begin );
     }
 
     public void addEndField( SpanAdapter span, String name, long end )
@@ -209,20 +222,19 @@ public final class TraceManager<T extends TracerType>
             return;
         }
 
-        String startFieldName = name;
-        Long begin = span.getInProgressField( startFieldName, null );
+        Double begin = span.getInProgressField( name, null );
         if ( begin == null )
         {
             logger.trace( "Failed to get START field, span: {}, name: {}", span, name );
             return;
         }
         logger.trace( "addEndField, span: {}, name: {}, end: {}", span, name, end );
-        long elapse = end - begin;
+        double elapse = end - begin;
         addCumulativeField( span, name, elapse );
-        span.clearInProgressField( startFieldName );
+        span.clearInProgressField( name );
     }
 
-    public void addCumulativeField( SpanAdapter span, String name, long elapse )
+    public void addCumulativeField( SpanAdapter span, String name, double elapse )
     {
         if ( !config.isEnabled() )
         {
@@ -231,19 +243,15 @@ public final class TraceManager<T extends TracerType>
 
         // cumulative timing
         String cumulativeTimingName = name( name, CUMULATIVE_TIMINGS );
-        Long cumulativeMs = span.getInProgressField( cumulativeTimingName, 0L );
-        cumulativeMs += elapse;
-        span.setInProgressField( cumulativeTimingName, cumulativeMs );
+        Double cumulativeMs = span.updateInProgressField( cumulativeTimingName, elapse );
 
         // cumulative count
         String cumulativeCountName = name( name, CUMULATIVE_COUNT );
-        Integer cumulativeCount = span.getInProgressField( cumulativeCountName, 0 );
-        cumulativeCount += 1;
-        span.setInProgressField( cumulativeCountName, cumulativeCount );
+        Double cumulativeCount = span.updateInProgressField( cumulativeCountName, 1.0 );
 
         // max
         String maxTimingName = name( name, MAX_TIME_MS );
-        Long max = span.getInProgressField( maxTimingName, 0L );
+        Double max = span.getInProgressField( maxTimingName, 0.0 );
         if ( elapse > max )
         {
             span.setInProgressField( maxTimingName, elapse );
@@ -251,7 +259,7 @@ public final class TraceManager<T extends TracerType>
 
         // average
         String averageName = name( name, AVERAGE_TIME_MS );
-        span.setInProgressField( averageName, (double) ( cumulativeMs / cumulativeCount ) );
+        span.setInProgressField( averageName, ( cumulativeMs / cumulativeCount ) );
 
         logger.trace( "addCumulativeField, span: {}, name: {}, elapse: {}, cumulative-ms: {}, count: {}", span, name,
                       elapse, cumulativeMs, cumulativeCount );
@@ -264,19 +272,40 @@ public final class TraceManager<T extends TracerType>
             return;
         }
 
-        ACTIVE_SPAN.set(spanAdapter);
+        if ( ACTIVE_SPAN.get() == null )
+        {
+            ACTIVE_SPAN.set( new ConcurrentLinkedQueue<>() );
+        }
+
+//        if ( ACTIVE_SPAN.get() != null )
+//        {
+//            logger.warn( "REPLACING TraceManager ACTIVE_SPAN: {} with: {} via:\n{}", ACTIVE_SPAN.get(), spanAdapter,
+//                         join( asList( Thread.currentThread().getStackTrace() ), "\n  " ) );
+//        }
+//
+        ACTIVE_SPAN.get().add( spanAdapter );
+    }
+
+    public static void clearThreadSpans()
+    {
+        if ( ACTIVE_SPAN.get() == null )
+        {
+            return;
+        }
+
+        ACTIVE_SPAN.get().forEach( SpanAdapter::close );
+        ACTIVE_SPAN.remove();
     }
 
     public static Optional<SpanAdapter> getActiveSpan()
     {
-        ThreadContext ctx = ThreadContext.getContext( false );
-        if ( ctx != null )
+        if ( ACTIVE_SPAN.get() == null )
         {
-            SpanAdapter span = ACTIVE_SPAN.get();
-            return span == null ? Optional.empty() : Optional.of( span );
+            return Optional.empty();
         }
 
-        return Optional.empty();
+        SpanAdapter span = ACTIVE_SPAN.get().peek();
+        return span == null ? Optional.empty() : Optional.of( span );
     }
 
     public static void addFieldToActiveSpan( String name, Object value )
@@ -285,13 +314,20 @@ public final class TraceManager<T extends TracerType>
 
         Optional<SpanAdapter> s = getActiveSpan();
         s.ifPresent( span -> {
-            logger.trace( "Adding field: {} with value: {} to span: {}", name, value, span.getSpanId() );
+            if ( logger.isTraceEnabled() )
+            {
+                StackTraceElement[] st = Thread.currentThread().getStackTrace();
+                logger.trace( "Adding field: {} with value: {} to span: {} from:\n  {}\n  {}", name, value, span.getSpanId(),
+                              st[3], st[4] );
+            }
+
             span.addField( name, value );
         } );
 
-        if ( !s.isPresent() )
+        if ( !s.isPresent() && logger.isTraceEnabled() )
         {
-            logger.info( "NO ACTIVE SPAN for: {} from: {}", name, Thread.currentThread().getStackTrace()[1] );
+            StackTraceElement[] st = Thread.currentThread().getStackTrace();
+            logger.info( "NO ACTIVE SPAN for: {} from:\n  {}\n  {}", name, st[2], st[3] );
         }
     }
 
@@ -300,25 +336,61 @@ public final class TraceManager<T extends TracerType>
         return traceThreadContextualizer;
     }
 
-    public static Optional<SpanAdapter> addCloseBlockingDecorator( Optional<SpanAdapter> span,
+    public static void addCloseBlockingDecorator( Optional<SpanAdapter> span,
                                                                    CloseBlockingDecorator injector )
     {
+        Logger logger = LoggerFactory.getLogger( TraceManager.class );
+
         if ( span.isPresent() )
         {
             SpanAdapter sa = span.get();
-            if ( sa instanceof CloseBlockingSpan )
+            if ( sa instanceof FieldInjectionSpan )
             {
-                ((CloseBlockingSpan) span.get()).addInjector( injector );
-                return span;
+                if ( logger.isTraceEnabled() )
+                {
+                    StackTraceElement[] st = Thread.currentThread().getStackTrace();
+                    logger.trace( "{} Adding close-blocking field injector to: {} from:\n  {}\n  {}", sa.getSpanId(), sa,
+                                  st[2], st[3] );
+                }
+
+                ((FieldInjectionSpan) sa).addInjector( injector );
+            }
+            else if ( logger.isTraceEnabled() )
+            {
+                StackTraceElement[] st = Thread.currentThread().getStackTrace();
+                logger.trace( "{} CANNOT ADD close-blocking field injector around: {} from:\n  {}\n  {}", sa.getSpanId(), sa,
+                              st[2], st[3] );
+            }
+        }
+    }
+
+    private class DeactivationSpan
+                    extends SpanWrapper
+    {
+        public DeactivationSpan( SpanAdapter delegate )
+        {
+            super( delegate );
+        }
+
+        public void close()
+        {
+            getDelegate().close();
+            Optional<SpanAdapter> active = getActiveSpan();
+            SpanAdapter mine = getBaseInstance();
+            if ( active.isPresent() && active.get().getBaseInstance() == mine )
+            {
+                logger.trace( "Clearing active span from TraceManager: {}", active );
+                ACTIVE_SPAN.get().remove();
+                if ( ACTIVE_SPAN.get().isEmpty() )
+                {
+                    ACTIVE_SPAN.remove();
+                }
             }
             else
             {
-                return Optional.of( new CloseBlockingSpan( span.get(), injector ) );
+                logger.warn( "TraceManager active span does not match the span we expected!\n  Expected: {}\n  Active: {}",
+                             mine, active.isPresent() ? "NULL" : active.get().getBaseInstance() );
             }
-        }
-        else
-        {
-            return span;
         }
     }
 }

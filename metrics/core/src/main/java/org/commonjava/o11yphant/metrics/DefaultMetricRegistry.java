@@ -28,6 +28,8 @@ import org.commonjava.o11yphant.metrics.api.healthcheck.HealthCheck;
 import org.commonjava.o11yphant.metrics.impl.O11Histogram;
 import org.commonjava.o11yphant.metrics.impl.O11Meter;
 import org.commonjava.o11yphant.metrics.impl.O11Timer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -36,12 +38,16 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
+import static com.codahale.metrics.MetricFilter.ALL;
+import static org.apache.commons.lang3.StringUtils.join;
 import static org.commonjava.o11yphant.metrics.util.NameUtils.name;
 
 @ApplicationScoped
 public class DefaultMetricRegistry
                 implements MetricRegistry
 {
+    private final Logger logger = LoggerFactory.getLogger( getClass() );
+
     /**
      * This only contains metric registered via {@link #register(String, Metric)} and {@link #register(String, MetricSet)}
      */
@@ -59,6 +65,14 @@ public class DefaultMetricRegistry
         this.healthCheckRegistry = healthCheckRegistry;
     }
 
+    @Override
+    public void clear()
+    {
+        logger.trace( "BEFORE CLEAR, found metrics:\n  {}", join( registry.getNames(), "\n  " ) );
+        registry.removeMatching( ALL );
+        logger.trace( "AFTER CLEAR, found metrics:\n  {}", join( registry.getNames(), "\n  " ) );
+    }
+
     /**
      * Register a detached / standalone metric.
      *
@@ -68,34 +82,42 @@ public class DefaultMetricRegistry
      * Those detached metrics are registered to underlying codahale registry as well.
      */
     @Override
-    public <T extends Metric> T register( String name, T metric )
+    public <T extends Metric> T register( String metricName, T metric )
     {
+        logger.trace( "Registering: '{}'", metricName );
         if ( metric instanceof Gauge )
         {
             Gauge gauge = (Gauge) metric;
-            registry.register( name, (com.codahale.metrics.Gauge) gauge::getValue );
+            registry.register( metricName, (com.codahale.metrics.Gauge) gauge::getValue );
         }
         else if ( metric instanceof O11Meter )
         {
-            registry.register( name, ( (O11Meter) metric ).getCodahaleMeter() );
+            registry.register( metricName, ( (O11Meter) metric ).getCodahaleMeter() );
         }
         else if ( metric instanceof O11Timer )
         {
-            registry.register( name, ( (O11Timer) metric ).getCodahaleTimer() );
+            registry.register( metricName, ( (O11Timer) metric ).getCodahaleTimer() );
         }
         else if ( metric instanceof O11Histogram )
         {
-            registry.register( name, ( (O11Histogram) metric ).getCodehaleHistogram() );
+            registry.register( metricName, ( (O11Histogram) metric ).getCodehaleHistogram() );
         }
 
-        metrics.put( name, metric );
+        metrics.put( metricName, metric );
         return metric;
     }
 
     @Override
-    public void register( String name, MetricSet metricSet )
+    public void register( String setName, MetricSet metricSet )
     {
-        metricSet.getMetrics().forEach( ( k, v ) -> register( name( name, k ), v ) );
+        if ( metricSet != null )
+        {
+            logger.trace( "Registering metric-set named: {}", setName );
+            metricSet.getMetrics().forEach( ( k, v ) -> {
+                logger.trace( "Registering: '{}' in metric-set named: {}", k, setName );
+                register( name( setName, k ), v );
+            } );
+        }
     }
 
     /**

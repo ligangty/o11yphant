@@ -46,8 +46,7 @@ public class PromEnhancedStatsAndTimingExports
 
     private static String getHelpMessage( String metricName, Metric metric )
     {
-        return String.format( "Generated from Dropwizard metric import (metric=%s, type=%s)", metricName,
-                              metric.getClass().getName() );
+        return String.format( metricName );
     }
 
     /**

@@ -32,7 +32,7 @@ public class MockSpan
 
     private Map<String, Object> fields = new HashMap<>();
 
-    private Map<String, Object> inProgress = new HashMap<>();
+    private Map<String, Double> inProgress = new HashMap<>();
 
     public void setLocalRoot( boolean localRoot )
     {
@@ -54,7 +54,7 @@ public class MockSpan
         this.fields = fields;
     }
 
-    public void setInProgress( Map<String, Object> inProgress )
+    public void setInProgress( Map<String, Double> inProgress )
     {
         this.inProgress = inProgress;
     }
@@ -95,15 +95,24 @@ public class MockSpan
     }
 
     @Override
-    public void setInProgressField( String key, Object value )
+    public void setInProgressField( String key, Double value )
     {
         inProgress.put( key, value );
     }
 
     @Override
-    public <V> V getInProgressField( String key, V defValue )
+    public Double getInProgressField( String key, Double defValue )
     {
-        return (V) inProgress.getOrDefault( key, defValue);
+        return inProgress.getOrDefault( key, defValue);
+    }
+
+    @Override
+    public synchronized Double updateInProgressField( String key, Double value )
+    {
+        Double mappedVal = inProgress.getOrDefault( key, 0.0 );
+        mappedVal += value;
+        inProgress.put( key, mappedVal );
+        return mappedVal;
     }
 
     @Override
@@ -113,7 +122,7 @@ public class MockSpan
     }
 
     @Override
-    public Map<String, Object> getInProgressFields()
+    public Map<String, Double> getInProgressFields()
     {
         return inProgress;
     }

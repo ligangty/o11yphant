@@ -38,6 +38,13 @@ public abstract class GoldenSignalsMetricSet
 
     public GoldenSignalsMetricSet()
     {
+        reset();
+    }
+
+    @Override
+    public void reset()
+    {
+        functionMetrics.clear();
         getFunctions().forEach( function -> {
             logger.info( "Wiring SLI metrics for: {}", function );
             functionMetrics.put( function, new GoldenSignalsFunctionMetrics( function ) );
@@ -50,6 +57,7 @@ public abstract class GoldenSignalsMetricSet
         Map<String, Metric> metrics = new HashMap<>();
         functionMetrics.values().forEach( ms -> metrics.putAll( ms.getMetrics() ) );
 
+        logger.trace( "Returning golden signals metrics map: {}", metrics );
         return metrics;
     }
 

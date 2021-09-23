@@ -108,6 +108,12 @@ public class SystemGaugesSet
 
     }
 
+    @Override
+    public void reset()
+    {
+        // No-op
+    }
+
     private File getStorageDir()
     {
         if ( storagePathProvider != null && storagePathProvider.getStoragePath() != null )

@@ -47,6 +47,7 @@ public class SpanFieldsDecorator
     public final void decorateOnStart( SpanAdapter span )
     {
         spanFieldInjectors.forEach( injectSpanFields -> {
+            logger.trace( "START: Injecting fields from: {} to: {}", injectSpanFields, span );
             injectSpanFields.decorateSpanAtStart( span );
         } );
     }
@@ -54,6 +55,7 @@ public class SpanFieldsDecorator
     public final void decorateOnClose( SpanAdapter span )
     {
         spanFieldInjectors.forEach( injectSpanFields -> {
+            logger.trace( "CLOSE: Injecting fields from: {} to: {}", injectSpanFields, span );
             injectSpanFields.decorateSpanAtClose( span );
         } );
     }

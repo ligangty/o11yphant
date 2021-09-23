@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 // FIXME: This is probably broken, based on how sampling actually uses trace-id or a Span instance. It's also probably slow.
@@ -37,7 +38,7 @@ public class ConfigurableTraceSampler
 
     public static final String SAMPLE_OVERRIDE = "honeycomb.sample-override";
 
-    private Map<String, Integer> sampleRateCache = new HashMap<>();
+    private Map<String, Integer> sampleRateCache = new ConcurrentHashMap<>();
 
     private TrafficClassifier classifier;
 

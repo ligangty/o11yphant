@@ -16,6 +16,8 @@
 package org.commonjava.o11yphant.metrics;
 
 import org.commonjava.cdi.util.weft.ThreadContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.commonjava.o11yphant.metrics.RequestContextConstants.END_NANOS;
 import static org.commonjava.o11yphant.metrics.RequestContextConstants.RAW_IO_WRITE_NANOS;
@@ -26,10 +28,14 @@ import static org.commonjava.o11yphant.metrics.RequestContextConstants.RAW_IO_WR
  */
 public class RequestContextHelper
 {
+    private static final Logger logger = LoggerFactory.getLogger( RequestContextHelper.class );
+
     public static void setContext( final String key, final Object value )
     {
         org.slf4j.MDC.put( key, String.valueOf( value ) );
-        ThreadContext.getContext( true ).computeIfAbsent( key, k -> value );
+        ThreadContext ctx = ThreadContext.getContext( true );
+        logger.trace( "Setting value: '{}' = '{}' in ThreadContext: {}", key, value, ctx );
+        ctx.computeIfAbsent( key, k -> value );
     }
 
     public static <T> T getContext( final String key )
@@ -42,6 +48,7 @@ public class RequestContextHelper
         ThreadContext ctx = ThreadContext.getContext( false );
         if ( ctx != null )
         {
+            logger.trace( "Retrieving value for: '{}' from ThreadContext: {}", key, ctx );
             Object v = ctx.get( key );
             return v == null ? defaultValue : (T) v;
         }
@@ -56,6 +63,7 @@ public class RequestContextHelper
         ThreadContext ctx = ThreadContext.getContext( false );
         if ( ctx != null )
         {
+            logger.trace( "Removing value for: '{}' from ThreadContext: {}", key, ctx );
             ctx.remove( key );
         }
     }

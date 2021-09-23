@@ -48,6 +48,12 @@ public class SystemGaugesSetProvider
         return name( metricsConfig.getNodePrefix(), SYSTEM );
     }
 
+    @Override
+    public void reset()
+    {
+        systemGaugesSet.reset();
+    }
+
     /*@Override
     public void registerMetricSet( MetricRegistry registry )
     {

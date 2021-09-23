@@ -18,8 +18,11 @@ package org.commonjava.o11yphant.trace.impl;
 import org.apache.commons.lang3.StringUtils;
 import org.commonjava.o11yphant.metrics.RequestContextHelper;
 import org.commonjava.o11yphant.metrics.sli.GoldenSignalsMetricSet;
+import org.commonjava.o11yphant.trace.TraceManager;
 import org.commonjava.o11yphant.trace.spi.SpanFieldsInjector;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -27,15 +30,22 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
+import static org.commonjava.o11yphant.metrics.MetricsConstants.NANOS_PER_MILLISECOND;
 import static org.commonjava.o11yphant.metrics.RequestContextConstants.GOLDEN_SIGNALS_FUNCTIONS;
+import static org.commonjava.o11yphant.metrics.RequestContextConstants.REQUEST_LATENCY_MILLIS;
+import static org.commonjava.o11yphant.metrics.RequestContextConstants.REQUEST_LATENCY_NS;
+import static org.commonjava.o11yphant.trace.TracingConstants.LATENCY_TIMER_PAUSE_KEY;
 
 @ApplicationScoped
 public class GoldenSignalsSpanFieldsInjector
                 implements SpanFieldsInjector
 {
     private GoldenSignalsMetricSet goldenSignalsMetricSet;
+
+    private final Logger logger = LoggerFactory.getLogger( getClass().getName());
 
     @Inject
     public GoldenSignalsSpanFieldsInjector( GoldenSignalsMetricSet goldenSignalsMetricSet )
@@ -44,7 +54,7 @@ public class GoldenSignalsSpanFieldsInjector
     }
 
     @Override
-    public void decorateSpanAtStart( SpanAdapter span )
+    public void decorateSpanAtClose( SpanAdapter span )
     {
         // NOTE This is awkward, but we get http_status and latency_ms from the DefaultHoneycombManager's field injection.
         // Those fields give us measurements, and the presence of the event gives us the data point we can aggregate for
@@ -69,6 +79,7 @@ public class GoldenSignalsSpanFieldsInjector
         Collection<String> functions = RequestContextHelper.getContext( GOLDEN_SIGNALS_FUNCTIONS );
         if ( functions == null || functions.isEmpty() )
         {
+            logger.trace( "No Golden SLI functions detected. Skipping span-field injection." );
             return;
         }
 
@@ -81,6 +92,23 @@ public class GoldenSignalsSpanFieldsInjector
             }
         } ) );
 
+        logger.trace( "Golden SLI traffic classifiers: {}", classifierTokens );
+
+//        Double latencyNanos = RequestContextHelper.getContext( REQUEST_LATENCY_NS );
+        Double latencyMillis = RequestContextHelper.getContext( REQUEST_LATENCY_MILLIS  );
+
+        if ( latencyMillis != null )
+        {
+            Optional<SpanAdapter> activeSpan = TraceManager.getActiveSpan();
+            if ( activeSpan.isPresent() )
+            {
+                latencyMillis -= ( activeSpan.get().getInProgressField( LATENCY_TIMER_PAUSE_KEY, 0.0 ) / NANOS_PER_MILLISECOND );
+            }
+
+            logger.trace( "Adding latency to span: {}", latencyMillis );
+            span.addField( "latency_ms", latencyMillis );
+        }
+        logger.trace( "Adding traffic_type to span: {}", classifierTokens );
         span.addField( "traffic_type", StringUtils.join( classifierTokens, "," ) );
     }
 }

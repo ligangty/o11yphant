@@ -124,6 +124,35 @@ public class DefaultMetricsManager
         metricSetProviderInstances.forEach( ( provider ) -> {
             if ( provider.isEnabled() )
             {
+                logger.trace( "Registering metrics for provider: {} (class: {})", provider.getName(), provider.getClass().getSimpleName() );
+                metricRegistry.register( provider.getName(), provider.getMetricSet() );
+            }
+        } );
+    }
+
+    public void reset()
+    {
+        if ( !config.isEnabled() )
+        {
+            logger.info( "Metrics subsystem not enabled" );
+            return;
+        }
+
+        logger.info( "Clear metrics subsystem..." );
+        metricRegistry.clear();
+        metricSetProviderInstances.forEach( ( provider ) -> {
+            if ( provider.isEnabled() )
+            {
+                logger.trace( "Clearing metrics for provider: {} (class: {})", provider.getName(), provider.getClass().getSimpleName() );
+                provider.reset();
+            }
+        } );
+
+        logger.info( "Re-adding metric sets from providers..." );
+        metricSetProviderInstances.forEach( ( provider ) -> {
+            if ( provider.isEnabled() )
+            {
+                logger.trace( "Registering metrics for provider: {} (class: {})", provider.getName(), provider.getClass().getSimpleName() );
                 metricRegistry.register( provider.getName(), provider.getMetricSet() );
             }
         } );
