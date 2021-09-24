@@ -90,7 +90,8 @@ public class SpanClosingResponse
     @Override
     public HttpEntity getEntity()
     {
-        return new LatencyPauseEntity( delegate.getEntity() );
+        HttpEntity entity = delegate.getEntity();
+        return entity == null ? null : new LatencyPauseEntity( entity );
     }
 
     @Override
