@@ -119,7 +119,7 @@ public class JVMSpanFieldsInjector
             threads.getMetrics().forEach( ( k, v ) -> {
                 if ( shouldReportThreads( k ) )
                 {
-                    Integer endValue = ( (Gauge<Integer>) v ).getValue();
+                    long endValue = ( (Gauge<Number>) v ).getValue().longValue();
                     span.addField( "jvm.end.threads." + k, endValue );
 
                     Double startValue = span.getInProgressField( "jvm.start.threads." + k, null );
