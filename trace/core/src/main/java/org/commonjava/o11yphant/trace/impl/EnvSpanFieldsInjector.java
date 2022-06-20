@@ -22,8 +22,6 @@ import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Stream;
 
 /**

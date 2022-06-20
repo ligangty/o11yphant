@@ -15,13 +15,11 @@
  */
 package org.commonjava.o11yphant.metrics.sli;
 
-import org.commonjava.o11yphant.metrics.api.Histogram;
 import org.commonjava.o11yphant.metrics.api.healthcheck.HealthCheck;
 import org.commonjava.o11yphant.metrics.api.Meter;
 import org.commonjava.o11yphant.metrics.api.Metric;
 import org.commonjava.o11yphant.metrics.api.Timer;
 import org.commonjava.o11yphant.metrics.healthcheck.impl.HealthCheckResult;
-import org.commonjava.o11yphant.metrics.impl.O11Histogram;
 import org.commonjava.o11yphant.metrics.impl.O11Meter;
 import org.commonjava.o11yphant.metrics.impl.O11Timer;
 

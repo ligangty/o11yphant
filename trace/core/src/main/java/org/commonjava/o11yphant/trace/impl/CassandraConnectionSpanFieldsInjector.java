@@ -21,10 +21,8 @@ import org.commonjava.o11yphant.trace.spi.SpanFieldsInjector;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
-import static java.util.Collections.emptyMap;
 import static org.commonjava.o11yphant.metrics.util.NameUtils.name;
 
 /**
@@ -47,7 +45,7 @@ public abstract class CassandraConnectionSpanFieldsInjector
             return;
         }
 
-        Map<String, Object> ret = new HashMap<>();
+//        Map<String, Object> ret = new HashMap<>();
         sessions.forEach( ( sessionName, session ) -> {
             Session.State st = session.getState(); // a snapshot of the state of this session
             Collection<Host> hosts = st.getConnectedHosts();

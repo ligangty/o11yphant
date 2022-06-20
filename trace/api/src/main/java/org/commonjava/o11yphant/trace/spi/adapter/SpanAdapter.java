@@ -15,8 +15,6 @@
  */
 package org.commonjava.o11yphant.trace.spi.adapter;
 
-import org.commonjava.o11yphant.trace.impl.SpanWrapper;
-
 import java.util.Map;
 
 public interface SpanAdapter

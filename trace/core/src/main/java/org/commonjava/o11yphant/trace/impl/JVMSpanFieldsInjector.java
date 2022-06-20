@@ -23,8 +23,6 @@ import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Retrieve values for various kinds of memory usage in the JVM, along with counts of various kinds of threads.

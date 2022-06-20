@@ -18,7 +18,6 @@ package org.commonjava.o11yphant.metrics;
 import org.commonjava.o11yphant.metrics.api.Gauge;
 import org.commonjava.o11yphant.metrics.api.Histogram;
 import org.commonjava.o11yphant.metrics.api.Meter;
-import org.commonjava.o11yphant.metrics.api.MetricRegistry;
 import org.commonjava.o11yphant.metrics.api.Timer;
 
 import java.util.Collection;

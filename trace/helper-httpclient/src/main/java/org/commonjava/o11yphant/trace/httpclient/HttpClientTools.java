@@ -18,8 +18,6 @@ package org.commonjava.o11yphant.trace.httpclient;
 import org.apache.http.Header;
 import org.apache.http.HttpRequest;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;

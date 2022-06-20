@@ -17,23 +17,14 @@ package org.commonjava.o11yphant.honeycomb.impl;
 
 import io.honeycomb.beeline.tracing.TracerSpan;
 import io.honeycomb.beeline.tracing.context.TracingContext;
-import io.honeycomb.beeline.tracing.propagation.PropagationContext;
-import org.commonjava.o11yphant.honeycomb.HoneycombTracePlugin;
-import org.commonjava.o11yphant.honeycomb.impl.adapter.HoneycombSpan;
-import org.commonjava.o11yphant.honeycomb.impl.adapter.HoneycombSpanContext;
 import org.commonjava.o11yphant.honeycomb.impl.adapter.HoneycombType;
 import org.commonjava.o11yphant.trace.TracerConfiguration;
-import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
-import org.commonjava.o11yphant.trace.spi.adapter.SpanContext;
 import org.commonjava.o11yphant.trace.thread.ThreadTracingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.Optional;
 
 public class DefaultTracingContext
         implements TracingContext, ThreadTracingContext<HoneycombType>

@@ -30,9 +30,7 @@ import org.commonjava.o11yphant.metrics.api.healthcheck.CompoundHealthCheck;
 import org.commonjava.o11yphant.metrics.api.healthcheck.HealthCheck;
 import org.commonjava.o11yphant.metrics.conf.MetricsConfig;
 import org.commonjava.o11yphant.metrics.healthcheck.impl.AbstractHealthCheck;
-import org.commonjava.o11yphant.metrics.impl.O11Histogram;
 import org.commonjava.o11yphant.metrics.jvm.JVMInstrumentation;
-import org.commonjava.o11yphant.metrics.util.NameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -317,7 +315,7 @@ public class DefaultMetricsManager
     {
         String defaultName = getDefaultName( className, method );
         gauges.forEach( ( k, v ) -> {
-            String name = NameUtils.getName( config.getNodePrefix(), DEFAULT, defaultName, k );
+            String name = getName( config.getNodePrefix(), DEFAULT, defaultName, k );
             metricRegistry.gauge( name, v );
         } );
     }

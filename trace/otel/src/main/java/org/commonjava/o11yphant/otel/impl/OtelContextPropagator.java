@@ -27,9 +27,6 @@ import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanContext;
 import org.commonjava.o11yphant.trace.thread.ThreadedTraceContext;
 
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;

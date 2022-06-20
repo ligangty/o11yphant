@@ -27,16 +27,13 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 import static org.commonjava.o11yphant.metrics.MetricsConstants.NANOS_PER_MILLISECOND;
 import static org.commonjava.o11yphant.metrics.RequestContextConstants.GOLDEN_SIGNALS_FUNCTIONS;
 import static org.commonjava.o11yphant.metrics.RequestContextConstants.REQUEST_LATENCY_MILLIS;
-import static org.commonjava.o11yphant.metrics.RequestContextConstants.REQUEST_LATENCY_NS;
 import static org.commonjava.o11yphant.trace.TracingConstants.LATENCY_TIMER_PAUSE_KEY;
 
 @ApplicationScoped
@@ -102,7 +99,8 @@ public class GoldenSignalsSpanFieldsInjector
             Optional<SpanAdapter> activeSpan = TraceManager.getActiveSpan();
             if ( activeSpan.isPresent() )
             {
-                latencyMillis -= ( activeSpan.get().getInProgressField( LATENCY_TIMER_PAUSE_KEY, 0.0 ) / NANOS_PER_MILLISECOND );
+                latencyMillis -=
+                        activeSpan.get().getInProgressField( LATENCY_TIMER_PAUSE_KEY, 0.0 ) / NANOS_PER_MILLISECOND;
             }
 
             logger.trace( "Adding latency to span: {}", latencyMillis );
