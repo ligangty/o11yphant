@@ -69,7 +69,7 @@ public class OtelTracePlugin implements O11yphantTracePlugin<OtelType>
                     exporterHeaders.forEach( ( k, v ) -> grpcExporterBuilder.addHeader( k, v ) );
                 }
 
-                OtlpGrpcSpanExporter otelGrpcExporter = grpcExporterBuilder.build();
+                grpcExporterBuilder.build();
                 exp.add( grpcExporterBuilder.build() );
 
                 exporters = exp.toArray( new SpanExporter[]{} );

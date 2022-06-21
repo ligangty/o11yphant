@@ -1,10 +1,24 @@
+/**
+ * Copyright (C) 2020 Red Hat, Inc. (nos-devel@redhat.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.commonjava.o11yphant.metrics.jaxrs;
 
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Meter;
-import com.codahale.metrics.Metric;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Snapshot;
 import com.codahale.metrics.Timer;
@@ -44,7 +58,7 @@ public class PromEnhancedStatsAndTimingExports
         this.sampleBuilder = new PrometheusSampleBuilder( prometheusConfig.getNodeLabel() );
     }
 
-    private static String getHelpMessage( String metricName, Metric metric )
+    private static String getHelpMessage( String metricName )
     {
         return String.format( metricName );
     }
@@ -58,7 +72,7 @@ public class PromEnhancedStatsAndTimingExports
                                                                         Long.valueOf( counter.getCount() )
                                                                             .doubleValue() );
 
-        return new MetricFamilySamples( sample.name, Type.GAUGE, getHelpMessage( dropwizardName, counter ),
+        return new MetricFamilySamples( sample.name, Type.GAUGE, getHelpMessage( dropwizardName ),
                                         singletonList( sample ) );
     }
 
@@ -85,7 +99,7 @@ public class PromEnhancedStatsAndTimingExports
         }
         MetricFamilySamples.Sample sample =
                         sampleBuilder.createSample( dropwizardName, "", emptyList(), emptyList(), value );
-        return new MetricFamilySamples( sample.name, Type.GAUGE, getHelpMessage( dropwizardName, gauge ),
+        return new MetricFamilySamples( sample.name, Type.GAUGE, getHelpMessage( dropwizardName ),
                                         singletonList( sample ) );
     }
 
@@ -129,7 +143,7 @@ public class PromEnhancedStatsAndTimingExports
     MetricFamilySamples fromHistogram( String dropwizardName, Histogram histogram )
     {
         return fromSnapshotAndCount( dropwizardName, histogram.getSnapshot(), histogram.getCount(), 1.0,
-                                     getHelpMessage( dropwizardName, histogram ), emptyList() );
+                                     getHelpMessage( dropwizardName ), emptyList() );
     }
 
     /**
@@ -138,7 +152,7 @@ public class PromEnhancedStatsAndTimingExports
     MetricFamilySamples fromTimer( String dropwizardName, Timer timer )
     {
         return fromSnapshotAndCount( dropwizardName, timer.getSnapshot(), timer.getCount(),
-                                     1.0D / TimeUnit.SECONDS.toNanos( 1L ), getHelpMessage( dropwizardName, timer ),
+                                     1.0D / TimeUnit.SECONDS.toNanos( 1L ), getHelpMessage( dropwizardName ),
                                      timerSamples( dropwizardName, timer ) );
     }
 
@@ -169,7 +183,7 @@ public class PromEnhancedStatsAndTimingExports
         final MetricFamilySamples.Sample sample =
                         sampleBuilder.createSample( dropwizardName, "_total", emptyList(), emptyList(),
                                                     meter.getCount() );
-        return new MetricFamilySamples( sample.name, Type.COUNTER, getHelpMessage( dropwizardName, meter ),
+        return new MetricFamilySamples( sample.name, Type.COUNTER, getHelpMessage( dropwizardName ),
                                         singletonList( sample ) );
     }
 

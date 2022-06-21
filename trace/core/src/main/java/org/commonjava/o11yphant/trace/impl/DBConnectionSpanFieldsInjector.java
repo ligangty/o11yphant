@@ -31,7 +31,6 @@ import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
 
-import static java.util.Collections.emptyMap;
 import static javax.naming.InitialContext.doLookup;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.commonjava.o11yphant.metrics.util.NameUtils.name;

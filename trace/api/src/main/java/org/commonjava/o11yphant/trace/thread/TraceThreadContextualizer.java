@@ -16,9 +16,7 @@ package org.commonjava.o11yphant.trace.thread;
  * limitations under the License.
  */
 
-import org.commonjava.cdi.util.weft.ThreadContext;
 import org.commonjava.cdi.util.weft.ThreadContextualizer;
-import org.commonjava.o11yphant.metrics.api.Snapshot;
 import org.commonjava.o11yphant.trace.TraceManager;
 import org.commonjava.o11yphant.trace.TracerConfiguration;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
@@ -27,11 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
-
-import static com.codahale.metrics.MetricAttribute.COUNT;
-import static com.codahale.metrics.MetricAttribute.MAX;
-import static com.codahale.metrics.MetricAttribute.MEAN;
-import static com.codahale.metrics.MetricAttribute.MIN;
 
 public class TraceThreadContextualizer<T extends TracerType>
                 implements ThreadContextualizer
@@ -90,6 +83,7 @@ public class TraceThreadContextualizer<T extends TracerType>
 
             logger.trace( "Creating thread-level root span using parent-thread context: {}\n(TraceManager.getActiveSpan() is: {})", parentContext, TraceManager.getActiveSpan() );
 
+            @SuppressWarnings( "PMD" )
             Optional<SpanAdapter> threadSpan = traceManager.startThreadRootSpan( "thread." + Thread.currentThread().getThreadGroup().getName(),
                                                         parentSpanContext );
             SPAN.set( threadSpan );
@@ -105,12 +99,13 @@ public class TraceThreadContextualizer<T extends TracerType>
     }
 
     @Override
+    @SuppressWarnings( "PMD" )
     public void clearContext()
     {
         if ( configuration.isEnabled() )
         {
             Optional<SpanAdapter> span = SPAN.get();
-            if ( span != null )
+            if ( span.isPresent() )
             {
                 logger.trace( "Closing thread-level root span: {}\n(TraceManager.getActiveSpan() in thread is: {})", span, TraceManager.getActiveSpan() );
                 span.ifPresent( s->{

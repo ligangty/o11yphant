@@ -31,29 +31,21 @@ import org.commonjava.o11yphant.trace.thread.TraceThreadContextualizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
-import static java.util.Arrays.asList;
-import static org.apache.commons.lang3.StringUtils.join;
-import static org.commonjava.o11yphant.metrics.MetricsConstants.AVERAGE_TIME_MS;
-import static org.commonjava.o11yphant.metrics.MetricsConstants.CUMULATIVE_COUNT;
-import static org.commonjava.o11yphant.metrics.MetricsConstants.CUMULATIVE_TIMINGS;
-import static org.commonjava.o11yphant.metrics.MetricsConstants.MAX_TIME_MS;
+import static org.commonjava.o11yphant.metrics.MetricsConstants.*;
 import static org.commonjava.o11yphant.metrics.util.NameUtils.name;
 
 public final class TraceManager<T extends TracerType>
 {
     private static final ThreadLocal<Queue<SpanAdapter>> ACTIVE_SPAN = new ThreadLocal<>();
 
-    private static final String ACTIVE_SPAN_KEY = "active-trace-span";
+//    private static final String ACTIVE_SPAN_KEY = "active-trace-span";
 
     private final SpanProvider<T> spanProvider;
 
@@ -259,7 +251,7 @@ public final class TraceManager<T extends TracerType>
 
         // average
         String averageName = name( name, AVERAGE_TIME_MS );
-        span.setInProgressField( averageName, ( cumulativeMs / cumulativeCount ) );
+        span.setInProgressField( averageName, cumulativeMs / cumulativeCount );
 
         logger.trace( "addCumulativeField, span: {}, name: {}, elapse: {}, cumulative-ms: {}, count: {}", span, name,
                       elapse, cumulativeMs, cumulativeCount );

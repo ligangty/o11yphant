@@ -16,12 +16,6 @@
 package org.commonjava.o11yphant.trace.impl;
 
 import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
-import org.commonjava.o11yphant.trace.thread.ThreadedTraceContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Map;
-import java.util.Optional;
 
 public class ThreadedSpan
     extends SpanWrapper

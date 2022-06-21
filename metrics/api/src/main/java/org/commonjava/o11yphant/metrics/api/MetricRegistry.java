@@ -18,7 +18,6 @@ package org.commonjava.o11yphant.metrics.api;
 import org.commonjava.o11yphant.metrics.api.healthcheck.HealthCheck;
 
 import java.util.Map;
-import java.util.SortedSet;
 
 public interface MetricRegistry
 {

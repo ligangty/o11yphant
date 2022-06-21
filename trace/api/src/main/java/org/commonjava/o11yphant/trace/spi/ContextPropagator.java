@@ -23,7 +23,6 @@ import org.commonjava.o11yphant.trace.thread.ThreadedTraceContext;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 public interface ContextPropagator<T extends TracerType>

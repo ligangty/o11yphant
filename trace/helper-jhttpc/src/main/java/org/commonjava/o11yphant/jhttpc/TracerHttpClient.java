@@ -33,7 +33,6 @@ import java.net.URL;
 import java.util.Optional;
 
 import static org.commonjava.o11yphant.trace.TraceManager.addFieldToActiveSpan;
-import static org.commonjava.o11yphant.trace.httpclient.HttpClientTools.contextExtractor;
 import static org.commonjava.o11yphant.trace.httpclient.HttpClientTools.contextInjector;
 
 public class TracerHttpClient

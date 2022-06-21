@@ -24,8 +24,6 @@ import org.commonjava.o11yphant.metrics.api.MetricSet;
 import java.util.HashMap;
 import java.util.Map;
 
-import static java.util.stream.Collectors.toMap;
-
 public class MetricUtils
 {
     // for test
@@ -34,7 +32,7 @@ public class MetricUtils
         return new DefaultMetricRegistry( new com.codahale.metrics.MetricRegistry(), new HealthCheckRegistry() );
     }
 
-    public static MetricSet wrapGaugeSet( Map<String, com.codahale.metrics.Metric> metrics )
+    public static MetricSet wrapGaugeSet( Map<String, Metric> metrics )
     {
         return new WrappedMetricSet( metrics );
     }

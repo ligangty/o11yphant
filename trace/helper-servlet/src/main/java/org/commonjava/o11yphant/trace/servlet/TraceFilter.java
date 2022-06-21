@@ -17,7 +17,6 @@ package org.commonjava.o11yphant.trace.servlet;
 
 import org.commonjava.o11yphant.trace.TraceManager;
 import org.commonjava.o11yphant.trace.spi.CloseBlockingDecorator;
-import org.commonjava.o11yphant.trace.spi.SpanFieldsInjector;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

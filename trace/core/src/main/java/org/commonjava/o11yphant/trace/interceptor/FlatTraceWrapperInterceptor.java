@@ -18,9 +18,8 @@ package org.commonjava.o11yphant.trace.interceptor;
 import org.commonjava.o11yphant.metrics.annotation.MetricWrapper;
 import org.commonjava.o11yphant.metrics.util.NameUtils;
 import org.commonjava.o11yphant.trace.TraceManager;
-import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 import org.commonjava.o11yphant.trace.TracerConfiguration;
-import org.commonjava.o11yphant.trace.spi.adapter.SpanContext;
+import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 import org.commonjava.o11yphant.trace.util.InterceptorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +28,6 @@ import javax.inject.Inject;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
-
 import java.util.Optional;
 
 import static java.lang.System.currentTimeMillis;

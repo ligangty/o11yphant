@@ -73,8 +73,8 @@ public class DefaultMetricsInterceptor
         logger.trace( "Gathering metrics for: {} using context: {}", defaultName, context.getContextData() );
 
         Map<String, Timer.Context> timers = initTimers( defaultName );
-        List<String> exceptionMeters = initMeters( measure, EXCEPTION, defaultName );
-        List<String> meters = initMeters( measure, METER, defaultName );
+        List<String> exceptionMeters = initMeters( EXCEPTION, defaultName );
+        List<String> meters = initMeters( METER, defaultName );
 
         List<String> startMeters = meters.stream().map( name -> name( name, "starts" ) ).collect( Collectors.toList() );
 
@@ -110,8 +110,7 @@ public class DefaultMetricsInterceptor
         }
     }
 
-    private List<String> initMeters( final Measure measure, String classifier,
-                                     final String defaultName )
+    private List<String> initMeters( String classifier, final String defaultName )
     {
         List<String> meters = new ArrayList<>();
 

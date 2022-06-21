@@ -19,11 +19,8 @@ import org.commonjava.o11yphant.trace.TracerConfiguration;
 import org.commonjava.o11yphant.trace.spi.SpanFieldsInjector;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Take the node-id from honeycomb configuration and inject it as a field into the root span.

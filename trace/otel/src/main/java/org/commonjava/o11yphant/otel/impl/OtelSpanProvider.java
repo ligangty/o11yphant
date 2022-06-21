@@ -15,7 +15,6 @@
  */
 package org.commonjava.o11yphant.otel.impl;
 
-import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanBuilder;
 import io.opentelemetry.api.trace.SpanKind;
@@ -25,22 +24,23 @@ import io.opentelemetry.sdk.OpenTelemetrySdk;
 import org.commonjava.o11yphant.otel.impl.adapter.OtelSpan;
 import org.commonjava.o11yphant.otel.impl.adapter.OtelSpanContext;
 import org.commonjava.o11yphant.otel.impl.adapter.OtelType;
+import org.commonjava.o11yphant.trace.spi.SpanProvider;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanContext;
-import org.commonjava.o11yphant.trace.spi.SpanProvider;
 
 import java.util.Optional;
 
 public class OtelSpanProvider implements SpanProvider<OtelType>
 {
 
-    private OpenTelemetry otel;
+//    private OpenTelemetry otel;
 
     private Tracer tracer;
 
+    @SuppressWarnings("PMD")
     public OtelSpanProvider( OpenTelemetrySdk otel, Tracer tracer )
     {
-        this.otel = otel;
+//        this.otel = otel;
         this.tracer = tracer;
     }
 
