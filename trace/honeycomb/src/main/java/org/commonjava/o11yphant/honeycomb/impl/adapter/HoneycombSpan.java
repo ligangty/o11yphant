@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class HoneycombSpan implements SpanAdapter
 {
@@ -35,7 +36,7 @@ public class HoneycombSpan implements SpanAdapter
 
     private Beeline beeline;
 
-    private Map<String, Double> inProgress = new HashMap<>();
+    private Map<String, Double> inProgress = new ConcurrentHashMap<>();
 
     private boolean closed = false;
 
@@ -78,17 +79,23 @@ public class HoneycombSpan implements SpanAdapter
     {
         logger.trace( "Adding field: {} to: {} / {} (no-op? {})", key, span.getTraceId(), span.getSpanId(), span.isNoop() );
         checkClosed();
-        span.addField( key, value );
+        synchronized ( span )
+        {
+            span.addField( key, value );
+        }
     }
 
     @Override
     public Map<String, Object> getFields()
     {
-        return span.getFields();
+        synchronized ( span )
+        {
+            return new ConcurrentHashMap<>( span.getFields() );
+        }
     }
 
     @Override
-    public void close()
+    public synchronized void close()
     {
         span.addFields( inProgress );
         closed = true;
@@ -102,7 +109,7 @@ public class HoneycombSpan implements SpanAdapter
     }
 
     @Override
-    public void setInProgressField( String key, Double value )
+    public synchronized void setInProgressField( String key, Double value )
     {
         checkClosed();
         inProgress.put( key, value );
@@ -131,7 +138,7 @@ public class HoneycombSpan implements SpanAdapter
     }
 
     @Override
-    public void clearInProgressField( String key )
+    public synchronized void clearInProgressField( String key )
     {
         inProgress.remove( key );
     }
