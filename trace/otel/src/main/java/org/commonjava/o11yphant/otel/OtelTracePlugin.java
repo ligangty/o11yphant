@@ -15,6 +15,8 @@
  */
 package org.commonjava.o11yphant.otel;
 
+import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.api.common.AttributesBuilder;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
 import io.opentelemetry.context.propagation.ContextPropagators;
@@ -22,7 +24,9 @@ import io.opentelemetry.exporter.logging.LoggingSpanExporter;
 import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporter;
 import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporterBuilder;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
+import io.opentelemetry.sdk.resources.Resource;
 import io.opentelemetry.sdk.trace.SdkTracerProvider;
+import io.opentelemetry.sdk.trace.SdkTracerProviderBuilder;
 import io.opentelemetry.sdk.trace.SpanProcessor;
 import io.opentelemetry.sdk.trace.export.BatchSpanProcessor;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
@@ -40,7 +44,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class OtelTracePlugin implements O11yphantTracePlugin<OtelType>
+public class OtelTracePlugin
+        implements O11yphantTracePlugin<OtelType>
 {
     private OtelThreadTracingContext threadTracingContext;
 
@@ -48,10 +53,12 @@ public class OtelTracePlugin implements O11yphantTracePlugin<OtelType>
 
     private OtelSpanProvider spanProvider;
 
-    public OtelTracePlugin( TracerConfiguration traceConfiguration, OtelConfiguration otelConfig, SpanExporter...exporters )
+    public OtelTracePlugin( TracerConfiguration traceConfiguration, OtelConfiguration otelConfig,
+                            SpanExporter... exporters )
     {
         if ( traceConfiguration.isEnabled() )
         {
+
             //FIXME: This needs to be more exposed to configuration options, especially for endpoint and exporter formats.
             if ( exporters == null || exporters.length < 1 )
             {
@@ -66,7 +73,7 @@ public class OtelTracePlugin implements O11yphantTracePlugin<OtelType>
                 Map<String, String> exporterHeaders = otelConfig.getGrpcHeaders();
                 if ( exporterHeaders != null )
                 {
-                    exporterHeaders.forEach( ( k, v ) -> grpcExporterBuilder.addHeader( k, v ) );
+                    exporterHeaders.forEach( grpcExporterBuilder::addHeader );
                 }
 
                 grpcExporterBuilder.build();
@@ -77,14 +84,24 @@ public class OtelTracePlugin implements O11yphantTracePlugin<OtelType>
 
             SpanProcessor processor = BatchSpanProcessor.builder( SpanExporter.composite( exporters ) ).build();
 
-            SdkTracerProvider tracerProvider = SdkTracerProvider.builder().addSpanProcessor( processor ).build();
+            SdkTracerProviderBuilder tracerProviderBuilder = SdkTracerProvider.builder().addSpanProcessor( processor );
+
+            Map<String, String> otelResources = otelConfig.getResources();
+            if ( otelResources != null && !otelResources.isEmpty() )
+            {
+                Attributes attrs = Resource.getDefault().getAttributes();
+                AttributesBuilder builder = Attributes.builder().putAll( attrs );
+                otelResources.forEach( builder::put );
+                tracerProviderBuilder.setResource( Resource.create( builder.build() ) );
+            }
+
+            SdkTracerProvider tracerProvider = tracerProviderBuilder.build();
 
             OpenTelemetrySdk otel = OpenTelemetrySdk.builder()
                                                     .setTracerProvider( tracerProvider )
                                                     .setPropagators( ContextPropagators.create(
                                                                     W3CTraceContextPropagator.getInstance() ) )
                                                     .buildAndRegisterGlobal();
-
 
             Tracer tracer = otel.getTracer( otelConfig.getInstrumentationName(), otelConfig.getInstrumentationVersion() );
 
@@ -93,7 +110,6 @@ public class OtelTracePlugin implements O11yphantTracePlugin<OtelType>
             this.threadTracingContext = new OtelThreadTracingContext();
         }
     }
-
 
     @Override
     public SpanProvider<OtelType> getSpanProvider()

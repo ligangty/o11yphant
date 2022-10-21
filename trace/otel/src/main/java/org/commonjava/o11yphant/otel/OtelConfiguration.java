@@ -32,7 +32,13 @@ public interface OtelConfiguration
         return "1.0";
     }
 
-    default Map<String, String> getGrpcHeaders(){
+    default Map<String, String> getGrpcHeaders()
+    {
+        return new HashMap<>();
+    }
+
+    default Map<String, String> getResources()
+    {
         return new HashMap<>();
     }
 
@@ -40,4 +46,5 @@ public interface OtelConfiguration
     {
         return DEFAULT_GRPC_URI;
     }
+
 }
