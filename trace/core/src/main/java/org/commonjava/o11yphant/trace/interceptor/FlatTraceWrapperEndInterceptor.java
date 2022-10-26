@@ -42,6 +42,7 @@ public class FlatTraceWrapperEndInterceptor
     @Inject
     private TracerConfiguration config;
 
+    @SuppressWarnings( "rawtypes" )
     @Inject
     private TraceManager traceManager;
 
@@ -62,7 +63,7 @@ public class FlatTraceWrapperEndInterceptor
             return context.proceed();
         }
 
-        Optional<SpanAdapter> span = traceManager.getActiveSpan();
+        Optional<SpanAdapter> span = TraceManager.getActiveSpan();
         try
         {
             span.ifPresent( s->traceManager.addEndField( s, name, currentTimeMillis() ) );

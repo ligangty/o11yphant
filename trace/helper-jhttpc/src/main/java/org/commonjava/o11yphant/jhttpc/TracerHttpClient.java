@@ -17,14 +17,12 @@ package org.commonjava.o11yphant.jhttpc;
 
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.commonjava.o11yphant.trace.TraceManager;
-import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,12 +33,13 @@ import java.util.Optional;
 import static org.commonjava.o11yphant.trace.TraceManager.addFieldToActiveSpan;
 import static org.commonjava.o11yphant.trace.httpclient.HttpClientTools.contextInjector;
 
+@SuppressWarnings( "rawtypes" )
 public class TracerHttpClient
                 extends CloseableHttpClient
 {
     private final CloseableHttpClient delegate;
 
-    private Optional<TraceManager> traceManager;
+    private final Optional<TraceManager> traceManager;
 
     private final Logger logger = LoggerFactory.getLogger( getClass() );
 
@@ -50,14 +49,15 @@ public class TracerHttpClient
         this.delegate = delegate;
     }
 
+    @SuppressWarnings( "unchecked" )
     @Override
     protected CloseableHttpResponse doExecute( HttpHost target, HttpRequest request, HttpContext context )
-                    throws IOException, ClientProtocolException
+                    throws IOException
     {
         try
         {
             URL url = new URL( request.getRequestLine().getUri() );
-            Optional<SpanAdapter> span;
+            Optional span;
             if ( traceManager.isPresent() )
             {
                 span = traceManager.get()
@@ -101,12 +101,14 @@ public class TracerHttpClient
     }
 
     @Override
+    @Deprecated
     public HttpParams getParams()
     {
         return delegate.getParams();
     }
 
     @Override
+    @Deprecated
     public ClientConnectionManager getConnectionManager()
     {
         return delegate.getConnectionManager();

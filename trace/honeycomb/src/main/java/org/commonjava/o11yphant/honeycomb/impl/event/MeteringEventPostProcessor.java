@@ -28,9 +28,9 @@ import static org.commonjava.o11yphant.metrics.util.NameUtils.getDefaultName;
 public class MeteringEventPostProcessor
                 implements EventPostProcessor
 {
-    private MetricsManager metricsManager;
+    private final MetricsManager metricsManager;
 
-    private MetricsConfig metricsConfig;
+    private final MetricsConfig metricsConfig;
 
     private final static String TRANSFER_HONEYCOMB_EVENT = "transferred.honeycomb.event";
 

@@ -42,6 +42,7 @@ public class FlatTraceWrapperStartInterceptor
     @Inject
     private TracerConfiguration config;
 
+    @SuppressWarnings( "rawtypes" )
     @Inject
     private TraceManager traceManager;
 
@@ -65,7 +66,7 @@ public class FlatTraceWrapperStartInterceptor
         long begin = currentTimeMillis();
         try
         {
-            Optional<SpanAdapter> span = traceManager.getActiveSpan();
+            Optional<SpanAdapter> span = TraceManager.getActiveSpan();
             span.ifPresent( s->traceManager.addStartField( s, name, begin ) );
         }
         finally

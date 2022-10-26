@@ -22,7 +22,7 @@ import java.util.Map;
 public abstract class SpanWrapper
                 implements SpanAdapter
 {
-    private SpanAdapter delegate;
+    private final SpanAdapter delegate;
 
     protected SpanWrapper( SpanAdapter delegate )
     {

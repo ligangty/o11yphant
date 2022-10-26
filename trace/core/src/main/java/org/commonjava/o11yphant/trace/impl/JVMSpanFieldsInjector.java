@@ -31,7 +31,7 @@ import javax.inject.Inject;
 public class JVMSpanFieldsInjector
                 implements SpanFieldsInjector
 {
-    private JVMInstrumentation jvmInstrumentation;
+    private final JVMInstrumentation jvmInstrumentation;
 
     @Inject
     public JVMSpanFieldsInjector( JVMInstrumentation jvmInstrumentation )
@@ -45,7 +45,6 @@ public class JVMSpanFieldsInjector
      *
      * In the {@link #decorateSpanAtClose(SpanAdapter)} method, we'll grab these values, inject them as fields, and
      * also inject delta calculations as fields.
-     * @param span
      */
     @Override
     public void decorateSpanAtStart( SpanAdapter span )
@@ -58,7 +57,7 @@ public class JVMSpanFieldsInjector
                 // We don't want to override a pre-existing starting measurement...
                 if ( shouldReportMemory( k ) && span.getInProgressField( key, null ) == null )
                 {
-                    span.setInProgressField( key, Double.valueOf( String.valueOf( ( (Gauge) v ).getValue() ) ) );
+                    span.setInProgressField( key, Double.valueOf( String.valueOf( ( (Gauge<?>) v ).getValue() ) ) );
                 }
             } );
         }
@@ -70,7 +69,7 @@ public class JVMSpanFieldsInjector
                 // We don't want to override a pre-existing starting measurement...
                 if ( shouldReportThreads( k ) && span.getInProgressField( key, null ) == null )
                 {
-                    Double val = Double.valueOf( String.valueOf( ( (Gauge) v ).getValue() ) );
+                    Double val = Double.valueOf( String.valueOf( ( (Gauge<?>) v ).getValue() ) );
                     span.setInProgressField( key, val );
                 }
             } );
@@ -86,7 +85,6 @@ public class JVMSpanFieldsInjector
      *     <li>delta measurement</li>
      * </ul>
      *
-     * @param span
      */
     @Override
     public void decorateSpanAtClose( SpanAdapter span )
@@ -117,6 +115,7 @@ public class JVMSpanFieldsInjector
             threads.getMetrics().forEach( ( k, v ) -> {
                 if ( shouldReportThreads( k ) )
                 {
+                    @SuppressWarnings( "unchecked" )
                     long endValue = ( (Gauge<Number>) v ).getValue().longValue();
                     span.addField( "jvm.end.threads." + k, endValue );
 

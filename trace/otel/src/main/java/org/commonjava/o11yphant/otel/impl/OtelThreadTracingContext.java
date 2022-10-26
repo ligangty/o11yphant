@@ -23,9 +23,11 @@ import org.commonjava.cdi.util.weft.ThreadContext;
 import org.commonjava.o11yphant.otel.impl.adapter.OtelType;
 import org.commonjava.o11yphant.trace.thread.ThreadTracingContext;
 
+import javax.annotation.Nonnull;
 import java.util.Properties;
 
-public class OtelThreadTracingContext implements ThreadTracingContext<OtelType>, ContextStorageProvider, ContextStorage
+public class OtelThreadTracingContext
+        implements ThreadTracingContext<OtelType>, ContextStorageProvider, ContextStorage
 {
     private static final String OTEL_ATTACHED = "opentelemetry-attached-context";
 
@@ -57,7 +59,7 @@ public class OtelThreadTracingContext implements ThreadTracingContext<OtelType>,
     }
 
     @Override
-    public Scope attach( Context context )
+    public Scope attach( @Nonnull Context context )
     {
         ThreadContext.getContext( true ).put( OTEL_ATTACHED, context );
         return () -> {

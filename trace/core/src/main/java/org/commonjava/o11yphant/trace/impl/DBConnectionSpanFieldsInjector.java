@@ -48,7 +48,7 @@ public class DBConnectionSpanFieldsInjector
     @Inject
     private TracerConfiguration configuration;
 
-    private Map<String, AgroalDataSourceMetrics> dataSourceMetricsMap = new HashMap<>();
+    private final Map<String, AgroalDataSourceMetrics> dataSourceMetricsMap = new HashMap<>();
 
     @PostConstruct
     public void init()

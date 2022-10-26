@@ -57,13 +57,14 @@ public final class TraceManager<T extends TracerType>
 
     private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
-    private TraceThreadContextualizer<T> traceThreadContextualizer;
+    private final TraceThreadContextualizer<T> traceThreadContextualizer;
 
     public TraceManager( O11yphantTracePlugin<T> tracePlugin, SpanFieldsDecorator spanFieldsDecorator,
                          TracerConfiguration config )
     {
         this.spanProvider = tracePlugin.getSpanProvider();
         this.contextPropagator = tracePlugin.getContextPropagator();
+        //noinspection unchecked,rawtypes
         this.traceThreadContextualizer =
                         new TraceThreadContextualizer( config, this, tracePlugin.getThreadTracingContext() );
 
@@ -113,14 +114,12 @@ public final class TraceManager<T extends TracerType>
             span = new DeactivationSpan( span );
 
             SpanAdapter finalSpan = span;
-            threadedContext.getActiveSpan().ifPresent( parentSpan ->{
-                parentSpan.getFields().forEach( (k,v) ->{
-                    if ( !( v instanceof Metric ) )
-                    {
-                        finalSpan.addField( k, v );
-                    }
-                } );
-            } );
+            threadedContext.getActiveSpan().ifPresent( parentSpan -> parentSpan.getFields().forEach( ( k, v) ->{
+                if ( !( v instanceof Metric ) )
+                {
+                    finalSpan.addField( k, v );
+                }
+            } ) );
 
 
             if ( span.isLocalRoot() )
@@ -157,6 +156,7 @@ public final class TraceManager<T extends TracerType>
         return span == null ? Optional.empty() : Optional.of( span );
     }
 
+    @SuppressWarnings( "unused" )
     public Optional<SpanAdapter> startChildSpan( final String spanName )
     {
         return startChildSpan( spanName, Optional.empty() );
@@ -323,6 +323,7 @@ public final class TraceManager<T extends TracerType>
         }
     }
 
+    @SuppressWarnings( "unused" )
     public TraceThreadContextualizer<T> getTraceThreadContextualizer()
     {
         return traceThreadContextualizer;

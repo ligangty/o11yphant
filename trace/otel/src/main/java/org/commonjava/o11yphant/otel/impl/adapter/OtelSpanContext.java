@@ -20,7 +20,7 @@ import org.commonjava.o11yphant.trace.spi.adapter.SpanContext;
 
 public class OtelSpanContext implements SpanContext<OtelType>
 {
-    private Context ctx;
+    private final Context ctx;
 
     public OtelSpanContext( Context ctx )
     {

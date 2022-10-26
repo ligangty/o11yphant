@@ -20,6 +20,7 @@ import io.opentelemetry.api.trace.SpanBuilder;
 import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Context;
+import io.opentelemetry.context.Scope;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import org.commonjava.o11yphant.otel.impl.adapter.OtelSpan;
 import org.commonjava.o11yphant.otel.impl.adapter.OtelSpanContext;
@@ -35,10 +36,10 @@ public class OtelSpanProvider implements SpanProvider<OtelType>
 
 //    private OpenTelemetry otel;
 
-    private Tracer tracer;
+    private final Tracer tracer;
 
     @SuppressWarnings("PMD")
-    public OtelSpanProvider( OpenTelemetrySdk otel, Tracer tracer )
+    public OtelSpanProvider( OpenTelemetrySdk ignoredOtel, Tracer tracer )
     {
 //        this.otel = otel;
         this.tracer = tracer;
@@ -59,7 +60,10 @@ public class OtelSpanProvider implements SpanProvider<OtelType>
         }
 
         Span span = spanBuilder.setSpanKind( SpanKind.SERVER ).startSpan();
-        span.makeCurrent();
+        //noinspection EmptyTryBlock
+        try (Scope ignored = span.makeCurrent())
+        {
+        }
         return new OtelSpan( span, true );
     }
 
@@ -89,7 +93,10 @@ public class OtelSpanProvider implements SpanProvider<OtelType>
         }
 
         Span span = spanBuilder.setSpanKind( SpanKind.INTERNAL ).startSpan();
-        span.makeCurrent();
+        //noinspection EmptyTryBlock
+        try (Scope ignored = span.makeCurrent())
+        {
+        }
         return new OtelSpan( span, isRoot );
     }
 
@@ -110,7 +117,10 @@ public class OtelSpanProvider implements SpanProvider<OtelType>
         }
 
         Span span = spanBuilder.setSpanKind( SpanKind.CLIENT ).startSpan();
-        span.makeCurrent();
+        //noinspection EmptyTryBlock
+        try (Scope ignored = span.makeCurrent())
+        {
+        }
         return new OtelSpan( span, localRoot );
     }
 }

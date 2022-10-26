@@ -22,7 +22,6 @@ import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -32,11 +31,11 @@ public class HoneycombSpan implements SpanAdapter
 
     private final Span span;
 
-    private boolean localRoot;
+    private final boolean localRoot;
 
-    private Beeline beeline;
+    private final Beeline beeline;
 
-    private Map<String, Double> inProgress = new ConcurrentHashMap<>();
+    private final Map<String, Double> inProgress = new ConcurrentHashMap<>();
 
     private boolean closed = false;
 

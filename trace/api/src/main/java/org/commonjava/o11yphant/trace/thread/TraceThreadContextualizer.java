@@ -39,11 +39,11 @@ public class TraceThreadContextualizer<T extends TracerType>
 
     private static final ThreadLocal<ThreadedTraceContext> TRACE_CONTEXT = new ThreadLocal<>();
 
-    private TraceManager<T> traceManager;
+    private final TraceManager<T> traceManager;
 
-    private TracerConfiguration configuration;
+    private final TracerConfiguration configuration;
 
-    private ThreadTracingContext<T> tracingContext;
+    private final ThreadTracingContext<T> tracingContext;
 
     public TraceThreadContextualizer( TracerConfiguration configuration, TraceManager<T> traceManager,
                                       ThreadTracingContext<T> tracingContext )
@@ -64,7 +64,7 @@ public class TraceThreadContextualizer<T extends TracerType>
     {
         if ( configuration.isEnabled() )
         {
-            Optional<SpanAdapter> activeSpan = traceManager.getActiveSpan();
+            Optional<SpanAdapter> activeSpan = TraceManager.getActiveSpan();
             ThreadedTraceContext ctx = new ThreadedTraceContext( activeSpan );
             logger.trace( "Extracting parent-thread context: {}\n(TraceManager.getActiveSpan() is: {})", ctx, activeSpan );
             return ctx;

@@ -15,6 +15,7 @@
  */
 package org.commonjava.o11yphant.trace.spi.adapter;
 
+@SuppressWarnings( "unused" )
 public interface SpanContext<T extends TracerType>
 {
 }
