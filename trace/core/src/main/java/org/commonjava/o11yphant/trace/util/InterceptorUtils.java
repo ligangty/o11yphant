@@ -29,7 +29,7 @@ import java.util.function.Supplier;
 
 public class InterceptorUtils
 {
-    private static Logger logger = LoggerFactory.getLogger( InterceptorUtils.class );
+    private static final Logger logger = LoggerFactory.getLogger( InterceptorUtils.class );
 
     public static String getMetricNameFromContext( InvocationContext context )
     {
@@ -41,6 +41,7 @@ public class InterceptorUtils
         return getMetricNameFromContextInternal( context, MetricWrapperNamedAfterRun.class );
     }
 
+    @SuppressWarnings( { "rawtypes", "unchecked" } )
     private static String getMetricNameFromContextInternal( InvocationContext context, Class annotationClass )
     {
         String name = null;

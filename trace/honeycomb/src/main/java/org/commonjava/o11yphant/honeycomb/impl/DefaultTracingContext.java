@@ -29,11 +29,11 @@ import java.util.Deque;
 public class DefaultTracingContext
         implements TracingContext, ThreadTracingContext<HoneycombType>
 {
-    private static ThreadLocal<Deque<TracerSpan>> SPANS = ThreadLocal.withInitial( ArrayDeque::new );
+    private static final ThreadLocal<Deque<TracerSpan>> SPANS = ThreadLocal.withInitial( ArrayDeque::new );
 
-    private Logger logger = LoggerFactory.getLogger( getClass() );
+    private final Logger logger = LoggerFactory.getLogger( getClass() );
 
-    private TracerConfiguration config;
+    private final TracerConfiguration config;
 
     public DefaultTracingContext( TracerConfiguration config )
     {

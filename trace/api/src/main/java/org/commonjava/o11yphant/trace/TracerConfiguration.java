@@ -48,6 +48,7 @@ public interface TracerConfiguration
      * Common context fields which will be injected as span fields. HoneycombManager.getContext
      * must be implemented accordingly in order to get their values.
      */
+    @SuppressWarnings( "unused" )
     default Set<String> getFieldSet() { return DEFAULT_FIELDS; }
 
     /**

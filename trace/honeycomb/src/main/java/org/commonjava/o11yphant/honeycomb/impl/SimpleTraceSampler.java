@@ -21,7 +21,7 @@ import org.commonjava.o11yphant.trace.TracerConfiguration;
 public class SimpleTraceSampler
                 implements TraceSampler<String>
 {
-    private TracerConfiguration tracerConfiguration;
+    private final TracerConfiguration tracerConfiguration;
 
     public SimpleTraceSampler( TracerConfiguration tracerConfiguration )
     {

@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Optional;
@@ -40,7 +41,7 @@ import static org.commonjava.o11yphant.trace.TracingConstants.LATENCY_TIMER_PAUS
 public class GoldenSignalsSpanFieldsInjector
                 implements SpanFieldsInjector
 {
-    private GoldenSignalsMetricSet goldenSignalsMetricSet;
+    private final GoldenSignalsMetricSet goldenSignalsMetricSet;
 
     private final Logger logger = LoggerFactory.getLogger( getClass().getName());
 
@@ -83,10 +84,7 @@ public class GoldenSignalsSpanFieldsInjector
         Set<String> classifierTokens = new LinkedHashSet<>();
         functions.forEach( function -> goldenSignalsMetricSet.function( function ).ifPresent( metric->{
             String[] parts = function.split( "\\." );
-            for ( int i = 0; i < parts.length - 1; i++ )
-            {
-                classifierTokens.add( parts[i] );
-            }
+            classifierTokens.addAll( Arrays.asList( parts ).subList( 0, parts.length - 1 ) );
         } ) );
 
         logger.trace( "Golden SLI traffic classifiers: {}", classifierTokens );

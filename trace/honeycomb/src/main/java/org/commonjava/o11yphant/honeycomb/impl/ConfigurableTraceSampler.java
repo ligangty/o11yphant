@@ -37,13 +37,13 @@ public class ConfigurableTraceSampler
 
     public static final String SAMPLE_OVERRIDE = "honeycomb.sample-override";
 
-    private Map<String, Integer> sampleRateCache = new ConcurrentHashMap<>();
+    private final Map<String, Integer> sampleRateCache = new ConcurrentHashMap<>();
 
     private TrafficClassifier classifier;
 
     private TracerConfiguration config;
 
-    private Function<String, Integer> samplerFunction = input ->{
+    private final Function<String, Integer> samplerFunction = input ->{
         ThreadContext ctx = ThreadContext.getContext( false );
         if ( ctx == null )
         {

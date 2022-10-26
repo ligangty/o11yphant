@@ -17,6 +17,8 @@ package org.commonjava.o11yphant.trace.spi;
 
 import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 
+import java.util.Optional;
+
 /**
  * These are fields available for injection when the span is finally closed. It is designed to work with a close-counting
  * span adapter, such that the number of close() calls has to match the number of decorators. When the close call count
@@ -28,7 +30,6 @@ import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
  * servlet to terminate the span...we want the transfer thread to do it.
  *
  * @see org.commonjava.o11yphant.trace.TraceManager#addCloseBlockingDecorator(Optional, CloseBlockingDecorator)
- * @see org.commonjava.o11yphant.trace.impl.CloseBlockingSpan
  */
 public interface CloseBlockingDecorator
 {

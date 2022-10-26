@@ -26,13 +26,13 @@ import java.util.Map;
 public class OtelSpan
                 implements SpanAdapter
 {
-    private Span span;
+    private final Span span;
 
-    private boolean localRoot;
+    private final boolean localRoot;
 
-    private Map<String, Double> inProgress = new HashMap<>();
+    private final Map<String, Double> inProgress = new HashMap<>();
 
-    private Map<String, Object> attributes = new HashMap<>();
+    private final Map<String, Object> attributes = new HashMap<>();
 
     public OtelSpan( Span span, boolean localRoot )
     {

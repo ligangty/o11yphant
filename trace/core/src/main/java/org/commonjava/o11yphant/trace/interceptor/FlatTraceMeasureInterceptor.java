@@ -40,6 +40,7 @@ public class FlatTraceMeasureInterceptor
     @Inject
     private TracerConfiguration config;
 
+    @SuppressWarnings( "rawtypes" )
     @Inject
     private TraceManager traceManager;
 
@@ -76,7 +77,7 @@ public class FlatTraceMeasureInterceptor
         }
         finally
         {
-            Optional<SpanAdapter> span = traceManager.getActiveSpan();
+            Optional<SpanAdapter> span = TraceManager.getActiveSpan();
             span.ifPresent( s->{
                 long elapse = currentTimeMillis() - begin;
                 traceManager.addCumulativeField( s, name, elapse );

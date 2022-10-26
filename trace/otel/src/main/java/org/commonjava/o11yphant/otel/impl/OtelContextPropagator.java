@@ -27,12 +27,14 @@ import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanContext;
 import org.commonjava.o11yphant.trace.thread.ThreadedTraceContext;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
-public class OtelContextPropagator implements ContextPropagator<OtelType>
+public class OtelContextPropagator
+        implements ContextPropagator<OtelType>
 {
 
     private final OpenTelemetry otel;
@@ -51,17 +53,19 @@ public class OtelContextPropagator implements ContextPropagator<OtelType>
         }
 
         @Override
-        public String get( Map<String, String> carrier, String key )
+        @Nullable
+        public String get( @Nullable Map<String, String> carrier, @Nullable String key )
         {
-            return carrier.get( key );
+            return carrier == null || key == null ? null : carrier.get( key );
         }
     };
 
     @Override
     public Optional<SpanContext<OtelType>> extractContext( Supplier<Map<String, String>> headerSupplier )
     {
-        Context extracted =
-                        otel.getPropagators().getTextMapPropagator().extract( Context.current(), headerSupplier.get(), mapGetter );
+        Context extracted = otel.getPropagators()
+                                .getTextMapPropagator()
+                                .extract( Context.current(), headerSupplier.get(), mapGetter );
 
         return Optional.of( new OtelSpanContext( extracted ) );
     }
@@ -70,16 +74,21 @@ public class OtelContextPropagator implements ContextPropagator<OtelType>
     public void injectContext( BiConsumer<String, String> consumer, SpanAdapter clientSpan )
     {
         OtelSpan span = (OtelSpan) clientSpan;
-        try(Scope scope = span.makeCurrent())
+        try (Scope scope = span.makeCurrent())
         {
-            otel.getPropagators().getTextMapPropagator().inject( Context.current(), consumer, BiConsumer::accept );
+            otel.getPropagators().getTextMapPropagator().inject( Context.current(), consumer, ( biConsumer, t, u ) -> {
+                if ( biConsumer != null )
+                {
+                    biConsumer.accept( t, u );
+                }
+            } );
         }
     }
 
     @Override
     public Optional<SpanContext<OtelType>> extractContext( ThreadedTraceContext threadedContext )
     {
-        return Optional.of(new OtelSpanContext( Context.current() ));
+        return Optional.of( new OtelSpanContext( Context.current() ) );
     }
 
 }

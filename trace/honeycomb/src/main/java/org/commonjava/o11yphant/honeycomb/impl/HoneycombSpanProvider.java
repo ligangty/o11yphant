@@ -32,20 +32,21 @@ import io.honeycomb.libhoney.Options;
 import io.honeycomb.libhoney.responses.ResponseObservable;
 import io.honeycomb.libhoney.transport.batch.impl.SystemClockProvider;
 import io.honeycomb.libhoney.transport.impl.ConsoleTransport;
+import org.commonjava.o11yphant.honeycomb.HoneycombConfiguration;
 import org.commonjava.o11yphant.honeycomb.impl.adapter.HoneycombSpan;
 import org.commonjava.o11yphant.honeycomb.impl.adapter.HoneycombSpanContext;
 import org.commonjava.o11yphant.honeycomb.impl.adapter.HoneycombType;
-import org.commonjava.o11yphant.honeycomb.HoneycombConfiguration;
 import org.commonjava.o11yphant.trace.TraceManager;
-import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
-import org.commonjava.o11yphant.trace.spi.adapter.SpanContext;
 import org.commonjava.o11yphant.trace.TracerConfiguration;
 import org.commonjava.o11yphant.trace.spi.SpanProvider;
+import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
+import org.commonjava.o11yphant.trace.spi.adapter.SpanContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
+@SuppressWarnings( "rawtypes" )
 public class HoneycombSpanProvider implements SpanProvider<HoneycombType>
 {
     private final Logger logger = LoggerFactory.getLogger( getClass() );
@@ -67,7 +68,7 @@ public class HoneycombSpanProvider implements SpanProvider<HoneycombType>
     public HoneycombSpanProvider( HoneycombConfiguration configuration, TracerConfiguration tracerConfiguration,
                                   TraceSampler traceSampler )
     {
-        this( configuration, tracerConfiguration, traceSampler, null, null );
+        this( configuration, tracerConfiguration, traceSampler, null, Optional.empty() );
     }
 
     public HoneycombSpanProvider( HoneycombConfiguration honeycombConfiguration, TracerConfiguration tracerConfiguration,
@@ -78,14 +79,12 @@ public class HoneycombSpanProvider implements SpanProvider<HoneycombType>
         this.honeycombConfiguration = honeycombConfiguration;
         this.traceSampler = traceSampler;
         this.tracingContext = tracingContext;
-        if ( eventPostProcessor.isPresent() )
-        {
-            this.eventPostProcessor = eventPostProcessor.get();
-        }
+        eventPostProcessor.ifPresent( postProcessor -> this.eventPostProcessor = postProcessor );
 
         init();
     }
 
+    @SuppressWarnings( "unchecked" )
     public void init()
     {
         if ( tracerConfiguration.isEnabled() )

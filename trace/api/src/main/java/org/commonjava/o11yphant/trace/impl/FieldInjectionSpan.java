@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -49,11 +50,11 @@ public class FieldInjectionSpan
 {
     private final Logger logger = LoggerFactory.getLogger( getClass() );
 
-    private SpanFieldsDecorator spanFieldsDecorator;
+    private final SpanFieldsDecorator spanFieldsDecorator;
 
-    private List<CloseBlockingDecorator> looseInjectors = new ArrayList<>();
+    private final List<CloseBlockingDecorator> looseInjectors = new ArrayList<>();
 
-    private AtomicInteger looseCloseCalls = new AtomicInteger( 0 );
+    private final AtomicInteger looseCloseCalls = new AtomicInteger( 0 );
 
     public FieldInjectionSpan( SpanAdapter delegate, SpanFieldsDecorator spanFieldsDecorator )
     {

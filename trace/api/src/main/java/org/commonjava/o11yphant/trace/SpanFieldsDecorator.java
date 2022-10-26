@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings( "unused" )
 public class SpanFieldsDecorator
 {
     private List<SpanFieldsInjector> spanFieldInjectors = new ArrayList<>();

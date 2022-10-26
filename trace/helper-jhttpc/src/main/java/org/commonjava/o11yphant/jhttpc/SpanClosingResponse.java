@@ -39,9 +39,9 @@ import static org.commonjava.o11yphant.trace.TracingConstants.LATENCY_TIMER_PAUS
 public class SpanClosingResponse
                 implements CloseableHttpResponse
 {
-    private CloseableHttpResponse delegate;
+    private final CloseableHttpResponse delegate;
 
-    private Optional<SpanAdapter> span;
+    private final Optional<SpanAdapter> span;
 
     private final Logger logger = LoggerFactory.getLogger( getClass() );
 
@@ -222,7 +222,7 @@ public class SpanClosingResponse
         delegate.close();
         try
         {
-            span.ifPresent( s->s.close() );
+            span.ifPresent( SpanAdapter::close );
         }
         catch ( Throwable t )
         {
@@ -234,10 +234,10 @@ public class SpanClosingResponse
         }
     }
 
-    private class LatencyPauseEntity
+    private static class LatencyPauseEntity
                     implements HttpEntity
     {
-        private HttpEntity entity;
+        private final HttpEntity entity;
 
         public LatencyPauseEntity( HttpEntity entity )
         {
@@ -300,7 +300,7 @@ public class SpanClosingResponse
         }
     }
 
-    private class LatencyPauseInputStream
+    private static class LatencyPauseInputStream
                     extends FilterInputStream
     {
         private final long start = System.nanoTime();

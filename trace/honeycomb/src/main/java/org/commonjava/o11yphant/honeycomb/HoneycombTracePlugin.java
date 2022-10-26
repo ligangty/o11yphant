@@ -35,9 +35,9 @@ public class HoneycombTracePlugin implements O11yphantTracePlugin<HoneycombType>
 {
     private DefaultTracingContext threadTracingContext;
 
-    private HoneycombContextPropagator contextPropagator;
+    private final HoneycombContextPropagator contextPropagator;
 
-    private HoneycombSpanProvider spanProvider;
+    private final HoneycombSpanProvider spanProvider;
 
     public HoneycombTracePlugin( TracerConfiguration traceConfig, HoneycombConfiguration hcConfig,
                                  Optional<TrafficClassifier> trafficClassifier )

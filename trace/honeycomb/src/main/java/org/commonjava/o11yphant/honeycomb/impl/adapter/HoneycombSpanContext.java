@@ -20,7 +20,7 @@ import org.commonjava.o11yphant.trace.spi.adapter.SpanContext;
 
 public class HoneycombSpanContext implements SpanContext<HoneycombType>
 {
-    private PropagationContext ctx;
+    private final PropagationContext ctx;
 
     public HoneycombSpanContext( PropagationContext ctx )
     {
