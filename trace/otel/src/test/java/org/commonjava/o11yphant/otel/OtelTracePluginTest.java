@@ -63,7 +63,7 @@ public class OtelTracePluginTest
         };
 
         logger.info( "Starting Otel plugin..." );
-        LoggingSpanExporter exporter = new LoggingSpanExporter();
+        LoggingSpanExporter exporter = LoggingSpanExporter.create();
         OtelTracePlugin plugin = new OtelTracePlugin( minTraceConfig, oConfig, exporter );
 
         for ( int i = 0; i < 100; i++ )

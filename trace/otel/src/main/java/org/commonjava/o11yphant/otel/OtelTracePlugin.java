@@ -65,7 +65,7 @@ public class OtelTracePlugin
                 List<SpanExporter> exp = new ArrayList<>();
                 if ( traceConfiguration.isConsoleTransport() )
                 {
-                    exp.add( new LoggingSpanExporter() );
+                    exp.add( LoggingSpanExporter.create() );
                 }
 
                 OtlpGrpcSpanExporterBuilder grpcExporterBuilder = OtlpGrpcSpanExporter.builder();
