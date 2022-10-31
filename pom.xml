@@ -26,7 +26,7 @@
 
     <groupId>org.commonjava.util</groupId>
     <artifactId>o11yphant</artifactId>
-    <version>1.7-SNAPSHOT-SNAPSHOT</version>
+    <version>1.7-SNAPSHOT</version>
 
     <packaging>pom</packaging>
     <modules>
