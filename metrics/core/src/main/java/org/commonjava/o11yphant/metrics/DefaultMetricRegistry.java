@@ -51,7 +51,7 @@ public class DefaultMetricRegistry
     /**
      * This only contains metric registered via {@link #register(String, Metric)} and {@link #register(String, MetricSet)}
      */
-    private final Map<String, Metric> metrics = new ConcurrentHashMap();
+    private final Map<String, Metric> metrics = new ConcurrentHashMap<>();
 
     private final com.codahale.metrics.MetricRegistry registry;
 
@@ -87,8 +87,8 @@ public class DefaultMetricRegistry
         logger.trace( "Registering: '{}'", metricName );
         if ( metric instanceof Gauge )
         {
-            Gauge gauge = (Gauge) metric;
-            registry.register( metricName, (com.codahale.metrics.Gauge) gauge::getValue );
+            Gauge<?> gauge = (Gauge<?>) metric;
+            registry.register( metricName, (com.codahale.metrics.Gauge<?>) gauge::getValue );
         }
         else if ( metric instanceof O11Meter )
         {
@@ -168,7 +168,7 @@ public class DefaultMetricRegistry
     @Override
     public <T> Gauge<T> gauge( String name, Gauge<T> o )
     {
-        registry.gauge( name, () -> () -> o.getValue() );
+        registry.gauge( name, () -> o::getValue );
         return o;
     }
 
@@ -193,12 +193,13 @@ public class DefaultMetricRegistry
             return;
         }
 
-        ConsoleReporter reporter = ConsoleReporter.forRegistry( registry )
-                                                  .convertRatesTo( TimeUnit.SECONDS )
-                                                  .convertDurationsTo( TimeUnit.MILLISECONDS )
-                                                  .build();
-        reporter.start( periodInSeconds, TimeUnit.SECONDS );
-        consoleReporterStarted = true;
+        try (ConsoleReporter reporter = ConsoleReporter.forRegistry( registry )
+                                                       .convertRatesTo( TimeUnit.SECONDS )
+                                                       .convertDurationsTo( TimeUnit.MILLISECONDS )
+                                                       .build())
+        {
+            reporter.start( periodInSeconds, TimeUnit.SECONDS );
+            consoleReporterStarted = true;
+        }
     }
-
 }

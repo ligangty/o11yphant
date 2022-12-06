@@ -25,10 +25,10 @@ import javax.inject.Named;
 public class DeadlockHealthCheck
                 extends ComponentHealthCheck
 {
-    private ThreadDeadlockHealthCheck deadlock = new ThreadDeadlockHealthCheck();
+    private final ThreadDeadlockHealthCheck deadlock = new ThreadDeadlockHealthCheck();
 
     @Override
-    public Result check() throws Exception
+    public Result check()
     {
         HealthCheck.Result ret = deadlock.execute();
         return new HealthCheckResult( ret.isHealthy() ).withMessage( ret.getMessage() )

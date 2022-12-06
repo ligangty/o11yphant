@@ -48,11 +48,11 @@ public class JVMInstrumentation
 
     private static final String JVM_CLASSLOADING = "jvm.classloading";
 
-    private MetricRegistry registry;
+    private final MetricRegistry registry;
 
-    private MemoryUsageGaugeSet memoryUsageGaugeSet = new MemoryUsageGaugeSet();
+    private final MemoryUsageGaugeSet memoryUsageGaugeSet = new MemoryUsageGaugeSet();
 
-    private ThreadStatesGaugeSet threadStatesGaugeSet = new CachedThreadStatesGaugeSet( 60, TimeUnit.SECONDS );
+    private final ThreadStatesGaugeSet threadStatesGaugeSet = new CachedThreadStatesGaugeSet( 60, TimeUnit.SECONDS );
 
     @Inject
     public JVMInstrumentation( MetricRegistry registry )

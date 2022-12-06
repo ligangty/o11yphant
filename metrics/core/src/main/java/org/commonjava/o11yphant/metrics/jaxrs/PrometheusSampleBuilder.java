@@ -30,7 +30,7 @@ public class PrometheusSampleBuilder
 
     private static final String LABEL_HOSTNAME = "hostname";
 
-    private String nodeLabel;
+    private final String nodeLabel;
 
     public PrometheusSampleBuilder( String nodeLabel )
     {

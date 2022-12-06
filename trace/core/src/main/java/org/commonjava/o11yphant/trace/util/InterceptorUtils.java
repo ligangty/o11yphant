@@ -41,7 +41,7 @@ public class InterceptorUtils
         return getMetricNameFromContextInternal( context, MetricWrapperNamedAfterRun.class );
     }
 
-    @SuppressWarnings( { "rawtypes", "unchecked" } )
+    @SuppressWarnings( { "unchecked", "rawtypes" } )
     private static String getMetricNameFromContextInternal( InvocationContext context, Class annotationClass )
     {
         String name = null;
@@ -56,7 +56,7 @@ public class InterceptorUtils
                 Object pv = context.getParameters()[i];
                 if ( pv instanceof Supplier )
                 {
-                    name = String.valueOf( ( (Supplier) pv ).get() );
+                    name = String.valueOf( ( (Supplier<?>) pv ).get() );
                 }
                 else
                 {

@@ -93,7 +93,7 @@ public class GoldenSignalsFunctionMetrics
                     implements HealthCheck
     {
         @Override
-        public Result check() throws Exception
+        public Result check()
         {
             // FIXME: We need need to incorporate the SLO targets to determine whether health / unhealthy.
             return new HealthCheckResult( true )

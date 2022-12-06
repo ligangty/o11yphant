@@ -46,18 +46,17 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
-@SuppressWarnings( "rawtypes" )
 public class HoneycombSpanProvider implements SpanProvider<HoneycombType>
 {
     private final Logger logger = LoggerFactory.getLogger( getClass() );
 
-    protected HoneycombConfiguration honeycombConfiguration;
+    protected final HoneycombConfiguration honeycombConfiguration;
 
-    protected TracerConfiguration tracerConfiguration;
+    protected final TracerConfiguration tracerConfiguration;
 
-    protected TraceSampler traceSampler;
+    protected final TraceSampler<? super String> traceSampler;
 
-    protected TracingContext tracingContext;
+    protected final TracingContext tracingContext;
 
     protected EventPostProcessor eventPostProcessor;
 
@@ -66,13 +65,13 @@ public class HoneycombSpanProvider implements SpanProvider<HoneycombType>
     protected Beeline beeline;
 
     public HoneycombSpanProvider( HoneycombConfiguration configuration, TracerConfiguration tracerConfiguration,
-                                  TraceSampler traceSampler )
+                                  TraceSampler<? super String> traceSampler )
     {
         this( configuration, tracerConfiguration, traceSampler, null, Optional.empty() );
     }
 
     public HoneycombSpanProvider( HoneycombConfiguration honeycombConfiguration, TracerConfiguration tracerConfiguration,
-                             TraceSampler traceSampler, TracingContext tracingContext,
+                             TraceSampler<? super String> traceSampler, TracingContext tracingContext,
                              Optional<EventPostProcessor> eventPostProcessor )
     {
         this.tracerConfiguration = tracerConfiguration;
@@ -84,7 +83,6 @@ public class HoneycombSpanProvider implements SpanProvider<HoneycombType>
         init();
     }
 
-    @SuppressWarnings( "unchecked" )
     public void init()
     {
         if ( tracerConfiguration.isEnabled() )
@@ -174,10 +172,6 @@ public class HoneycombSpanProvider implements SpanProvider<HoneycombType>
             }
             else
             {
-/*
-                String traceId = RequestContextHelper.getContext( TRACE_ID );
-                String parentId = RequestContextHelper.getContext( REQUEST_PARENT_SPAN );
-*/
                 logger.trace( "Starting root span: {} based on NO PARENT context, and thread: {}", spanName,
                               Thread.currentThread().getId() );
 
@@ -257,10 +251,6 @@ public class HoneycombSpanProvider implements SpanProvider<HoneycombType>
                           span.getTraceId(), span.getParentSpanId(), Thread.currentThread().getId() );
 
             span.markStart();
-//            if ( !prevSpan.isPresent() )
-//            {
-//                span = beeline.getTracer().startTrace( span );
-//            }
 
             return new HoneycombSpan( span, !prevSpan.isPresent(), beeline );
         }

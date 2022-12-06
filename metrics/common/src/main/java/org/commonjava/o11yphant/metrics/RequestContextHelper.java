@@ -50,6 +50,7 @@ public class RequestContextHelper
         {
             logger.trace( "Retrieving value for: '{}' from ThreadContext: {}", key, ctx );
             Object v = ctx.get( key );
+            //noinspection unchecked
             return v == null ? defaultValue : (T) v;
         }
 

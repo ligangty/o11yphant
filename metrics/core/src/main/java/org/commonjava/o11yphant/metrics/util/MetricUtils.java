@@ -40,7 +40,7 @@ public class MetricUtils
     private static class WrappedMetricSet
                     implements MetricSet
     {
-        private Map<String, Metric> metrics;
+        private final Map<String, Metric> metrics;
 
         public WrappedMetricSet( Map<String, Metric> metrics )
         {
@@ -54,7 +54,7 @@ public class MetricUtils
             for(Map.Entry<String, Metric> metricEntry: metrics.entrySet() )
             {
                 result.put( metricEntry.getKey(),
-                            (Gauge<Object>) () -> ( (com.codahale.metrics.Gauge) metricEntry.getValue() ).getValue() );
+                            (Gauge<Object>) () -> ( (com.codahale.metrics.Gauge<?>) metricEntry.getValue() ).getValue() );
             }
 
             return result;

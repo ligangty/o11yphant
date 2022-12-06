@@ -32,12 +32,10 @@ public class NameUtils
         append( builder, name );
         if ( names != null )
         {
-            String[] var3 = names;
             int var4 = names.length;
 
-            for ( int var5 = 0; var5 < var4; ++var5 )
+            for ( String s : names )
             {
-                String s = var3[var5];
                 append( builder, s );
             }
         }

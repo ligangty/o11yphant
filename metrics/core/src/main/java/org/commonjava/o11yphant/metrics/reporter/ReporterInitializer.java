@@ -59,7 +59,8 @@ public class ReporterInitializer
     private volatile boolean initiated;
 
     @PostConstruct
-    public void init() throws Exception
+    public void init()
+            throws Exception
     {
         if ( initiated )
         {
@@ -104,43 +105,51 @@ public class ReporterInitializer
         return !isJvmMetric( name );
     }
 
-    private void initELKReporterForSimpleMetric( MetricRegistry metrics, ELKConfig config ) throws IOException
+    private void initELKReporterForSimpleMetric( MetricRegistry metrics, ELKConfig config )
+            throws IOException
     {
         Logger logger = LoggerFactory.getLogger( getClass() );
         logger.info( "Setting up Elasticsearch reporter" );
-        ElasticsearchReporter reporter = ElasticsearchReporter.forRegistry( metrics )
-                                                              .hosts( config.getElkHosts().split( ";" ) )
-                                                              .index( config.getElkIndex() )
-                                                              .indexDateFormat( "YYYY-MM-dd" )
-                                                              .filter( ( name, metric ) -> isApplicationMetric( name ) )
-                                                              .build();
-
-        reporter.start( config.getElkPeriodInSeconds(), TimeUnit.SECONDS );
+        try (ElasticsearchReporter reporter = ElasticsearchReporter.forRegistry( metrics )
+                                                                   .hosts( config.getElkHosts().split( ";" ) )
+                                                                   .index( config.getElkIndex() )
+                                                                   .indexDateFormat( "YYYY-MM-dd" )
+                                                                   .filter( ( name, metric ) -> isApplicationMetric(
+                                                                           name ) )
+                                                                   .build())
+        {
+            reporter.start( config.getElkPeriodInSeconds(), TimeUnit.SECONDS );
+        }
     }
 
-    private void initELKReporterForJVMMetric( MetricRegistry metrics, ELKConfig config ) throws IOException
+    private void initELKReporterForJVMMetric( MetricRegistry metrics, ELKConfig config )
+            throws IOException
     {
         Logger logger = LoggerFactory.getLogger( getClass() );
         logger.info( "Setting up Elasticsearch reporter for JVM metrics" );
-        ElasticsearchReporter reporter = ElasticsearchReporter.forRegistry( metrics )
-                                                              .hosts( config.getElkHosts().split( ";" ) )
-                                                              .index( config.getElkIndex() )
-                                                              .indexDateFormat( "YYYY-MM-dd" )
-                                                              .filter( ( name, metric ) -> isJvmMetric( name ) )
-                                                              .build();
-
-        reporter.start( config.getElkJVMPeriodInSeconds(), TimeUnit.SECONDS );
+        try (ElasticsearchReporter reporter = ElasticsearchReporter.forRegistry( metrics )
+                                                                   .hosts( config.getElkHosts().split( ";" ) )
+                                                                   .index( config.getElkIndex() )
+                                                                   .indexDateFormat( "YYYY-MM-dd" )
+                                                                   .filter( ( name, metric ) -> isJvmMetric( name ) )
+                                                                   .build())
+        {
+            reporter.start( config.getElkJVMPeriodInSeconds(), TimeUnit.SECONDS );
+        }
     }
 
     private void initConsoleReporter( MetricRegistry metrics, ConsoleConfig config )
     {
-        ConsoleReporter.forRegistry( metrics ).build().start( config.getConsolePeriodInSeconds(), TimeUnit.SECONDS );
+        try (ConsoleReporter reporter = ConsoleReporter.forRegistry( metrics ).build())
+        {
+            reporter.start( config.getConsolePeriodInSeconds(), TimeUnit.SECONDS );
+        }
     }
 
     private void initGraphiteReporterForSimpleMetric( MetricRegistry metrics, GraphiteConfig config )
     {
         final Graphite graphite =
-                        new Graphite( new InetSocketAddress( config.getGraphiteHostName(), config.getGraphitePort() ) );
+                new Graphite( new InetSocketAddress( config.getGraphiteHostName(), config.getGraphitePort() ) );
         final GraphiteReporter reporter = GraphiteReporter.forRegistry( metrics )
                                                           .prefixedWith( config.getGraphitePrefix() )
                                                           .convertRatesTo( TimeUnit.SECONDS )
@@ -153,7 +162,7 @@ public class ReporterInitializer
     private void initGraphiteReporterForJVMMetric( MetricRegistry metrics, GraphiteConfig config )
     {
         final Graphite graphite =
-                        new Graphite( new InetSocketAddress( config.getGraphiteHostName(), config.getGraphitePort() ) );
+                new Graphite( new InetSocketAddress( config.getGraphiteHostName(), config.getGraphitePort() ) );
         final GraphiteReporter reporter = GraphiteReporter.forRegistry( metrics )
                                                           .prefixedWith( config.getGraphitePrefix() )
                                                           .convertRatesTo( TimeUnit.SECONDS )

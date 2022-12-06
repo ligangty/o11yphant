@@ -79,7 +79,7 @@ public class DefaultMetricsManager
     @Inject
     private MetricsConfig config;
 
-    private Random random = new Random();
+    private final Random random = new Random();
 
     public DefaultMetricsManager()
     {
@@ -215,6 +215,7 @@ public class DefaultMetricsManager
         return metricRegistry.histogram( name );
     }
 
+    @SuppressWarnings( "unchecked" )
     public void accumulate( String name, final double elapsed )
     {
         ThreadContext ctx = ThreadContext.getContext( true );
@@ -228,7 +229,7 @@ public class DefaultMetricsManager
             ctx.putIfAbsent( CUMULATIVE_TIMINGS, new ConcurrentHashMap<>() );
             Map<String, Double> timingMap = (Map<String, Double>) ctx.get( CUMULATIVE_TIMINGS );
 
-            timingMap.merge( name, elapsed, ( existingVal, newVal ) -> existingVal + newVal );
+            timingMap.merge( name, elapsed, Double::sum );
 
             ctx.putIfAbsent( CUMULATIVE_COUNT, new ConcurrentHashMap<>() );
             Map<String, Integer> countMap = (Map<String, Integer>) ctx.get( CUMULATIVE_COUNT );
@@ -254,7 +255,7 @@ public class DefaultMetricsManager
 
         String timerName = name( metricName, TIMER );
         String errorName = name( name, EXCEPTION );
-        String eClassName = null;
+        String eClassName;
 
         Timer.Context timer = startTimerInternal( timerName );
         logger.trace( "START: {} ({})", metricName, timer );

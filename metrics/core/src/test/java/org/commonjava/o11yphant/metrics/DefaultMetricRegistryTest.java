@@ -26,7 +26,6 @@ import org.junit.Test;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
 
 import static junit.framework.TestCase.assertTrue;
 
@@ -80,12 +79,10 @@ public class DefaultMetricRegistryTest
         assertTrue( standaloneMetrics.containsKey( "test.mem.total.swap" ) );
         assertTrue( standaloneMetrics.containsKey( "test.mem.total.physical" ) );
 
-        standaloneMetrics.entrySet().forEach( entry -> {
-            String name = entry.getKey();
-            Metric metric = entry.getValue();
+        standaloneMetrics.forEach( ( name, metric ) -> {
             if ( metric instanceof Gauge )
             {
-                System.out.println( name + ": " + ( (Gauge) metric ).getValue() );
+                System.out.println( name + ": " + ( (Gauge<?>) metric ).getValue() );
             }
         } );
     }
