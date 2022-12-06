@@ -29,14 +29,15 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
+@SuppressWarnings( "rawtypes" )
 public class SpanningHttpFactory
                 implements HttpFactoryIfc
 {
     private final HttpFactory delegate;
 
-    private final Optional<TraceManager<?>> traceManager;
+    private final Optional<TraceManager> traceManager;
 
-    public SpanningHttpFactory( HttpFactory httpFactory, Optional<TraceManager<?>> traceManager )
+    public SpanningHttpFactory( HttpFactory httpFactory, Optional<TraceManager> traceManager )
     {
         super();
         delegate = httpFactory;
