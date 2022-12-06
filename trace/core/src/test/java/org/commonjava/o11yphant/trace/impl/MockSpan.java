@@ -15,7 +15,6 @@
  */
 package org.commonjava.o11yphant.trace.impl;
 
-import org.commonjava.cdi.util.weft.ContextSensitiveWeakHashMap;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 
 import java.util.HashMap;

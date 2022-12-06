@@ -18,8 +18,6 @@ package org.commonjava.o11yphant.trace.impl;
 import org.commonjava.o11yphant.metrics.jvm.JVMInstrumentation;
 import org.junit.Test;
 
-import java.util.Map;
-
 public class JVMSpanFieldsInjectorTest
 {
     @Test

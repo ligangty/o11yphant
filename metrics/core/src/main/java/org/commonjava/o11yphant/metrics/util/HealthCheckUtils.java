@@ -41,7 +41,7 @@ public class HealthCheckUtils
                     Map<String, Object> details = result.getDetails();
                     if ( details != null )
                     {
-                        details.forEach( ( k, v ) -> builder.withDetail( k, v ) );
+                        details.forEach( builder::withDetail );
                     }
                 }
                 return builder.build();

@@ -96,7 +96,7 @@ public class SystemGaugesSet
             else
             {
                 logger.warn( "Cannot trace storage usage because storage path {} not defined.",
-                             storePath.getCanonicalPath() );
+                             storePath != null ? storePath.getCanonicalPath() : "" );
             }
         }
         catch ( Throwable e )

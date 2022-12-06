@@ -23,6 +23,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.commonjava.o11yphant.trace.TraceManager;
+import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,23 +34,21 @@ import java.util.Optional;
 import static org.commonjava.o11yphant.trace.TraceManager.addFieldToActiveSpan;
 import static org.commonjava.o11yphant.trace.httpclient.HttpClientTools.contextInjector;
 
-@SuppressWarnings( "rawtypes" )
 public class TracerHttpClient
                 extends CloseableHttpClient
 {
     private final CloseableHttpClient delegate;
 
-    private final Optional<TraceManager> traceManager;
+    private final Optional<TraceManager<?>> traceManager;
 
     private final Logger logger = LoggerFactory.getLogger( getClass() );
 
-    public TracerHttpClient( CloseableHttpClient delegate, Optional<TraceManager> traceManager )
+    public TracerHttpClient( CloseableHttpClient delegate, Optional<TraceManager<?>> traceManager )
     {
         this.traceManager = traceManager;
         this.delegate = delegate;
     }
 
-    @SuppressWarnings( "unchecked" )
     @Override
     protected CloseableHttpResponse doExecute( HttpHost target, HttpRequest request, HttpContext context )
                     throws IOException
@@ -57,7 +56,7 @@ public class TracerHttpClient
         try
         {
             URL url = new URL( request.getRequestLine().getUri() );
-            Optional span;
+            Optional<SpanAdapter> span;
             if ( traceManager.isPresent() )
             {
                 span = traceManager.get()

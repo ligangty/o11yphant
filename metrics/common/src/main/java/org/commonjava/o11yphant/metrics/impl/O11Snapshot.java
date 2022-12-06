@@ -20,7 +20,7 @@ import org.commonjava.o11yphant.metrics.api.Snapshot;
 public class O11Snapshot
                 implements Snapshot
 {
-    private com.codahale.metrics.Snapshot codehaleSnapshot;
+    private final com.codahale.metrics.Snapshot codehaleSnapshot;
 
     public O11Snapshot( com.codahale.metrics.Snapshot codehaleSnapshot )
     {

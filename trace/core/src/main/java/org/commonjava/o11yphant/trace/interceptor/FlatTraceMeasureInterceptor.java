@@ -40,9 +40,8 @@ public class FlatTraceMeasureInterceptor
     @Inject
     private TracerConfiguration config;
 
-    @SuppressWarnings( "rawtypes" )
     @Inject
-    private TraceManager traceManager;
+    private TraceManager<?> traceManager;
 
     @AroundInvoke
     public Object operation( InvocationContext context ) throws Exception

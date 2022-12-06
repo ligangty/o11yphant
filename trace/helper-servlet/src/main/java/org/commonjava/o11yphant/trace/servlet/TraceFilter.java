@@ -41,9 +41,8 @@ import static org.commonjava.o11yphant.trace.servlet.ServletContextTools.context
 public class TraceFilter
                 implements Filter
 {
-    @SuppressWarnings( "rawtypes" )
     @Inject
-    private TraceManager traceManager;
+    private TraceManager<?> traceManager;
 
     private final Logger logger = LoggerFactory.getLogger( getClass() );
 
@@ -65,7 +64,6 @@ public class TraceFilter
         TraceFilterFieldInjector injector = new TraceFilterFieldInjector( (HttpServletResponse) response );
         try
         {
-            //noinspection unchecked
             rootSpan = traceManager.startServiceRootSpan( getEndpointName( hsr.getMethod(), hsr.getPathInfo() ),
                                                           contextExtractor( hsr ) );
 

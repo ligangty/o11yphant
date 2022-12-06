@@ -27,13 +27,13 @@ public class PrometheusConfig
 {
     private final Logger logger = LoggerFactory.getLogger( getClass() );
 
-    private Map<String, Boolean> expressedCache = new ConcurrentHashMap<>();
+    private final Map<String, Boolean> expressedCache = new ConcurrentHashMap<>();
 
     private List<String> expressedMetrics;
 
     private String nodeLabel;
 
-    private Function<String, Boolean> lookupFunction =
+    private final Function<String, Boolean> lookupFunction =
                     name -> expressedMetrics != null && expressedMetrics.stream().anyMatch( n -> {
         String pname = n.replace( '.', '_' );
         if ( name.equals( n ) || name.contains( n ) || name.matches( n ) || pname.equals( name ) || pname.contains(

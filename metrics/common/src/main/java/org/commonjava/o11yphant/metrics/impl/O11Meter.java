@@ -20,7 +20,7 @@ import org.commonjava.o11yphant.metrics.api.Meter;
 public class O11Meter
                 implements Meter
 {
-    private com.codahale.metrics.Meter codahaleMeter;
+    private final com.codahale.metrics.Meter codahaleMeter;
 
     public O11Meter()
     {

@@ -24,7 +24,7 @@ import java.util.Map;
 public class HealthCheckResult
                 implements HealthCheck.Result
 {
-    private boolean healthy;
+    private final boolean healthy;
 
     private String message;
 

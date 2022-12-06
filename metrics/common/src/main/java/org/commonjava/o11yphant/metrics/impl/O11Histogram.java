@@ -21,7 +21,7 @@ import org.commonjava.o11yphant.metrics.api.Snapshot;
 
 public class O11Histogram implements Histogram
 {
-    private com.codahale.metrics.Histogram codehaleHistogram;
+    private final com.codahale.metrics.Histogram codehaleHistogram;
 
     public O11Histogram()
     {

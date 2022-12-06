@@ -31,7 +31,7 @@ import java.util.function.Function;
 
 // FIXME: This is probably broken, based on how sampling actually uses trace-id or a Span instance. It's also probably slow.
 public class ConfigurableTraceSampler
-                implements TraceSampler<String>
+        implements TraceSampler<String>
 {
     private final Logger logger = LoggerFactory.getLogger( getClass() );
 
@@ -43,7 +43,13 @@ public class ConfigurableTraceSampler
 
     private TracerConfiguration config;
 
-    private final Function<String, Integer> samplerFunction = input ->{
+    public ConfigurableTraceSampler( TrafficClassifier classifier, TracerConfiguration config )
+    {
+        this.classifier = classifier;
+        this.config = config;
+    }
+
+    private final Function<String, Integer> samplerFunction = input -> {
         ThreadContext ctx = ThreadContext.getContext( false );
         if ( ctx == null )
         {
@@ -64,8 +70,7 @@ public class ConfigurableTraceSampler
         {
             Optional<Integer> mostAggressive = functionClassifiers.get()
                                                                   .stream()
-                                                                  .map( classifier -> config.getSampleRate(
-                                                                                  classifier ) )
+                                                                  .map( config::getSampleRate )
                                                                   .filter( theRate -> theRate > 0 )
                                                                   .min( ( one, two ) -> two - one );
 
@@ -77,12 +82,6 @@ public class ConfigurableTraceSampler
 
         return rate;
     };
-
-    public ConfigurableTraceSampler( TrafficClassifier classifier, TracerConfiguration config )
-    {
-        this.classifier = classifier;
-        this.config = config;
-    }
 
     /**
      * Decides whether to sample the input.

@@ -29,7 +29,7 @@ public class SummaryHealthCheck
 {
     enum SummaryRating
     {
-        green, yellow, red;
+        green, yellow, red
     }
 
     private static final String RATING = "rating";
@@ -43,7 +43,7 @@ public class SummaryHealthCheck
     private Instance<CompoundHealthCheck> looseCompounds;
 
     @Override
-    public Result check() throws Exception
+    public Result check()
     {
         AtomicInteger count = new AtomicInteger( 0 );
         looseComponents.forEach( check -> {
@@ -51,27 +51,21 @@ public class SummaryHealthCheck
                 count.incrementAndGet();
         } );
 
-        looseCompounds.forEach( lc -> {
-            lc.getHealthChecks().forEach( ( k, check ) -> {
-                try
+        looseCompounds.forEach( lc -> lc.getHealthChecks().forEach( ( k, check ) -> {
+            try
+            {
+                if ( !check.check().isHealthy() )
                 {
-                    if ( !check.check().isHealthy() )
-                    {
-                        count.incrementAndGet();
-                    }
+                    count.incrementAndGet();
                 }
-                catch ( Exception e )
-                {
-                    e.printStackTrace();
-                }
-            } );
-        } );
+            }
+            catch ( Exception e )
+            {
+                e.printStackTrace();
+            }
+        } ) );
 
-        boolean isHealthy = true;
-        if ( count.get() > 0 )
-        {
-            isHealthy = false;
-        }
+        boolean isHealthy = count.get() <= 0;
 
         HealthCheckResult ret = new HealthCheckResult( isHealthy );
         if ( count.get() > 3 )

@@ -15,24 +15,17 @@
  */
 package org.commonjava.o11yphant.metrics.annotation;
 
-import org.commonjava.o11yphant.metrics.MetricsConstants;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import static org.commonjava.o11yphant.metrics.MetricsConstants.DEFAULT;
 
 @Target( { METHOD, TYPE } )
 @Retention( RUNTIME )
 public @interface MetricNamed
 {
-    /**
-     * Need to migrate to {@link MetricsConstants#DEFAULT}.
-     * @deprecated
-     */
-    String DEFAULT = MetricsConstants.DEFAULT;
-
     String value() default DEFAULT;
 }

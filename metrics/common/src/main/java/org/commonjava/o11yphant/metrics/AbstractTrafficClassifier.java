@@ -52,6 +52,7 @@ public abstract class AbstractTrafficClassifier
             Object cached = ctx.get( CACHED_FUNCTIONS );
             if ( cached != null )
             {
+                //noinspection unchecked
                 return Optional.of( (List<String>) cached );
             }
         }

@@ -38,7 +38,7 @@ public class HeapHealthCheck
     private static final float HEALTHY_LOAD_MAX = 90f;
 
     @Override
-    public Result check() throws Exception
+    public Result check()
     {
         Runtime runtime = Runtime.getRuntime();
 
@@ -49,11 +49,7 @@ public class HeapHealthCheck
         double max = runtime.maxMemory();
         double load = 100 * ( used / max );
 
-        boolean isHealthy = true;
-        if ( load > HEALTHY_LOAD_MAX )
-        {
-            isHealthy = false;
-        }
+        boolean isHealthy = !( load > HEALTHY_LOAD_MAX );
         HealthCheckResult ret = new HealthCheckResult( isHealthy );
 
         ret.withDetail( FREE_GB, free / GB )

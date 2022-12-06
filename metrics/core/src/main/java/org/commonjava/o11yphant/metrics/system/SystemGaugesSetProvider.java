@@ -54,9 +54,4 @@ public class SystemGaugesSetProvider
         systemGaugesSet.reset();
     }
 
-    /*@Override
-    public void registerMetricSet( MetricRegistry registry )
-    {
-        registry.register( name( metricsConfig.getNodePrefix(), SYSTEM ), systemGaugesSet );
-    }*/
 }

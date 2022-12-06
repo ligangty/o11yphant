@@ -32,7 +32,7 @@ public abstract class GoldenSignalsMetricSet
 {
     private final Logger logger = LoggerFactory.getLogger( getClass() );
 
-    private Map<String, GoldenSignalsFunctionMetrics> functionMetrics = new HashMap<>();
+    private final Map<String, GoldenSignalsFunctionMetrics> functionMetrics = new HashMap<>();
 
     protected abstract Collection<String> getFunctions();
 

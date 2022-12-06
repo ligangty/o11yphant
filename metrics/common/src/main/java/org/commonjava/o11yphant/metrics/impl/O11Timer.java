@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 public class O11Timer
                 implements Timer
 {
-    private com.codahale.metrics.Timer codahaleTimer;
+    private final com.codahale.metrics.Timer codahaleTimer;
 
     public O11Timer()
     {
@@ -84,10 +84,10 @@ public class O11Timer
         return new O11Snapshot( codehaleSnapshot);
     }
 
-    public class O11Context
+    public static class O11Context
                     implements Context
     {
-        private com.codahale.metrics.Timer.Context codahaleContext;
+        private final com.codahale.metrics.Timer.Context codahaleContext;
 
         public O11Context( com.codahale.metrics.Timer.Context context )
         {
@@ -101,7 +101,7 @@ public class O11Timer
         }
 
         @Override
-        public void close() throws Exception
+        public void close()
         {
             stop();
         }
