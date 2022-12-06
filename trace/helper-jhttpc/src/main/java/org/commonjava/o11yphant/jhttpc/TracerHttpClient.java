@@ -34,16 +34,17 @@ import java.util.Optional;
 import static org.commonjava.o11yphant.trace.TraceManager.addFieldToActiveSpan;
 import static org.commonjava.o11yphant.trace.httpclient.HttpClientTools.contextInjector;
 
+@SuppressWarnings( "rawtypes" )
 public class TracerHttpClient
                 extends CloseableHttpClient
 {
     private final CloseableHttpClient delegate;
 
-    private final Optional<TraceManager<?>> traceManager;
+    private final Optional<TraceManager> traceManager;
 
     private final Logger logger = LoggerFactory.getLogger( getClass() );
 
-    public TracerHttpClient( CloseableHttpClient delegate, Optional<TraceManager<?>> traceManager )
+    public TracerHttpClient( CloseableHttpClient delegate, Optional<TraceManager> traceManager )
     {
         this.traceManager = traceManager;
         this.delegate = delegate;
