@@ -15,6 +15,8 @@
  */
 package org.commonjava.o11yphant.otel;
 
+import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.common.AttributesBuilder;
 import io.opentelemetry.api.trace.Tracer;
@@ -39,6 +41,8 @@ import org.commonjava.o11yphant.trace.spi.ContextPropagator;
 import org.commonjava.o11yphant.trace.spi.O11yphantTracePlugin;
 import org.commonjava.o11yphant.trace.spi.SpanProvider;
 import org.commonjava.o11yphant.trace.thread.ThreadTracingContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +62,9 @@ public class OtelTracePlugin
     {
         if ( traceConfiguration.isEnabled() )
         {
+            final Logger logger = LoggerFactory.getLogger( this.getClass() );
+            logger.debug( "Trace enabled with Otel trace plugin." );
+            logger.debug( "Trace grpc endpoint is: {}", otelConfig.getGrpcEndpointUri() );
 
             //FIXME: This needs to be more exposed to configuration options, especially for endpoint and exporter formats.
             if ( exporters == null || exporters.length < 1 )
@@ -79,7 +86,7 @@ public class OtelTracePlugin
                 grpcExporterBuilder.build();
                 exp.add( grpcExporterBuilder.build() );
 
-                exporters = exp.toArray( new SpanExporter[]{} );
+                exporters = exp.toArray( new SpanExporter[] {} );
             }
 
             SpanProcessor processor = BatchSpanProcessor.builder( SpanExporter.composite( exporters ) ).build();
@@ -97,16 +104,27 @@ public class OtelTracePlugin
 
             SdkTracerProvider tracerProvider = tracerProviderBuilder.build();
 
-            OpenTelemetrySdk otel = OpenTelemetrySdk.builder()
-                                                    .setTracerProvider( tracerProvider )
-                                                    .setPropagators( ContextPropagators.create(
-                                                                    W3CTraceContextPropagator.getInstance() ) )
-                                                    .buildAndRegisterGlobal();
+            OpenTelemetry otel;
 
-            Tracer tracer = otel.getTracer( otelConfig.getInstrumentationName(), otelConfig.getInstrumentationVersion() );
+            try
+            {
+                otel = OpenTelemetrySdk.builder()
+                                       .setTracerProvider( tracerProvider )
+                                       .setPropagators(
+                                               ContextPropagators.create( W3CTraceContextPropagator.getInstance() ) )
+                                       .buildAndRegisterGlobal();
+            }
+            catch ( IllegalStateException e )
+            {
+                logger.warn( "The OpenTelemetry instance has been setup. Will use global one." );
+                otel = GlobalOpenTelemetry.get();
+            }
+
+            Tracer tracer =
+                    otel.getTracer( otelConfig.getInstrumentationName(), otelConfig.getInstrumentationVersion() );
 
             this.contextPropagator = new OtelContextPropagator( otel );
-            this.spanProvider = new OtelSpanProvider( otel, tracer );
+            this.spanProvider = new OtelSpanProvider( tracer );
             this.threadTracingContext = new OtelThreadTracingContext();
         }
     }
