@@ -50,17 +50,17 @@
         <projectEmail>nos-devel@redhat.com</projectEmail>
         <javaVersion>1.8</javaVersion>
         <test-forkCount>1</test-forkCount>
-        <metricsVersion>4.2.9</metricsVersion>
-        <honeycombVersion>1.5.1</honeycombVersion>
-        <prometheusVersion>0.7.0</prometheusVersion>
-        <zabbixVersion>0.0.2</zabbixVersion>
+        <metricsVersion>4.2.15</metricsVersion>
+        <honeycombVersion>1.7.1</honeycombVersion>
+        <otelVersion>1.19.0</otelVersion>
+        <prometheusVersion>0.16.0</prometheusVersion>
         <httpTestserverVersion>1.4</httpTestserverVersion>
         <elasticsearchVersion>2.2.0</elasticsearchVersion>
         <logbackVersion>1.2.9</logbackVersion>
-        <undertowVersion>2.1.0.Final</undertowVersion>
-        <weftVersion>1.19</weftVersion>
-        <agroalVersion>1.8</agroalVersion>
-        <datastaxVersion>3.7.2</datastaxVersion>
+        <undertowVersion>2.2.19.Final</undertowVersion>
+        <weftVersion>1.20</weftVersion>
+        <agroalVersion>1.16</agroalVersion>
+        <datastaxVersion>3.11.3</datastaxVersion>
         <httpclientVersion>4.5.9</httpclientVersion>
         <jhttpcVersion>1.12</jhttpcVersion>
     </properties>
@@ -78,7 +78,7 @@
             <dependency>
                 <groupId>io.opentelemetry</groupId>
                 <artifactId>opentelemetry-bom</artifactId>
-                <version>1.15.0</version>
+                <version>${otelVersion}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
