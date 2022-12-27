@@ -25,8 +25,8 @@
     <version>18</version>
   </parent>
 
-  <groupId>org.commonjava.util</groupId>
-  <artifactId>o11yphant</artifactId>
+  <groupId>org.commonjava.util.o11yphant</groupId>
+  <artifactId>o11yphant-parent</artifactId>
   <version>1.9.2-SNAPSHOT</version>
 
   <packaging>pom</packaging>
