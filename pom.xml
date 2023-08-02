@@ -51,7 +51,6 @@
         <javaVersion>1.8</javaVersion>
         <test-forkCount>1</test-forkCount>
         <metricsVersion>4.2.15</metricsVersion>
-        <honeycombVersion>1.7.1</honeycombVersion>
         <otelVersion>1.19.0</otelVersion>
         <prometheusVersion>0.16.0</prometheusVersion>
         <httpTestserverVersion>1.4</httpTestserverVersion>
@@ -63,6 +62,7 @@
         <datastaxVersion>3.11.3</datastaxVersion>
         <httpclientVersion>4.5.9</httpclientVersion>
         <jhttpcVersion>1.12</jhttpcVersion>
+        <!--<honeycombVersion>1.7.1</honeycombVersion>-->
     </properties>
 
     <dependencyManagement>
@@ -98,11 +98,13 @@
                 <artifactId>o11yphant-trace-otel</artifactId>
                 <version>1.9-SNAPSHOT</version>
             </dependency>
+            <!--
             <dependency>
                 <groupId>org.commonjava.util</groupId>
                 <artifactId>o11yphant-trace-honeycomb</artifactId>
                 <version>1.9-SNAPSHOT</version>
             </dependency>
+            -->
             <dependency>
                 <groupId>org.commonjava.util</groupId>
                 <artifactId>o11yphant-trace-helper-servlet</artifactId>
@@ -192,13 +194,13 @@
                 <artifactId>simpleclient_dropwizard</artifactId>
                 <version>${prometheusVersion}</version>
             </dependency>
-
+            <!--
             <dependency>
                 <groupId>io.honeycomb.beeline</groupId>
                 <artifactId>beeline-core</artifactId>
                 <version>${honeycombVersion}</version>
             </dependency>
-
+            -->
             <dependency>
                 <groupId>org.commonjava.util</groupId>
                 <artifactId>http-testserver</artifactId>
