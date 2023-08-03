@@ -20,23 +20,19 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.graphite.Graphite;
 import com.codahale.metrics.graphite.GraphiteReporter;
 import org.commonjava.o11yphant.metrics.conf.ConsoleConfig;
-import org.commonjava.o11yphant.metrics.conf.ELKConfig;
 import org.commonjava.o11yphant.metrics.conf.GraphiteConfig;
 import org.commonjava.o11yphant.metrics.conf.MetricsConfig;
-import org.elasticsearch.metrics.ElasticsearchReporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.commonjava.o11yphant.metrics.conf.MetricsConfig.REPORTER_CONSOLE;
-import static org.commonjava.o11yphant.metrics.conf.MetricsConfig.REPORTER_ELK;
 import static org.commonjava.o11yphant.metrics.conf.MetricsConfig.REPORTER_GRAPHITE;
 
 @ApplicationScoped
@@ -87,11 +83,6 @@ public class ReporterInitializer
             initConsoleReporter( metrics, config.getConsoleConfig() );
         }
 
-        if ( reporter.contains( REPORTER_ELK ) )
-        {
-            initELKReporterForSimpleMetric( metrics, config.getELKConfig() );
-            initELKReporterForJVMMetric( metrics, config.getELKConfig() );
-        }
         initiated = true;
     }
 
@@ -105,38 +96,6 @@ public class ReporterInitializer
         return !isJvmMetric( name );
     }
 
-    private void initELKReporterForSimpleMetric( MetricRegistry metrics, ELKConfig config )
-            throws IOException
-    {
-        Logger logger = LoggerFactory.getLogger( getClass() );
-        logger.info( "Setting up Elasticsearch reporter" );
-        try (ElasticsearchReporter reporter = ElasticsearchReporter.forRegistry( metrics )
-                                                                   .hosts( config.getElkHosts().split( ";" ) )
-                                                                   .index( config.getElkIndex() )
-                                                                   .indexDateFormat( "YYYY-MM-dd" )
-                                                                   .filter( ( name, metric ) -> isApplicationMetric(
-                                                                           name ) )
-                                                                   .build())
-        {
-            reporter.start( config.getElkPeriodInSeconds(), TimeUnit.SECONDS );
-        }
-    }
-
-    private void initELKReporterForJVMMetric( MetricRegistry metrics, ELKConfig config )
-            throws IOException
-    {
-        Logger logger = LoggerFactory.getLogger( getClass() );
-        logger.info( "Setting up Elasticsearch reporter for JVM metrics" );
-        try (ElasticsearchReporter reporter = ElasticsearchReporter.forRegistry( metrics )
-                                                                   .hosts( config.getElkHosts().split( ";" ) )
-                                                                   .index( config.getElkIndex() )
-                                                                   .indexDateFormat( "YYYY-MM-dd" )
-                                                                   .filter( ( name, metric ) -> isJvmMetric( name ) )
-                                                                   .build())
-        {
-            reporter.start( config.getElkJVMPeriodInSeconds(), TimeUnit.SECONDS );
-        }
-    }
 
     private void initConsoleReporter( MetricRegistry metrics, ConsoleConfig config )
     {
