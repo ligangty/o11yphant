@@ -173,12 +173,6 @@
                 <version>${metricsVersion}</version>
             </dependency>
             <dependency>
-                <groupId>org.elasticsearch</groupId>
-                <artifactId>metrics-elasticsearch-reporter</artifactId>
-                <version>${elasticsearchVersion}</version>
-            </dependency>
-
-            <dependency>
                 <groupId>io.undertow</groupId>
                 <artifactId>undertow-servlet</artifactId>
                 <version>${undertowVersion}</version>
