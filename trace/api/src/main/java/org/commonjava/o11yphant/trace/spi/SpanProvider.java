@@ -15,17 +15,16 @@
  */
 package org.commonjava.o11yphant.trace.spi;
 
-import org.commonjava.o11yphant.trace.spi.adapter.SpanContext;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
-import org.commonjava.o11yphant.trace.spi.adapter.TracerType;
+import org.commonjava.o11yphant.trace.spi.adapter.SpanContext;
 
 import java.util.Optional;
 
-public interface SpanProvider<T extends TracerType>
+public interface SpanProvider
 {
-    SpanAdapter startServiceRootSpan( String spanName, Optional<SpanContext<T>> parentContext );
+    SpanAdapter startServiceRootSpan( String spanName, Optional<SpanContext> parentContext );
 
-    SpanAdapter startChildSpan( String spanName, Optional<SpanContext<T>> parentContext );
+    SpanAdapter startChildSpan( String spanName, Optional<SpanContext> parentContext );
 
     SpanAdapter startClientSpan( String spanName );
 }

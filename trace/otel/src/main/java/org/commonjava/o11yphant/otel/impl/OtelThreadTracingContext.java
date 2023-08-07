@@ -20,14 +20,13 @@ import io.opentelemetry.context.ContextStorage;
 import io.opentelemetry.context.ContextStorageProvider;
 import io.opentelemetry.context.Scope;
 import org.commonjava.cdi.util.weft.ThreadContext;
-import org.commonjava.o11yphant.otel.impl.adapter.OtelType;
 import org.commonjava.o11yphant.trace.thread.ThreadTracingContext;
 
 import javax.annotation.Nonnull;
 import java.util.Properties;
 
 public class OtelThreadTracingContext
-        implements ThreadTracingContext<OtelType>, ContextStorageProvider, ContextStorage
+        implements ThreadTracingContext, ContextStorageProvider, ContextStorage
 {
     private static final String OTEL_ATTACHED = "opentelemetry-attached-context";
 

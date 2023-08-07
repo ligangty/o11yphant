@@ -21,7 +21,6 @@ import io.opentelemetry.context.Scope;
 import io.opentelemetry.context.propagation.TextMapGetter;
 import org.commonjava.o11yphant.otel.impl.adapter.OtelSpan;
 import org.commonjava.o11yphant.otel.impl.adapter.OtelSpanContext;
-import org.commonjava.o11yphant.otel.impl.adapter.OtelType;
 import org.commonjava.o11yphant.trace.spi.ContextPropagator;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanContext;
@@ -34,7 +33,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 public class OtelContextPropagator
-        implements ContextPropagator<OtelType>
+        implements ContextPropagator
 {
 
     private final OpenTelemetry otel;
@@ -61,7 +60,7 @@ public class OtelContextPropagator
     };
 
     @Override
-    public Optional<SpanContext<OtelType>> extractContext( Supplier<Map<String, String>> headerSupplier )
+    public Optional<SpanContext> extractContext( Supplier<Map<String, String>> headerSupplier )
     {
         Context extracted = otel.getPropagators()
                                 .getTextMapPropagator()
@@ -86,7 +85,7 @@ public class OtelContextPropagator
     }
 
     @Override
-    public Optional<SpanContext<OtelType>> extractContext( ThreadedTraceContext threadedContext )
+    public Optional<SpanContext> extractContext( ThreadedTraceContext threadedContext )
     {
         return Optional.of( new OtelSpanContext( Context.current() ) );
     }

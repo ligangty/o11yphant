@@ -15,10 +15,8 @@
  */
 package org.commonjava.o11yphant.trace.thread;
 
-import org.commonjava.o11yphant.trace.spi.adapter.TracerType;
-
 @SuppressWarnings( "unused" )
-public interface ThreadTracingContext<T extends TracerType>
+public interface ThreadTracingContext
 {
     void reinitThreadSpans();
 
