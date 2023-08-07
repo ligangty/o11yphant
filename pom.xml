@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.commonjava</groupId>
         <artifactId>commonjava</artifactId>
-        <version>17</version>
+        <version>18</version>
     </parent>
 
     <groupId>org.commonjava.util</groupId>
@@ -48,13 +48,12 @@
     <properties>
         <projectOwner>Red Hat, Inc.</projectOwner>
         <projectEmail>nos-devel@redhat.com</projectEmail>
-        <javaVersion>1.8</javaVersion>
+        <javaVersion>11</javaVersion>
         <test-forkCount>1</test-forkCount>
         <metricsVersion>4.2.15</metricsVersion>
         <otelVersion>1.19.0</otelVersion>
         <prometheusVersion>0.16.0</prometheusVersion>
         <httpTestserverVersion>1.4</httpTestserverVersion>
-        <elasticsearchVersion>2.2.0</elasticsearchVersion>
         <logbackVersion>1.2.9</logbackVersion>
         <undertowVersion>2.2.19.Final</undertowVersion>
         <weftVersion>1.20</weftVersion>
@@ -63,6 +62,7 @@
         <httpclientVersion>4.5.9</httpclientVersion>
         <jhttpcVersion>1.12</jhttpcVersion>
         <!--<honeycombVersion>1.7.1</honeycombVersion>-->
+        <!--elasticsearchVersion>2.2.0</elasticsearchVersion-->
     </properties>
 
     <dependencyManagement>
