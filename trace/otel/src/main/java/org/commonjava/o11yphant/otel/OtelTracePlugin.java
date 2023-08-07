@@ -35,7 +35,6 @@ import io.opentelemetry.sdk.trace.export.SpanExporter;
 import org.commonjava.o11yphant.otel.impl.OtelContextPropagator;
 import org.commonjava.o11yphant.otel.impl.OtelSpanProvider;
 import org.commonjava.o11yphant.otel.impl.OtelThreadTracingContext;
-import org.commonjava.o11yphant.otel.impl.adapter.OtelType;
 import org.commonjava.o11yphant.trace.TracerConfiguration;
 import org.commonjava.o11yphant.trace.spi.ContextPropagator;
 import org.commonjava.o11yphant.trace.spi.O11yphantTracePlugin;
@@ -49,7 +48,7 @@ import java.util.List;
 import java.util.Map;
 
 public class OtelTracePlugin
-        implements O11yphantTracePlugin<OtelType>
+        implements O11yphantTracePlugin
 {
     private OtelThreadTracingContext threadTracingContext;
 
@@ -130,19 +129,19 @@ public class OtelTracePlugin
     }
 
     @Override
-    public SpanProvider<OtelType> getSpanProvider()
+    public SpanProvider getSpanProvider()
     {
         return spanProvider;
     }
 
     @Override
-    public ContextPropagator<OtelType> getContextPropagator()
+    public ContextPropagator getContextPropagator()
     {
         return contextPropagator;
     }
 
     @Override
-    public ThreadTracingContext<OtelType> getThreadTracingContext()
+    public ThreadTracingContext getThreadTracingContext()
     {
         return threadTracingContext;
     }

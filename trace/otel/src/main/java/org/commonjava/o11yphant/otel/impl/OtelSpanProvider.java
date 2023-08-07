@@ -23,14 +23,13 @@ import io.opentelemetry.context.Context;
 import io.opentelemetry.context.Scope;
 import org.commonjava.o11yphant.otel.impl.adapter.OtelSpan;
 import org.commonjava.o11yphant.otel.impl.adapter.OtelSpanContext;
-import org.commonjava.o11yphant.otel.impl.adapter.OtelType;
 import org.commonjava.o11yphant.trace.spi.SpanProvider;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanContext;
 
 import java.util.Optional;
 
-public class OtelSpanProvider implements SpanProvider<OtelType>
+public class OtelSpanProvider implements SpanProvider
 {
 
     private final Tracer tracer;
@@ -42,7 +41,7 @@ public class OtelSpanProvider implements SpanProvider<OtelType>
     }
 
     @Override
-    public SpanAdapter startServiceRootSpan( String spanName, Optional<SpanContext<OtelType>> parentContext )
+    public SpanAdapter startServiceRootSpan( String spanName, Optional<SpanContext> parentContext )
     {
         SpanBuilder spanBuilder = tracer.spanBuilder( spanName );
         if ( parentContext.isPresent() )
@@ -64,7 +63,7 @@ public class OtelSpanProvider implements SpanProvider<OtelType>
     }
 
     @Override
-    public SpanAdapter startChildSpan( String spanName, Optional<SpanContext<OtelType>> parentContext )
+    public SpanAdapter startChildSpan( String spanName, Optional<SpanContext> parentContext )
     {
         SpanBuilder spanBuilder = tracer.spanBuilder( spanName );
         boolean isRoot = true;

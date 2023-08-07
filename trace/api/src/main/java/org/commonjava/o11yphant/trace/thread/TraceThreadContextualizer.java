@@ -20,13 +20,12 @@ import org.commonjava.cdi.util.weft.ThreadContextualizer;
 import org.commonjava.o11yphant.trace.TraceManager;
 import org.commonjava.o11yphant.trace.TracerConfiguration;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
-import org.commonjava.o11yphant.trace.spi.adapter.TracerType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
-public class TraceThreadContextualizer<T extends TracerType>
+public class TraceThreadContextualizer
                 implements ThreadContextualizer
 {
     private static final String THREAD_NAME = "thread.name";
@@ -39,14 +38,14 @@ public class TraceThreadContextualizer<T extends TracerType>
 
     private static final ThreadLocal<ThreadedTraceContext> TRACE_CONTEXT = new ThreadLocal<>();
 
-    private final TraceManager<T> traceManager;
+    private final TraceManager traceManager;
 
     private final TracerConfiguration configuration;
 
-    private final ThreadTracingContext<T> tracingContext;
+    private final ThreadTracingContext tracingContext;
 
-    public TraceThreadContextualizer( TracerConfiguration configuration, TraceManager<T> traceManager,
-                                      ThreadTracingContext<T> tracingContext )
+    public TraceThreadContextualizer( TracerConfiguration configuration, TraceManager traceManager,
+                                      ThreadTracingContext tracingContext )
     {
         this.traceManager = traceManager;
         this.configuration = configuration;

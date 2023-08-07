@@ -15,14 +15,13 @@
  */
 package org.commonjava.o11yphant.trace.spi;
 
-import org.commonjava.o11yphant.trace.spi.adapter.TracerType;
 import org.commonjava.o11yphant.trace.thread.ThreadTracingContext;
 
-public interface O11yphantTracePlugin<T extends TracerType>
+public interface O11yphantTracePlugin
 {
-    SpanProvider<T> getSpanProvider();
+    SpanProvider getSpanProvider();
 
-    ContextPropagator<T> getContextPropagator();
+    ContextPropagator getContextPropagator();
 
-    ThreadTracingContext<T> getThreadTracingContext();
+    ThreadTracingContext getThreadTracingContext();
 }

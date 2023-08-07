@@ -25,7 +25,6 @@ import org.commonjava.o11yphant.trace.spi.O11yphantTracePlugin;
 import org.commonjava.o11yphant.trace.spi.SpanProvider;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanContext;
-import org.commonjava.o11yphant.trace.spi.adapter.TracerType;
 import org.commonjava.o11yphant.trace.thread.ThreadedTraceContext;
 import org.commonjava.o11yphant.trace.thread.TraceThreadContextualizer;
 import org.slf4j.Logger;
@@ -38,18 +37,21 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
-import static org.commonjava.o11yphant.metrics.MetricsConstants.*;
+import static org.commonjava.o11yphant.metrics.MetricsConstants.AVERAGE_TIME_MS;
+import static org.commonjava.o11yphant.metrics.MetricsConstants.CUMULATIVE_COUNT;
+import static org.commonjava.o11yphant.metrics.MetricsConstants.CUMULATIVE_TIMINGS;
+import static org.commonjava.o11yphant.metrics.MetricsConstants.MAX_TIME_MS;
 import static org.commonjava.o11yphant.metrics.util.NameUtils.name;
 
-public final class TraceManager<T extends TracerType>
+public final class TraceManager
 {
     private static final ThreadLocal<Queue<SpanAdapter>> ACTIVE_SPAN = new ThreadLocal<>();
 
     //    private static final String ACTIVE_SPAN_KEY = "active-trace-span";
 
-    private final SpanProvider<T> spanProvider;
+    private final SpanProvider spanProvider;
 
-    private final ContextPropagator<T> contextPropagator;
+    private final ContextPropagator contextPropagator;
 
     private final SpanFieldsDecorator spanFieldsDecorator;
 
@@ -57,14 +59,13 @@ public final class TraceManager<T extends TracerType>
 
     private final Logger logger = LoggerFactory.getLogger( getClass().getName() );
 
-    private final TraceThreadContextualizer<T> traceThreadContextualizer;
+    private final TraceThreadContextualizer traceThreadContextualizer;
 
-    public TraceManager( O11yphantTracePlugin<T> tracePlugin, SpanFieldsDecorator spanFieldsDecorator,
+    public TraceManager( O11yphantTracePlugin tracePlugin, SpanFieldsDecorator spanFieldsDecorator,
                          TracerConfiguration config )
     {
         this.spanProvider = tracePlugin.getSpanProvider();
         this.contextPropagator = tracePlugin.getContextPropagator();
-        //noinspection unchecked,rawtypes
         this.traceThreadContextualizer =
                 new TraceThreadContextualizer( config, this, tracePlugin.getThreadTracingContext() );
 
@@ -106,7 +107,7 @@ public final class TraceManager<T extends TracerType>
             return Optional.empty();
         }
 
-        Optional<SpanContext<T>> parentContext = contextPropagator.extractContext( threadedContext );
+        Optional<SpanContext> parentContext = contextPropagator.extractContext( threadedContext );
 
         SpanAdapter span = spanProvider.startServiceRootSpan( spanName, parentContext );
         if ( span != null )
@@ -141,7 +142,7 @@ public final class TraceManager<T extends TracerType>
             return Optional.empty();
         }
 
-        Optional<SpanContext<T>> parentContext = contextPropagator.extractContext( mapSupplier );
+        Optional<SpanContext> parentContext = contextPropagator.extractContext( mapSupplier );
         SpanAdapter span = spanProvider.startServiceRootSpan( spanName, parentContext );
         if ( span != null )
         {
@@ -162,7 +163,7 @@ public final class TraceManager<T extends TracerType>
     }
 
     // FIXME: Is this parentContext parameter really necessary? Are we leaking state outside the trace manager with this?
-    public Optional<SpanAdapter> startChildSpan( final String spanName, Optional<SpanContext<T>> parentContext )
+    public Optional<SpanAdapter> startChildSpan( final String spanName, Optional<SpanContext> parentContext )
     {
         if ( !config.isEnabled() )
         {
@@ -307,7 +308,7 @@ public final class TraceManager<T extends TracerType>
     }
 
     @SuppressWarnings( "unused" )
-    public TraceThreadContextualizer<T> getTraceThreadContextualizer()
+    public TraceThreadContextualizer getTraceThreadContextualizer()
     {
         return traceThreadContextualizer;
     }
