@@ -63,11 +63,12 @@ public class OtelTracePlugin
         {
             final Logger logger = LoggerFactory.getLogger( this.getClass() );
             logger.debug( "Trace enabled with Otel trace plugin." );
-            logger.debug( "Trace grpc endpoint is: {}", otelConfig.getGrpcEndpointUri() );
-
+            SpanExporter[] spanExporters = exporters;
             //FIXME: This needs to be more exposed to configuration options, especially for endpoint and exporter formats.
             if ( exporters == null || exporters.length < 1 )
             {
+                final String grpcEndpoint = otelConfig.getGrpcEndpointUri();
+                logger.info( "Trace grpc endpoint is configured as: {}", grpcEndpoint );
                 List<SpanExporter> exp = new ArrayList<>();
                 if ( traceConfiguration.isConsoleTransport() )
                 {
@@ -75,7 +76,7 @@ public class OtelTracePlugin
                 }
 
                 OtlpGrpcSpanExporterBuilder grpcExporterBuilder = OtlpGrpcSpanExporter.builder();
-                grpcExporterBuilder.setEndpoint( otelConfig.getGrpcEndpointUri() );
+                grpcExporterBuilder.setEndpoint( grpcEndpoint );
                 Map<String, String> exporterHeaders = otelConfig.getGrpcHeaders();
                 if ( exporterHeaders != null )
                 {
@@ -85,20 +86,21 @@ public class OtelTracePlugin
                 grpcExporterBuilder.build();
                 exp.add( grpcExporterBuilder.build() );
 
-                exporters = exp.toArray( new SpanExporter[] {} );
+                spanExporters = exp.toArray( new SpanExporter[] {} );
             }
 
-            SpanProcessor processor = BatchSpanProcessor.builder( SpanExporter.composite( exporters ) ).build();
+            SpanProcessor processor = BatchSpanProcessor.builder( SpanExporter.composite( spanExporters ) ).build();
 
             SdkTracerProviderBuilder tracerProviderBuilder = SdkTracerProvider.builder().addSpanProcessor( processor );
 
             Map<String, String> otelResources = otelConfig.getResources();
             if ( otelResources != null && !otelResources.isEmpty() )
             {
-                Attributes attrs = Resource.getDefault().getAttributes();
-                AttributesBuilder builder = Attributes.builder().putAll( attrs );
+                logger.debug( "Additional Trace Attributes for OTEL: {}", otelResources );
+                AttributesBuilder builder = Attributes.builder();
                 otelResources.forEach( builder::put );
-                tracerProviderBuilder.setResource( Resource.create( builder.build() ) );
+                Resource resource = Resource.getDefault().merge( Resource.create( builder.build() ) );
+                tracerProviderBuilder.setResource( resource );
             }
 
             SdkTracerProvider tracerProvider = tracerProviderBuilder.build();
