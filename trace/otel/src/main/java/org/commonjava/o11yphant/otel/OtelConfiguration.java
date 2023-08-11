@@ -24,7 +24,8 @@ public interface OtelConfiguration
 
     default String getInstrumentationName()
     {
-        return "O11yphant";
+        // This library name follows the guide of https://opentelemetry.io/docs/specs/otel/overview/#instrumentation-libraries
+        return "opentelemetry-instrumentation-commonjava-o11yphant ";
     }
 
     default String getInstrumentationVersion()
