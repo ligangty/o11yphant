@@ -34,7 +34,6 @@ import java.util.Optional;
 import static org.commonjava.o11yphant.trace.TraceManager.addFieldToActiveSpan;
 import static org.commonjava.o11yphant.trace.httpclient.HttpClientTools.contextInjector;
 
-@SuppressWarnings( "rawtypes" )
 public class TracerHttpClient
                 extends CloseableHttpClient
 {

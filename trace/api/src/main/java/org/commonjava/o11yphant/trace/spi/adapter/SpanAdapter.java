@@ -18,7 +18,7 @@ package org.commonjava.o11yphant.trace.spi.adapter;
 import java.io.Closeable;
 import java.util.Map;
 
-public interface SpanAdapter extends Closeable
+public interface SpanAdapter
 {
     default boolean isWrapper()
     {

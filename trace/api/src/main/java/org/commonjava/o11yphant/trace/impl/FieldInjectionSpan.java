@@ -68,7 +68,7 @@ public class FieldInjectionSpan
         looseInjectors.add( 0, injector );
     }
 
-    @java.lang.Override
+    @Override
     public void close()
     {
         if ( logger.isTraceEnabled() )

@@ -17,6 +17,10 @@ package org.commonjava.o11yphant.trace.impl;
 
 import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
 
+/**
+ * @deprecated Seems this ThreadedSpan does not do any useful operations.
+ */
+@Deprecated
 public class ThreadedSpan
     extends SpanWrapper
 {

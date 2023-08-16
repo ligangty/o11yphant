@@ -43,7 +43,7 @@ public class OtelContextPropagator
         this.otel = otel;
     }
 
-    private final TextMapGetter<Map<String, String>> mapGetter = new TextMapGetter<Map<String, String>>()
+    private final TextMapGetter<Map<String, String>> mapGetter = new TextMapGetter<>()
     {
         @Override
         public Iterable<String> keys( Map<String, String> carrier )

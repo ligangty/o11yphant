@@ -18,7 +18,6 @@ package org.commonjava.o11yphant.trace;
 import org.commonjava.o11yphant.metrics.api.Metric;
 import org.commonjava.o11yphant.trace.impl.FieldInjectionSpan;
 import org.commonjava.o11yphant.trace.impl.SpanWrapper;
-import org.commonjava.o11yphant.trace.impl.ThreadedSpan;
 import org.commonjava.o11yphant.trace.spi.CloseBlockingDecorator;
 import org.commonjava.o11yphant.trace.spi.ContextPropagator;
 import org.commonjava.o11yphant.trace.spi.O11yphantTracePlugin;
@@ -127,7 +126,6 @@ public final class TraceManager
                 span = new FieldInjectionSpan( span, spanFieldsDecorator );
             }
 
-            span = new ThreadedSpan( span );
             setActiveSpan( span );
             logger.trace( "Started span: {}", span.getSpanId() );
         }
@@ -300,7 +298,7 @@ public final class TraceManager
             span.addField( name, value );
         } );
 
-        if ( !s.isPresent() && logger.isTraceEnabled() )
+        if ( s.isEmpty() && logger.isTraceEnabled() )
         {
             StackTraceElement[] st = Thread.currentThread().getStackTrace();
             logger.info( "NO ACTIVE SPAN for: {} from:\n  {}\n  {}", name, st[2], st[3] );
