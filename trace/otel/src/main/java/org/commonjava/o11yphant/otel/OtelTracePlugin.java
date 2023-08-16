@@ -113,11 +113,14 @@ public class OtelTracePlugin
                                        .setTracerProvider( tracerProvider )
                                        .setPropagators(
                                                ContextPropagators.create( W3CTraceContextPropagator.getInstance() ) )
-                                       .buildAndRegisterGlobal();
+                                       .build();
+                logger.debug("The OpenTelemetry instance has not been setup successfully");
             }
             catch ( IllegalStateException e )
             {
-                logger.warn( "The OpenTelemetry instance has been setup. Will use global one." );
+                logger.warn(
+                        "The OpenTelemetry instance has not been setup successfully, will use a global one. Error: {}",
+                        e.getMessage() );
                 otel = GlobalOpenTelemetry.get();
             }
 
