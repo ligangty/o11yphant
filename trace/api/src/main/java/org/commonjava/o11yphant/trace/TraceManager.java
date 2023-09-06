@@ -368,4 +368,9 @@ public final class TraceManager
             }
         }
     }
+
+    public TracerConfiguration getConfig()
+    {
+        return this.config;
+    }
 }
