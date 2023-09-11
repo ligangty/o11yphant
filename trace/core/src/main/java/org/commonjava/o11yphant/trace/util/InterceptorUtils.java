@@ -66,7 +66,7 @@ public class InterceptorUtils
                 break;
             }
         }
-        logger.debug( "Found metric name: {}, annotation: {}", name, annotationClass.getSimpleName() );
+        logger.trace( "Found metric name: {}, annotation: {}", name, annotationClass.getSimpleName() );
         return name;
     }
 
