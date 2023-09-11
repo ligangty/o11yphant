@@ -17,15 +17,21 @@ package org.commonjava.o11yphant.otel.impl.adapter;
 
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanContext;
+import io.opentelemetry.context.Context;
 import io.opentelemetry.context.Scope;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class OtelSpan
-                implements SpanAdapter
+        implements SpanAdapter
 {
+    private final Logger logger = LoggerFactory.getLogger( this.getClass() );
+
     private final Span span;
 
     private final boolean localRoot;
@@ -76,6 +82,11 @@ public class OtelSpan
         attributes.forEach( ( k, v ) -> span.setAttribute( k, (String) v ) );
         inProgress.forEach( span::setAttribute );
 
+        SpanContext context = span.getSpanContext();
+        logger.trace( "Closing span {} in trace {}", getSpanId(), getTraceId() );
+        logger.trace( "Span in progress attributes {}", inProgress );
+        logger.trace( "Span attributes {}", attributes );
+        logger.trace( "==============================" );
         span.end();
     }
 
@@ -112,13 +123,20 @@ public class OtelSpan
         return inProgress;
     }
 
-    public SpanContext getSpanContext()
+    @Override
+    public Optional<org.commonjava.o11yphant.trace.spi.adapter.SpanContext> getSpanContext()
     {
-        return span.getSpanContext();
+        return Optional.of( new OtelSpanContext( Context.current().with( span ) ) );
     }
 
     public Scope makeCurrent()
     {
         return span.makeCurrent();
+    }
+
+    @Override
+    public String toString()
+    {
+        return span.toString();
     }
 }

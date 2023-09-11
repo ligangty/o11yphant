@@ -16,8 +16,10 @@
 package org.commonjava.o11yphant.trace.impl;
 
 import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
+import org.commonjava.o11yphant.trace.spi.adapter.SpanContext;
 
 import java.util.Map;
+import java.util.Optional;
 
 public abstract class SpanWrapper
                 implements SpanAdapter
@@ -108,5 +110,9 @@ public abstract class SpanWrapper
     public String toString()
     {
         return getClass().getSimpleName() + "(" + getDelegate().toString() + ")";
+    }
+
+    public Optional<SpanContext> getSpanContext(){
+        return delegate.getSpanContext();
     }
 }

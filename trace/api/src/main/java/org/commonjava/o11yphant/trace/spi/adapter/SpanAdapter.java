@@ -16,6 +16,7 @@
 package org.commonjava.o11yphant.trace.spi.adapter;
 
 import java.util.Map;
+import java.util.Optional;
 
 public interface SpanAdapter
 {
@@ -50,5 +51,7 @@ public interface SpanAdapter
     void clearInProgressField( String key );
 
     Map<String, Double> getInProgressFields();
+
+    Optional<SpanContext> getSpanContext();
 
 }

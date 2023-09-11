@@ -79,8 +79,26 @@ public final class TraceManager
             return Optional.empty();
         }
 
-        logger.trace( "Setting up client span: {}, ACTIVE_SPAN is: {}", spanName, ACTIVE_SPAN.get() );
-        SpanAdapter span = spanProvider.startClientSpan( spanName );
+        Optional<SpanAdapter> currentActiveSpan = Optional.empty();
+        if ( this.traceThreadContextualizer.extractCurrentContext() != null )
+        {
+            ThreadedTraceContext ctx = (ThreadedTraceContext) this.traceThreadContextualizer.extractCurrentContext();
+            currentActiveSpan = ctx.getActiveSpan();
+        }
+        SpanAdapter span = null;
+        if ( currentActiveSpan.isPresent() )
+        {
+            logger.debug( "Setting up client span: {}, ACTIVE_SPAN is: {}", spanName, currentActiveSpan );
+            SpanAdapter currentSpan = currentActiveSpan.get();
+            logger.debug( "Current Active Span is {}", currentSpan.getSpanId() );
+            // Will use current active span as parent span
+            span = spanProvider.startClientSpan( spanName, currentSpan.getSpanContext() );
+        }
+        if ( span == null )
+        {
+            logger.debug( "No current active span for client span" );
+            span = spanProvider.startClientSpan( spanName );
+        }
         if ( span != null )
         {
             contextPropagator.injectContext( spanInjector, span );
