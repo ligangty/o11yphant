@@ -50,7 +50,7 @@ public class FlatTraceWrapperInterceptor
     public Object operation( InvocationContext context ) throws Exception
     {
         String name = InterceptorUtils.getMetricNameFromContext( context );
-        logger.debug( "START: trace lambda wrapper: {}", name );
+        logger.trace( "START: trace lambda wrapper: {}", name );
         if ( !config.isEnabled() )
         {
             logger.debug( "SKIP trace lambda wrapper: {}", name );
@@ -77,7 +77,7 @@ public class FlatTraceWrapperInterceptor
                 long elapse = currentTimeMillis() - begin;
                 traceManager.addCumulativeField( s, nom, elapse );
             } );
-            logger.debug( "END: trace lambda wrapper: {}", name );
+            logger.trace( "END: trace lambda wrapper: {}", name );
         }
     }
 
