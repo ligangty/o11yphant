@@ -32,6 +32,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.Optional;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -39,7 +41,7 @@ import static org.commonjava.o11yphant.trace.servlet.ServletContextTools.context
 
 @ApplicationScoped
 public class TraceFilter
-                implements Filter
+        implements Filter
 {
     @SuppressWarnings( "rawtypes" )
     @Inject
@@ -54,7 +56,7 @@ public class TraceFilter
 
     @Override
     public void doFilter( final ServletRequest request, final ServletResponse response, final FilterChain chain )
-                    throws IOException, ServletException
+            throws IOException, ServletException
     {
         logger.trace( "START: {}", getClass().getSimpleName() );
 
@@ -63,16 +65,18 @@ public class TraceFilter
 
         Optional<SpanAdapter> rootSpan = Optional.empty();
         TraceFilterFieldInjector injector = new TraceFilterFieldInjector( (HttpServletResponse) response );
+        printHttpRequestHeaders( hsr );
         try
         {
             rootSpan = traceManager.startServiceRootSpan( getEndpointName( hsr.getMethod(), hsr.getPathInfo() ),
                                                           contextExtractor( hsr ) );
 
-            if ( rootSpan.isPresent() ){
+            if ( rootSpan.isPresent() )
+            {
                 rootSpan.get().addField( "path_info", hsr.getPathInfo() );
                 TraceManager.addCloseBlockingDecorator( rootSpan, injector );
             }
-
+            printHttpRequestHeaders( hsr );
             chain.doFilter( request, response );
         }
         finally
@@ -81,6 +85,23 @@ public class TraceFilter
             rootSpan.ifPresent( SpanAdapter::close );
             logger.debug( "END: {}", hsr.getPathInfo() );
             logger.trace( "END: {}", getClass().getSimpleName() );
+        }
+    }
+
+    private void printHttpRequestHeaders( HttpServletRequest request )
+    {
+        if ( logger.isTraceEnabled() )
+        {
+            Enumeration<String> r = request.getHeaderNames();
+            logger.trace( "========= Start print request headers for request {}: ====================",
+                          request.getRequestURL() );
+            while ( r.hasMoreElements() )
+            {
+                String headerName = r.nextElement();
+                logger.trace( "{} -> {}", headerName, Collections.list( request.getHeaders( headerName ) ) );
+            }
+            logger.trace( "========= Stop print request headers for request {}: ====================",
+                          request.getRequestURL() );
         }
     }
 
@@ -112,9 +133,10 @@ public class TraceFilter
     {
     }
 
-    public static final class TraceFilterFieldInjector implements CloseBlockingDecorator
+    public static final class TraceFilterFieldInjector
+            implements CloseBlockingDecorator
     {
-        private final Logger logger = LoggerFactory.getLogger(getClass().getName());
+        private final Logger logger = LoggerFactory.getLogger( getClass().getName() );
 
         private final HttpServletResponse response;
 

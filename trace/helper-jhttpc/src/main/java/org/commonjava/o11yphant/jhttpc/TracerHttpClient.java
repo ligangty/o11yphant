@@ -15,8 +15,10 @@
  */
 package org.commonjava.o11yphant.jhttpc;
 
+import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -35,7 +37,7 @@ import static org.commonjava.o11yphant.trace.TraceManager.addFieldToActiveSpan;
 import static org.commonjava.o11yphant.trace.httpclient.HttpClientTools.contextInjector;
 
 public class TracerHttpClient
-                extends CloseableHttpClient
+        extends CloseableHttpClient
 {
     private final CloseableHttpClient delegate;
 
@@ -51,7 +53,7 @@ public class TracerHttpClient
 
     @Override
     protected CloseableHttpResponse doExecute( HttpHost target, HttpRequest request, HttpContext context )
-                    throws IOException
+            throws IOException
     {
         try
         {
@@ -61,8 +63,8 @@ public class TracerHttpClient
             {
                 span = traceManager.get()
                                    .startClientRequestSpan(
-                                                   request.getRequestLine().getMethod() + "_" + url.getHost() + "_"
-                                                                   + url.getPort(), contextInjector( request ) );
+                                           request.getRequestLine().getMethod() + "_" + url.getHost() + "_"
+                                                   + url.getPort(), contextInjector( request ) );
             }
             else
             {
@@ -70,7 +72,9 @@ public class TracerHttpClient
             }
 
             addFieldToActiveSpan( "target-http-url", request.getRequestLine().getUri() );
+            printHttpRequestHeaders( request );
             CloseableHttpResponse response = delegate.execute( target, request, context );
+            printHttpResponseHeaders( response );
             if ( response != null )
             {
                 addFieldToActiveSpan( "target-http-status", response.getStatusLine().getStatusCode() );
@@ -93,8 +97,41 @@ public class TracerHttpClient
         }
     }
 
+    private void printHttpRequestHeaders( HttpRequest request )
+    {
+        if ( logger.isTraceEnabled() )
+        {
+            Header[] headers = request.getAllHeaders();
+            logger.trace( "========= Start print request headers for request {}: ====================",
+                          request.getRequestLine() );
+            for ( Header header : headers )
+            {
+                logger.trace( "{} -> {}", header.getName(), header.getValue() );
+            }
+            logger.trace( "========= Stop print request headers for request {}: ====================",
+                          request.getRequestLine() );
+        }
+    }
+
+    private void printHttpResponseHeaders( HttpResponse response )
+    {
+        if ( logger.isTraceEnabled() )
+        {
+            Header[] headers = response.getAllHeaders();
+            logger.trace( "========= Start print response headers for response {}: ====================",
+                          response.getStatusLine() );
+            for ( Header header : headers )
+            {
+                logger.trace( "{} -> {}", header.getName(), header.getValue() );
+            }
+            logger.trace( "========= Stop print response headers for response {}: ====================",
+                          response.getStatusLine() );
+        }
+    }
+
     @Override
-    public void close() throws IOException
+    public void close()
+            throws IOException
     {
         delegate.close();
     }

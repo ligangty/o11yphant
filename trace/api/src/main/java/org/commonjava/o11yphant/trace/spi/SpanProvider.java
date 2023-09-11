@@ -27,4 +27,6 @@ public interface SpanProvider
     SpanAdapter startChildSpan( String spanName, Optional<SpanContext> parentContext );
 
     SpanAdapter startClientSpan( String spanName );
+
+    SpanAdapter startClientSpan( String spanName, Optional<SpanContext> parentContext);
 }

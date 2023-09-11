@@ -16,12 +16,14 @@
 package org.commonjava.o11yphant.trace.impl;
 
 import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
+import org.commonjava.o11yphant.trace.spi.adapter.SpanContext;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class MockSpan
-    implements SpanAdapter
+        implements SpanAdapter
 {
     private boolean isLocalRoot;
 
@@ -102,7 +104,7 @@ public class MockSpan
     @Override
     public Double getInProgressField( String key, Double defValue )
     {
-        return inProgress.getOrDefault( key, defValue);
+        return inProgress.getOrDefault( key, defValue );
     }
 
     @Override
@@ -124,5 +126,11 @@ public class MockSpan
     public Map<String, Double> getInProgressFields()
     {
         return inProgress;
+    }
+
+    @Override
+    public Optional<SpanContext> getSpanContext()
+    {
+        return Optional.empty();
     }
 }
