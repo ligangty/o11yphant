@@ -84,9 +84,6 @@ public class OtelSpan
 
         SpanContext context = span.getSpanContext();
         logger.trace( "Closing span {} in trace {}", getSpanId(), getTraceId() );
-        logger.trace( "Span in progress attributes {}", inProgress );
-        logger.trace( "Span attributes {}", attributes );
-        logger.trace( "==============================" );
         span.end();
     }
 
