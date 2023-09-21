@@ -24,13 +24,12 @@ public interface OtelConfiguration
 
     default String getInstrumentationName()
     {
-        // This library name follows the guide of https://opentelemetry.io/docs/specs/otel/overview/#instrumentation-libraries
-        return "opentelemetry-instrumentation-commonjava-o11yphant ";
+        return "org.commonjava.o11yphant";
     }
 
     default String getInstrumentationVersion()
     {
-        return "1.0";
+        return "1.9";
     }
 
     default Map<String, String> getGrpcHeaders()
