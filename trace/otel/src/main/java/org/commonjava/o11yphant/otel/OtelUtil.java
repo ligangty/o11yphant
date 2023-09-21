@@ -21,6 +21,7 @@ import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.common.AttributesBuilder;
 import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
 import io.opentelemetry.context.propagation.ContextPropagators;
+import io.opentelemetry.context.propagation.TextMapPropagator;
 import io.opentelemetry.exporter.logging.LoggingSpanExporter;
 import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporter;
 import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporterBuilder;
@@ -42,6 +43,22 @@ import java.util.Map;
 public class OtelUtil
 {
     private final static Logger logger = LoggerFactory.getLogger( OtelUtil.class );
+
+    private static volatile OpenTelemetry defaultOtel;
+
+    private static final Object mutex = new Object();
+
+    private static void set( OpenTelemetry openTelemetry )
+    {
+        synchronized ( mutex )
+        {
+            if ( defaultOtel != null )
+            {
+                logger.warn( "Note: Otel has been set up! Please check somewhere else if you have set it!" );
+            }
+            defaultOtel = openTelemetry;
+        }
+    }
 
     public static OpenTelemetry getOpenTelemetry( TracerConfiguration traceConfiguration, OtelConfiguration otelConfig,
                                                   SpanExporter... exporters )
@@ -97,15 +114,33 @@ public class OtelUtil
                                    .setPropagators(
                                            ContextPropagators.create( W3CTraceContextPropagator.getInstance() ) )
                                    .build();
+            if ( getDefaultOpenTelemetry() == null )
+            {
+                set( otel );
+            }
+            else
+            {
+                logger.info(
+                        "A default opentelemetry has been setup. You can call getDefaultOpenTelemetry() to get it." );
+            }
             logger.debug( "The OpenTelemetry instance has been setup successfully." );
         }
         catch ( IllegalStateException e )
         {
-            logger.warn( "The OpenTelemetry instance has not been setup successfully, will use a global one. Error: {}",
-                         e.getMessage() );
+            logger.warn( "The OpenTelemetry instance has not been setup successfully. Error: {}", e.getMessage() );
+            if ( getDefaultOpenTelemetry() != null )
+            {
+                logger.warn( "Will use the default OpenTelemetry as it's setup somewhere." );
+                return getDefaultOpenTelemetry();
+            }
+            logger.warn( "Will use the global one." );
             otel = GlobalOpenTelemetry.get();
         }
         return otel;
     }
 
+    public static OpenTelemetry getDefaultOpenTelemetry()
+    {
+        return defaultOtel;
+    }
 }
