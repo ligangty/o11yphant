@@ -43,7 +43,6 @@ import static org.commonjava.o11yphant.trace.servlet.ServletContextTools.context
 public class TraceFilter
         implements Filter
 {
-    @SuppressWarnings( "rawtypes" )
     @Inject
     private TraceManager traceManager;
 
