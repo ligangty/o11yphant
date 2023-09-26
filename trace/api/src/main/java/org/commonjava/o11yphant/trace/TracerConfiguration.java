@@ -19,21 +19,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.commonjava.o11yphant.metrics.RequestContextConstants.*;
+import static org.commonjava.o11yphant.metrics.RequestContextConstants.CLIENT_ADDR;
+import static org.commonjava.o11yphant.metrics.RequestContextConstants.CONTENT_TRACKING_ID;
+import static org.commonjava.o11yphant.metrics.RequestContextConstants.HTTP_METHOD;
+import static org.commonjava.o11yphant.metrics.RequestContextConstants.HTTP_STATUS;
+import static org.commonjava.o11yphant.metrics.RequestContextConstants.PACKAGE_TYPE;
+import static org.commonjava.o11yphant.metrics.RequestContextConstants.PATH;
+import static org.commonjava.o11yphant.metrics.RequestContextConstants.REQUEST_LATENCY_MILLIS;
+import static org.commonjava.o11yphant.metrics.RequestContextConstants.REST_ENDPOINT_PATH;
 
 public interface TracerConfiguration
 {
     Integer DEFAULT_BASE_SAMPLE_RATE = 100;
 
-    Set<String> DEFAULT_FIELDS = Collections.unmodifiableSet(
-                    new HashSet<>( Arrays.asList( CONTENT_TRACKING_ID, HTTP_METHOD, HTTP_STATUS, CLIENT_ADDR,
-                                                  PATH, PACKAGE_TYPE, REST_ENDPOINT_PATH, REQUEST_LATENCY_MILLIS ) ) );
+    Set<String> DEFAULT_FIELDS =
+            Set.of( CONTENT_TRACKING_ID, HTTP_METHOD, HTTP_STATUS, CLIENT_ADDR, PATH, PACKAGE_TYPE, REST_ENDPOINT_PATH,
+                    REQUEST_LATENCY_MILLIS );
 
     boolean isEnabled();
 

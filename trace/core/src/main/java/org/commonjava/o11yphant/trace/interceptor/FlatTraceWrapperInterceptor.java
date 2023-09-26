@@ -42,7 +42,6 @@ public class FlatTraceWrapperInterceptor
     @Inject
     private TracerConfiguration config;
 
-    @SuppressWarnings( "rawtypes" )
     @Inject
     private TraceManager traceManager;
 

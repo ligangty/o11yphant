@@ -40,7 +40,6 @@ public class FlatTraceMeasureInterceptor
     @Inject
     private TracerConfiguration config;
 
-    @SuppressWarnings( "rawtypes" )
     @Inject
     private TraceManager traceManager;
 
