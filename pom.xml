@@ -55,7 +55,7 @@
         <prometheusVersion>0.16.0</prometheusVersion>
         <httpTestserverVersion>1.4</httpTestserverVersion>
         <logbackVersion>1.2.12</logbackVersion>
-        <undertowVersion>2.2.26.Final</undertowVersion>
+        <undertowVersion>2.2.27.Final</undertowVersion>
         <weftVersion>1.22</weftVersion>
         <agroalVersion>1.16</agroalVersion>
         <datastaxVersion>3.11.3</datastaxVersion>
@@ -96,13 +96,6 @@
                 <artifactId>o11yphant-trace-otel</artifactId>
                 <version>1.9.2-SNAPSHOT</version>
             </dependency>
-            <!--
-            <dependency>
-                <groupId>org.commonjava.util</groupId>
-                <artifactId>o11yphant-trace-honeycomb</artifactId>
-                <version>1.9-SNAPSHOT</version>
-            </dependency>
-            -->
             <dependency>
                 <groupId>org.commonjava.util</groupId>
                 <artifactId>o11yphant-trace-helper-servlet</artifactId>
@@ -186,13 +179,7 @@
                 <artifactId>simpleclient_dropwizard</artifactId>
                 <version>${prometheusVersion}</version>
             </dependency>
-            <!--
-            <dependency>
-                <groupId>io.honeycomb.beeline</groupId>
-                <artifactId>beeline-core</artifactId>
-                <version>${honeycombVersion}</version>
-            </dependency>
-            -->
+
             <dependency>
                 <groupId>org.commonjava.util</groupId>
                 <artifactId>http-testserver</artifactId>
@@ -241,14 +228,9 @@
             </dependency>
 
             <dependency>
-                <groupId>io.grpc</groupId>
-                <artifactId>grpc-netty</artifactId>
-                <version>1.35.0</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>23.6-jre</version>
+                <groupId>com.google.code.findbugs</groupId>
+                <artifactId>jsr305</artifactId>
+                <version>3.0.2</version>
             </dependency>
 
             <dependency>
