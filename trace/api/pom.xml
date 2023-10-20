@@ -16,30 +16,31 @@
     limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.commonjava.util</groupId>
-        <artifactId>o11yphant-trace</artifactId>
-        <version>1.9.2-SNAPSHOT</version>
-    </parent>
+  <parent>
+    <groupId>org.commonjava.util</groupId>
+    <artifactId>o11yphant-trace</artifactId>
+    <version>1.9.2-SNAPSHOT</version>
+  </parent>
 
-    <artifactId>o11yphant-trace-api</artifactId>
-    <name>o11yphant :: Tracers :: API</name>
+  <artifactId>o11yphant-trace-api</artifactId>
+  <name>o11yphant :: Tracers :: API</name>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.commonjava.util</groupId>
-            <artifactId>o11yphant-metrics-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.commonjava.cdi.util</groupId>
-            <artifactId>weft</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-        </dependency>
-    </dependencies>
+  <dependencies>
+    <dependency>
+      <groupId>org.commonjava.util</groupId>
+      <artifactId>o11yphant-metrics-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.commonjava.cdi.util</groupId>
+      <artifactId>weft</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+    </dependency>
+  </dependencies>
 </project>
