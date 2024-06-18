@@ -31,7 +31,6 @@ package org.commonjava.o11yphant.trace.thread;
  * limitations under the License.
  */
 
-import org.commonjava.cdi.util.weft.ThreadContextualizer;
 import org.commonjava.o11yphant.trace.TraceManager;
 import org.commonjava.o11yphant.trace.TracerConfiguration;
 import org.commonjava.o11yphant.trace.spi.adapter.SpanAdapter;
@@ -41,7 +40,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Optional;
 
 public class TraceThreadContextualizer
-                implements ThreadContextualizer
 {
     private static final String THREAD_NAME = "thread.name";
 
@@ -67,13 +65,11 @@ public class TraceThreadContextualizer
         this.tracingContext = tracingContext;
     }
 
-    @Override
     public String getId()
     {
         return "honeycomb.threadpool.spanner";
     }
 
-    @Override
     public Object extractCurrentContext()
     {
         if ( configuration.isEnabled() )
@@ -86,7 +82,6 @@ public class TraceThreadContextualizer
         return null;
     }
 
-    @Override
     public void setChildContext( final Object parentContext )
     {
         if ( configuration.isEnabled() )
@@ -112,7 +107,6 @@ public class TraceThreadContextualizer
         }
     }
 
-    @Override
     @SuppressWarnings( "PMD" )
     public void clearContext()
     {

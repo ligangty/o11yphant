@@ -34,10 +34,6 @@
             <artifactId>o11yphant-metrics-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.commonjava.cdi.util</groupId>
-            <artifactId>weft</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
         </dependency>
