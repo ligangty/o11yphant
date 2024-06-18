@@ -19,7 +19,7 @@ import io.opentelemetry.context.Context;
 import io.opentelemetry.context.ContextStorage;
 import io.opentelemetry.context.ContextStorageProvider;
 import io.opentelemetry.context.Scope;
-import org.commonjava.cdi.util.weft.ThreadContext;
+import org.commonjava.o11yphant.common.thread.ThreadContext;
 import org.commonjava.o11yphant.trace.thread.ThreadTracingContext;
 
 import javax.annotation.Nonnull;

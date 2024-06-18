@@ -48,6 +48,10 @@
     </dependency>
     <dependency>
       <groupId>org.commonjava.util</groupId>
+      <artifactId>o11yphant-common</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.commonjava.util</groupId>
       <artifactId>o11yphant-trace-api</artifactId>
     </dependency>
     <dependency>

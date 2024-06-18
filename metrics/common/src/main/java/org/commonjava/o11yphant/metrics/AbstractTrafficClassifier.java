@@ -15,7 +15,7 @@
  */
 package org.commonjava.o11yphant.metrics;
 
-import org.commonjava.cdi.util.weft.ThreadContext;
+import org.commonjava.o11yphant.common.thread.ThreadContext;
 
 import java.util.*;
 
