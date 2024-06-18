@@ -16,7 +16,7 @@
 package org.commonjava.o11yphant.metrics;
 
 import com.codahale.metrics.health.HealthCheckRegistry;
-import org.commonjava.cdi.util.weft.ThreadContext;
+import org.commonjava.o11yphant.common.thread.ThreadContext;
 import org.commonjava.o11yphant.metrics.annotation.MetricWrapper;
 import org.commonjava.o11yphant.metrics.annotation.MetricWrapperEnd;
 import org.commonjava.o11yphant.metrics.annotation.MetricWrapperNamed;
